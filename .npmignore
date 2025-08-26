@@ -1,0 +1,9 @@
+.*
+build
+coverage
+junit
+logs
+node_modules/
+test/*
+test-results.xml
+!test/StaticS3Loader.js
