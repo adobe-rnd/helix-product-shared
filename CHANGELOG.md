@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.0...v1.0.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* export from src ([edbd5d8](https://github.com/adobe-rnd/helix-product-shared/commit/edbd5d871cb27aa3c6c9c1caee949afda51e3468))
+
 # 1.0.0 (2025-08-26)
 
 
