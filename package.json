@@ -4,6 +4,10 @@
   "description": "Shared logic for Helix Product Bus",
   "main": "src/index.js",
   "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./types": "./src/types/index.js"
+  },
   "scripts": {
     "test": "c8 mocha",
     "lint": "eslint .",
