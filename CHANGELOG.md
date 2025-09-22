@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.2...v1.0.3) (2025-09-22)
+
+
+### Bug Fixes
+
+* separate public types ([56f1ddc](https://github.com/adobe-rnd/helix-product-shared/commit/56f1ddc477f7b2a55c89fcd6b7a01b7cff9854d5))
+
 ## [1.0.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.1...v1.0.2) (2025-09-19)
 
 
