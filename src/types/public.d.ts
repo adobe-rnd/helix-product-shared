@@ -35,6 +35,18 @@ export interface ProductBusImage {
   roles?: string[];
 }
 
+export interface ProductBusOptionValue {
+  id?: string;
+  value: string;
+}
+
+export interface ProductBusOption {
+  id?: string;
+  label: string;
+  position?: number;
+  values: ProductBusOptionValue[];
+}
+
 export interface MerchantFeedShipping {
   country: string;
   region: string;
@@ -59,6 +71,7 @@ export interface ProductBusEntry {
   metaTitle?: string; // used for title in markup meta tag
   description?: string;
   metaDescription?: string;
+  metadata?: Record<string, string>;
   url?: string;
   brand?: string;
   itemCondition?: SchemaOrgItemCondition;
@@ -68,6 +81,9 @@ export interface ProductBusEntry {
   price?: ProductBusPrice;
   variants?: ProductBusVariant[];
   type?: string;
+  gtin?: string;
+  options?: ProductBusOption[];
+  specifications?: string;
 
   /**
    * Override "escape hatch" for json-ld
