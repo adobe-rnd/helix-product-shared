@@ -1,6 +1,6 @@
 {
   "name": "@dylandepass/helix-product-shared",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Shared logic for Helix Product Bus",
   "main": "src/index.js",
   "type": "module",
