@@ -12,3 +12,5 @@
 
 export * from './public.js';
 export * from './jobs.js';
+export * from './media.js';
+export * from './feeds.js';
