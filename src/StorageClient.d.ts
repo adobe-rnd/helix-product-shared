@@ -20,6 +20,7 @@ export interface Context {
 }
 
 export declare class StorageClient {
+  constructor(ctx: Context);
   static fromContext(ctx: Context): StorageClient;
   ctx: Context;
 
@@ -96,4 +97,18 @@ export declare class StorageClient {
    * @param {SharedTypes.ProductBusEntry} product
    */
   saveProduct(catalogKey: string, sku: string, product: SharedTypes.ProductBusEntry): Promise<void>;
+
+  /**
+   * Fetch registry.
+   *
+   * @returns {Promise<SharedTypes.StoredRegistry>}
+   */
+  fetchRegistry(): Promise<SharedTypes.StoredRegistry>;
+
+  /**
+   * Save registry.
+   *
+   * @param {SharedTypes.StoredRegistry} registry
+   */
+  saveRegistry(registry: SharedTypes.StoredRegistry): Promise<void>;
 }
