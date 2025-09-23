@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.1.0...v1.1.1) (2025-09-23)
+
+
+### Bug Fixes
+
+* tweak type ([22a59e5](https://github.com/adobe-rnd/helix-product-shared/commit/22a59e5825801aae55025ebbf10d08258ae2f7de))
+
 # [1.1.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.4...v1.1.0) (2025-09-23)
 
 
