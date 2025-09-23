@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.4...v1.1.0) (2025-09-23)
+
+
+### Bug Fixes
+
+* exports ([0846388](https://github.com/adobe-rnd/helix-product-shared/commit/0846388edfb32de780fbc37b28efa77bbb0db184))
+
+
+### Features
+
+* add storageclient ([6bbf70d](https://github.com/adobe-rnd/helix-product-shared/commit/6bbf70d34149de01155c41f90d38b93d55f2e69f))
+
 ## [1.0.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.0.3...v1.0.4) (2025-09-22)
 
 
