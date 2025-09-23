@@ -44,7 +44,7 @@ export declare class StorageClient {
    * @param {SharedTypes.MediaData} image
    * @returns {Promise<string>} new filename
    */
-  saveImage(ctx: Context, org: string, site: string, image: SharedTypes.MediaData): Promise<void>;
+  saveImage(ctx: Context, org: string, site: string, image: SharedTypes.MediaData): Promise<string>;
 
   /**
    * Load stored index for a site.
