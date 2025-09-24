@@ -5,14 +5,6 @@ export interface Context {
   env: Record<string, any>;
   log: Console;
 
-  url?: URL;
-  info?: {
-    method: string;
-    headers: Record<string, string>;
-    subdomain: string;
-    body: ReadableStream<any> | null;
-  }
-
   attributes: {
     storageClient?: StorageClient;
     [key: string]: any;
