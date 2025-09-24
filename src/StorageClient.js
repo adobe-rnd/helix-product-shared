@@ -106,7 +106,9 @@ export class StorageClient {
     const { log } = this.ctx;
     const key = `${catalogKey}/products/${sku}.json`;
     log.debug('Saving product to R2:', key);
-    await this.put(key, JSON.stringify(product));
+    await this.put(key, JSON.stringify(product), {
+      httpMetadata: { contentType: 'application/json' },
+    });
   }
 
   /**
