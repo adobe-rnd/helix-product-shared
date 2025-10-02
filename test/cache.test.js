@@ -11,7 +11,6 @@
  */
 
 import assert from 'node:assert';
-import { describe, it } from 'node:test';
 import {
   computeStoreViewKey,
   computeStoreKey,
@@ -94,7 +93,7 @@ describe('Cache Functions', () => {
       assert.strictEqual(keys[1], '8hpdiz7qP5l7mDnb'); // Store Key
       assert.strictEqual(keys[2], 'SUsyd_Y356ZS-pcw'); // Product SKU Key
       assert.strictEqual(keys[3], 'DV15mkThz3E4NNUq'); // Product URL Key
-      assert.strictEqual(keys[4], 'cV14ckfNDlaM474G'); // Site Key (note: this is buggy - should be called with org, site params)
+      assert.strictEqual(keys[4], 'RE0fR6sskjhPLpZb'); // Site Key
     });
   });
 
@@ -152,7 +151,7 @@ describe('Cache Functions', () => {
         '8hpdiz7qP5l7mDnb', // Store Key
         'SUsyd_Y356ZS-pcw', // Product SKU Key
         'DV15mkThz3E4NNUq', // Product URL Key
-        'cV14ckfNDlaM474G', // Site Key (buggy)
+        'RE0fR6sskjhPLpZb', // Site Key
       ];
       assert.deepStrictEqual(keys, expectedKeys);
     });
