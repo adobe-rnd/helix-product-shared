@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.0...v1.2.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* don't compute site key ([afe5db4](https://github.com/adobe-rnd/helix-product-shared/commit/afe5db46a825c17e83971c9d9d783ee174681862))
+* tests ([5f6383a](https://github.com/adobe-rnd/helix-product-shared/commit/5f6383a37f6af6354f25bc940d0d97da9415e829))
+* use mocha ([b1169c7](https://github.com/adobe-rnd/helix-product-shared/commit/b1169c700f093898ed2160402a074c126e4e7511))
+
 # [1.2.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.1.2...v1.2.0) (2025-10-02)
 
 
