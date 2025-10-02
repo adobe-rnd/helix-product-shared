@@ -72,6 +72,16 @@ export async function computeSiteKey(org, site) {
 }
 
 /**
+ * Compute the surrogate key for a 404.
+ * @param {string} org
+ * @param {string} site
+ * @returns
+ */
+export async function compute404Key(org, site) {
+  return `main--${site}--${org}_404`;
+}
+
+/**
  * Compute the surrogate keys for a product.
  * @param {string} sku
  * @param {string} urlKey

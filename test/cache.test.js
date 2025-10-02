@@ -19,6 +19,7 @@ import {
   computeProductUrlKeyKey,
   computeSiteKey,
   computeProductKeys,
+  compute404Key,
 } from '../src/cache.js';
 
 describe('Cache Functions', () => {
@@ -94,6 +95,28 @@ describe('Cache Functions', () => {
       assert.strictEqual(keys[2], 'SUsyd_Y356ZS-pcw'); // Product SKU Key
       assert.strictEqual(keys[3], 'DV15mkThz3E4NNUq'); // Product URL Key
       assert.strictEqual(keys[4], 'cV14ckfNDlaM474G'); // Site Key (note: this is buggy - should be called with org, site params)
+    });
+  });
+
+  describe('compute404Key', () => {
+    it('computes surrogate key for valid 404 parameters', async () => {
+      const key = await compute404Key('adobe', 'site1');
+      assert.strictEqual(key, 'main--site1--adobe_404');
+    });
+
+    it('returns consistent keys for same inputs', async () => {
+      const key1 = await compute404Key('adobe', 'site1');
+      const key2 = await compute404Key('adobe', 'site1');
+      assert.strictEqual(key1, key2);
+      assert.strictEqual(key1, 'main--site1--adobe_404');
+    });
+
+    it('returns different keys for different inputs', async () => {
+      const key1 = await compute404Key('adobe', 'site1');
+      const key2 = await compute404Key('adobe', 'site2');
+      assert.notStrictEqual(key1, key2);
+      assert.strictEqual(key1, 'main--site1--adobe_404');
+      assert.strictEqual(key2, 'main--site2--adobe_404');
     });
   });
 

@@ -84,6 +84,17 @@ export function computeSiteKey(
 ): Promise<string>;
 
 /**
+ * Compute the surrogate key for a 404.
+ * @param org - The organization identifier
+ * @param site - The site identifier
+ * @returns A promise that resolves to the computed surrogate key
+ */
+export function compute404Key(
+  org: string,
+  site: string
+): Promise<string>;
+
+/**
  * Compute the surrogate keys for a product.
  * @param org - The organization identifier
  * @param site - The site identifier
