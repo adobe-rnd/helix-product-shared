@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.1.2...v1.2.0) (2025-10-02)
+
+
+### Bug Fixes
+
+* add cache.js to export ([ebee4ef](https://github.com/adobe-rnd/helix-product-shared/commit/ebee4ef1a3b756b513b4c7a12850591a4d187b3c))
+* add compute404Key ([bed7777](https://github.com/adobe-rnd/helix-product-shared/commit/bed7777b8bf0556f84df650524f6407b9da01bdd))
+
+
+### Features
+
+* add cache key utils ([bbef8c6](https://github.com/adobe-rnd/helix-product-shared/commit/bbef8c675cc52b98b62f3de1e6fc131f9e084f42))
+
 ## [1.1.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.1.1...v1.1.2) (2025-09-24)
 
 
