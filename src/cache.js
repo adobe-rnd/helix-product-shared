@@ -68,7 +68,7 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
  * @returns
  */
 export async function computeSiteKey(org, site) {
-  return computeSurrogateKey(`main--${site}--${org}`);
+  return `main--${site}--${org}`;
 }
 
 /**
