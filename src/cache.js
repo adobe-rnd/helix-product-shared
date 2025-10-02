@@ -68,7 +68,7 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
  * @returns
  */
 export async function computeSiteKey(org, site) {
-  return computeSurrogateKey(`main--${site}--${org}`);
+  return `main--${site}--${org}`;
 }
 
 /**
@@ -96,7 +96,7 @@ export async function computeProductKeys(org, site, storeCode, storeViewCode, sk
   keys.push(await computeStoreKey(org, site, storeCode));
   keys.push(await computeProductSkuKey(org, site, storeCode, storeViewCode, sku));
   keys.push(await computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey));
-  keys.push(await computeSiteKey(`main--${site}--${org}`));
+  keys.push(await computeSiteKey(org, site));
 
   return keys;
 }
