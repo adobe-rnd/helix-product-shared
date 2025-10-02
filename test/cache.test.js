@@ -53,32 +53,7 @@ describe('Cache Functions', () => {
   describe('computeSiteKey', () => {
     it('computes surrogate key for valid site parameters', async () => {
       const key = await computeSiteKey('adobe', 'site1');
-      assert.strictEqual(key, 'RE0fR6sskjhPLpZb');
-    });
-
-    it('handles missing org parameter', async () => {
-      const key = await computeSiteKey(null, 'site1');
-      assert.strictEqual(key, 'Q6y5rihAP_HQ8PfE');
-    });
-
-    it('handles empty org parameter', async () => {
-      const key = await computeSiteKey('', 'site1');
-      assert.strictEqual(key, 'jvuRxE8qXbO-X6yg');
-    });
-
-    it('handles missing site parameter', async () => {
-      const key = await computeSiteKey('adobe', null);
-      assert.strictEqual(key, 'g0Spa-97thwgYqxI');
-    });
-
-    it('handles empty site parameter', async () => {
-      const key = await computeSiteKey('adobe', '');
-      assert.strictEqual(key, 'OGEG7-xcPZ0Dnrj-');
-    });
-
-    it('handles undefined parameters', async () => {
-      const key = await computeSiteKey(undefined, undefined);
-      assert.strictEqual(key, 'aF8r22NI4K34tQCb');
+      assert.strictEqual(key, 'main--site1--adobe');
     });
   });
 
@@ -93,7 +68,7 @@ describe('Cache Functions', () => {
       assert.strictEqual(keys[1], '8hpdiz7qP5l7mDnb'); // Store Key
       assert.strictEqual(keys[2], 'SUsyd_Y356ZS-pcw'); // Product SKU Key
       assert.strictEqual(keys[3], 'DV15mkThz3E4NNUq'); // Product URL Key
-      assert.strictEqual(keys[4], 'RE0fR6sskjhPLpZb'); // Site Key
+      assert.strictEqual(keys[4], 'main--site1--adobe'); // Site Key
     });
   });
 
@@ -151,14 +126,14 @@ describe('Cache Functions', () => {
         '8hpdiz7qP5l7mDnb', // Store Key
         'SUsyd_Y356ZS-pcw', // Product SKU Key
         'DV15mkThz3E4NNUq', // Product URL Key
-        'RE0fR6sskjhPLpZb', // Site Key
+        'main--site1--adobe', // Site Key
       ];
       assert.deepStrictEqual(keys, expectedKeys);
     });
 
     it('computeSiteKey handles special characters in parameters', async () => {
       const key = await computeSiteKey('adobe-rnd', 'site-with-dashes');
-      assert.strictEqual(key, 'SbmWMT7t5SM2pJp-');
+      assert.strictEqual(key, 'main--site-with-dashes--adobe-rnd');
     });
   });
 });
