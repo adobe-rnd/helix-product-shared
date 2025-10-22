@@ -112,3 +112,16 @@ export function computeProductKeys(
   sku: string,
   urlKey: string
 ): Promise<string[]>;
+
+/**
+ * Compute the surrogate keys for a media resource.
+ * @param org - The organization identifier
+ * @param site - The site identifier
+ * @param path - The path of the media resource
+ * @returns A promise that resolves to an array of computed surrogate keys
+ */
+export function computeMediaKeys(
+  org: string,
+  site: string,
+  path: string
+): Promise<string[]>;
