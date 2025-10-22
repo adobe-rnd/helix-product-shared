@@ -81,7 +81,7 @@ export function computeProductUrlKeyKey(
 export function computeSiteKey(
   org: string,
   site: string
-): Promise<string>;
+): string;
 
 /**
  * Compute the surrogate key for a 404.
@@ -92,7 +92,7 @@ export function computeSiteKey(
 export function compute404Key(
   org: string,
   site: string
-): Promise<string>;
+): string;
 
 /**
  * Compute the surrogate keys for a product.

@@ -65,9 +65,9 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
  * Compute the surrogate key for a site.
  * @param {string} org
  * @param {string} site
- * @returns
+ * @returns {string}
  */
-export async function computeSiteKey(org, site) {
+export function computeSiteKey(org, site) {
   return `main--${site}--${org}`;
 }
 
@@ -75,9 +75,9 @@ export async function computeSiteKey(org, site) {
  * Compute the surrogate key for a 404.
  * @param {string} org
  * @param {string} site
- * @returns
+ * @returns {string}
  */
-export async function compute404Key(org, site) {
+export function compute404Key(org, site) {
   return `main--${site}--${org}_404`;
 }
 
@@ -98,7 +98,7 @@ export async function computeProductKeys(org, site, storeCode, storeViewCode, sk
   keys.push(await computeStoreKey(org, site, storeCode));
   keys.push(await computeProductSkuKey(org, site, storeCode, storeViewCode, sku));
   keys.push(await computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey));
-  keys.push(await computeSiteKey(org, site));
+  keys.push(computeSiteKey(org, site));
 
   return keys;
 }
@@ -113,12 +113,12 @@ export async function computeProductKeys(org, site, storeCode, storeViewCode, sk
 export async function computeMediaKeys(org, site, path) {
   const keys = [];
 
-  const siteKey = `main--${site}--${org}`;
+  const siteKey = computeSiteKey(org, site);
   const file = path.split('/').pop().split('.')[0];
   const hash = file.split('_')[1];
+  keys.push(siteKey);
   keys.push(`${siteKey}_media`);
   keys.push(`${siteKey}/${hash}`);
-  keys.push(await computeSiteKey(org, site));
 
   return keys;
 }
