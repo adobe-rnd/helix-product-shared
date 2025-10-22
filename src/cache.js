@@ -113,7 +113,7 @@ export async function computeProductKeys(org, site, storeCode, storeViewCode, sk
 export async function computeMediaKeys(org, site, path) {
   const keys = [];
 
-  const siteKey = `main-${site}-${org}`;
+  const siteKey = `main--${site}--${org}`;
   const file = path.split('/').pop().split('.')[0];
   const hash = file.split('_')[1];
   keys.push(`${siteKey}_media`);
