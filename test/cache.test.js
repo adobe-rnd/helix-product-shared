@@ -19,6 +19,7 @@ import {
   computeSiteKey,
   computeProductKeys,
   compute404Key,
+  computeMediaKeys,
 } from '../src/cache.js';
 
 describe('Cache Functions', () => {
@@ -91,6 +92,15 @@ describe('Cache Functions', () => {
       assert.notStrictEqual(key1, key2);
       assert.strictEqual(key1, 'main--site1--adobe_404');
       assert.strictEqual(key2, 'main--site2--adobe_404');
+    });
+  });
+
+  describe('computeMediaKeys', () => {
+    it('computes surrogate key for valid media path parameters', async () => {
+      const keys = await computeMediaKeys('adobe', 'site1', './media_1234hash.jpg');
+      assert.ok(keys.includes('main--site1--adobe_media'));
+      assert.ok(keys.includes('main--site1--adobe/1234hash'));
+      assert.ok(keys.includes('main--site1--adobe'));
     });
   });
 

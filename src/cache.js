@@ -18,7 +18,7 @@ import { computeSurrogateKey } from '@adobe/helix-shared-utils';
  * @param {string} site
  * @param {string} storeCode
  * @param {string} storeViewCode
- * @returns
+ * @returns {Promise<string>}
  */
 export async function computeStoreViewKey(org, site, storeCode, storeViewCode) {
   return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}`);
@@ -29,7 +29,7 @@ export async function computeStoreViewKey(org, site, storeCode, storeViewCode) {
  * @param {string} org
  * @param {string} site
  * @param {string} storeCode
- * @returns
+ * @returns {Promise<string>}
  */
 export async function computeStoreKey(org, site, storeCode) {
   return computeSurrogateKey(`/${org}/${site}/${storeCode}`);
@@ -42,7 +42,7 @@ export async function computeStoreKey(org, site, storeCode) {
  * @param {string} storeCode
  * @param {string} storeViewCode
  * @param {string} sku
- * @returns
+ * @returns {Promise<string>}
  */
 export async function computeProductSkuKey(org, site, storeCode, storeViewCode, sku) {
   return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}/${sku}`);
@@ -55,7 +55,7 @@ export async function computeProductSkuKey(org, site, storeCode, storeViewCode, 
  * @param {string} storeCode
  * @param {string} storeViewCode
  * @param {string} urlKey
- * @returns
+ * @returns {Promise<string>}
  */
 export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey) {
   return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}/${urlKey}`);
@@ -65,9 +65,9 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
  * Compute the surrogate key for a site.
  * @param {string} org
  * @param {string} site
- * @returns
+ * @returns {string}
  */
-export async function computeSiteKey(org, site) {
+export function computeSiteKey(org, site) {
   return `main--${site}--${org}`;
 }
 
@@ -75,19 +75,21 @@ export async function computeSiteKey(org, site) {
  * Compute the surrogate key for a 404.
  * @param {string} org
  * @param {string} site
- * @returns
+ * @returns {string}
  */
-export async function compute404Key(org, site) {
+export function compute404Key(org, site) {
   return `main--${site}--${org}_404`;
 }
 
 /**
  * Compute the surrogate keys for a product.
- * @param {string} sku
- * @param {string} urlKey
+ * @param {string} org
+ * @param {string} site
  * @param {string} storeCode
  * @param {string} storeViewCode
- * @returns
+ * @param {string} sku
+ * @param {string} urlKey
+ * @returns {Promise<string[]>}
  */
 export async function computeProductKeys(org, site, storeCode, storeViewCode, sku, urlKey) {
   const keys = [];
@@ -96,7 +98,27 @@ export async function computeProductKeys(org, site, storeCode, storeViewCode, sk
   keys.push(await computeStoreKey(org, site, storeCode));
   keys.push(await computeProductSkuKey(org, site, storeCode, storeViewCode, sku));
   keys.push(await computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey));
-  keys.push(await computeSiteKey(org, site));
+  keys.push(computeSiteKey(org, site));
+
+  return keys;
+}
+
+/**
+ * Compute the surrogate keys for a media resource.
+ * @param {string} org
+ * @param {string} site
+ * @param {string} path
+ * @returns {Promise<string[]>}
+ */
+export async function computeMediaKeys(org, site, path) {
+  const keys = [];
+
+  const siteKey = computeSiteKey(org, site);
+  const file = path.split('/').pop().split('.')[0];
+  const hash = file.split('_')[1];
+  keys.push(siteKey);
+  keys.push(`${siteKey}_media`);
+  keys.push(`${siteKey}/${hash}`);
 
   return keys;
 }
