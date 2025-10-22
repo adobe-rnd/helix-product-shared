@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.1...v1.2.2) (2025-10-22)
+
+
+### Bug Fixes
+
+* add media cache keys ([a1b991c](https://github.com/adobe-rnd/helix-product-shared/commit/a1b991c522197e8ffdcb36c30856619a6ba0d95c))
+* tweaks ([c1e6dc0](https://github.com/adobe-rnd/helix-product-shared/commit/c1e6dc0daffdbcef3de6368d5d90ff4d9387de62))
+
 ## [1.2.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.0...v1.2.1) (2025-10-02)
 
 
