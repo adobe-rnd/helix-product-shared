@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.2...v1.2.3) (2025-10-29)
+
+
+### Bug Fixes
+
+* feed type changes ([38a2314](https://github.com/adobe-rnd/helix-product-shared/commit/38a2314cdbf0bdb0b6628a03ecb13ab102f23dd8))
+
 ## [1.2.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.1...v1.2.2) (2025-10-22)
 
 
