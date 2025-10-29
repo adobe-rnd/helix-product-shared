@@ -401,19 +401,31 @@ export interface MerchantFeedEntry {
 
 export interface StoredIndex {
   [sku: string]: {
-    variants?: {
-      [variantSku: string]: Record<string, any>;
+    filters?: {
+      noindex?: boolean;
+      [key: string]: boolean | undefined;
+    }
+    data: {
+      variants?: {
+        [variantSku: string]: Record<string, any>;
+      };
+      [key: string]: string | Record<string, Record<string, any>> | undefined;
     };
-    [key: string]: string | Record<string, Record<string, any>> | undefined;
-  }
+  };
 }
 
 export interface StoredMerchantFeed extends StoredIndex {
-  [sku: string]: MerchantFeedEntry & {
-    variants?: {
-      [variantSku: string]: MerchantFeedEntry;
+  [sku: string]: {
+    filters?: {
+      noindex?: boolean;
+      [key: string]: boolean | undefined;
     }
-    [key: string]: string | Record<string, Record<string, any>> | undefined;
+    data: MerchantFeedEntry & {
+      variants?: {
+        [variantSku: string]: MerchantFeedEntry;
+      };
+      [key: string]: string | Record<string, Record<string, any>> | undefined;
+    };
   }
 }
 
