@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.3...v1.2.4) (2025-10-31)
+
+
+### Bug Fixes
+
+* add authored content key helper ([d54a7f3](https://github.com/adobe-rnd/helix-product-shared/commit/d54a7f3ec100ab646fc1c3138c64157d3c52948f))
+
 ## [1.2.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.2...v1.2.3) (2025-10-29)
 
 
