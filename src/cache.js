@@ -62,6 +62,16 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
 }
 
 /**
+ * Compute the surrogate key for an authored content inserted in the pipeline.
+ * @param {string} contentBusId The content bus id of the authored content
+ * @param {string} path The path of the authored content
+ * @returns {Promise<string>} A promise that resolves to the computed surrogate key
+ */
+export async function computeAuthoredContentKey(contentBusId, path) {
+  return computeSurrogateKey(`${contentBusId}${path}`);
+}
+
+/**
  * Compute the surrogate key for a site.
  * @param {string} org
  * @param {string} site
