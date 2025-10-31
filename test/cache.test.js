@@ -20,6 +20,7 @@ import {
   computeProductKeys,
   compute404Key,
   computeMediaKeys,
+  computeAuthoredContentKey,
 } from '../src/cache.js';
 
 describe('Cache Functions', () => {
@@ -70,6 +71,13 @@ describe('Cache Functions', () => {
       assert.strictEqual(keys[2], 'SUsyd_Y356ZS-pcw'); // Product SKU Key
       assert.strictEqual(keys[3], 'DV15mkThz3E4NNUq'); // Product URL Key
       assert.strictEqual(keys[4], 'main--site1--adobe'); // Site Key
+    });
+  });
+
+  describe('computeAuthoredContentKey', () => {
+    it('computes surrogate key for valid authored content parameters', async () => {
+      const key = await computeAuthoredContentKey('contentBusId', '/path');
+      assert.strictEqual(key, 'ToKrYWRYa0KMuObJ');
     });
   });
 

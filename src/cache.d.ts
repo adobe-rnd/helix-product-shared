@@ -73,6 +73,14 @@ export function computeProductUrlKeyKey(
 ): Promise<string>;
 
 /**
+ * Compute the surrogate key for an authored content inserted in the pipeline.
+ * @param {string} contentBusId The content bus id of the authored content
+ * @param {string} path The path of the authored content
+ * @returns {Promise<string>} A promise that resolves to the computed surrogate key
+ */
+export function computeAuthoredContentKey(contentBusId: string, path: string): Promise<string>;
+
+/**
  * Compute the surrogate key for a site.
  * @param org - The organization identifier
  * @param site - The site identifier
