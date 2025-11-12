@@ -51,21 +51,22 @@ export class StorageClient {
   }
 
   /**
+   * @param {R2Bucket} bucket
    * @param {Parameters<R2Bucket['put']>[0]} key
    * @param {Parameters<R2Bucket['put']>[1]} data
    * @param {Parameters<R2Bucket['put']>[2]} options
    * @param {number} retryCount
    */
-  async #put(key, data, options, retryCount = 0) {
+  async #put(bucket, key, data, options, retryCount = 0) {
     const { log } = this.ctx;
     try {
-      await this.bucket.put(key, data, options);
+      await bucket.put(key, data, options);
     } catch (e) {
       // conditionally retry
       log.error('Error putting to R2:', e, e.code);
       if (retryCount < 3 && e.message.includes('try again')) {
         await sleep(1000 * retryCount);
-        await this.#put(key, data, options, retryCount + 1);
+        await this.#put(bucket, key, data, options, retryCount + 1);
       }
       throw e;
     }
@@ -77,7 +78,17 @@ export class StorageClient {
    * @param {Parameters<R2Bucket['put']>[2]} [options]
    */
   async put(key, data, options) {
-    return this.#put(key, data, options);
+    return this.#put(this.bucket, key, data, options);
+  }
+
+  /**
+   * @param {R2Bucket} bucket
+   * @param {Parameters<R2Bucket['put']>[0]} key
+   * @param {Parameters<R2Bucket['put']>[1]} data
+   * @param {Parameters<R2Bucket['put']>[2]} [options]
+   */
+  async putTo(bucket, key, data, options) {
+    return this.#put(bucket, key, data, options);
   }
 
   /**
