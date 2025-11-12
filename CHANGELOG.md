@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.4...v1.2.5) (2025-11-12)
+
+
+### Bug Fixes
+
+* putTo bucket method ([8442b3e](https://github.com/adobe-rnd/helix-product-shared/commit/8442b3effe1348da42d2de058d99c5f37b2911d8))
+
 ## [1.2.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.3...v1.2.4) (2025-10-31)
 
 
