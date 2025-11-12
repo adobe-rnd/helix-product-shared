@@ -27,6 +27,17 @@ export declare class StorageClient {
   put(key: string, data: Parameters<R2Bucket['put']>[1], options?: Parameters<R2Bucket['put']>[2]): Promise<ReturnType<R2Bucket['put']>>;
 
   /**
+   * Put data into storage.
+   * 
+   * @param {R2Bucket} bucket
+   * @param {string} key 
+   * @param {Parameters<R2Bucket['put']>[1]} data 
+   * @param {Parameters<R2Bucket['put']>[2]} options 
+   * @returns {Promise<ReturnType<R2Bucket['put']>>}
+   */
+  putTo(bucket: R2Bucket, key: string, data: Parameters<R2Bucket['put']>[1], options?: Parameters<R2Bucket['put']>[2]): Promise<ReturnType<R2Bucket['put']>>;
+
+  /**
    * Save image for a site.
    * Uses org/site instead of catalogKey since media resources are shared between stores/views.
    *
