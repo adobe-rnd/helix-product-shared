@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.0...v1.3.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* add computeProductPathKey type ([209cf1b](https://github.com/adobe-rnd/helix-product-shared/commit/209cf1b1c1f09e0196cd928c76f9eee62fcc9c89))
+
 # [1.3.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.5...v1.3.0) (2025-12-09)
 
 
