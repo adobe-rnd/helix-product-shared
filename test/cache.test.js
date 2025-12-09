@@ -16,6 +16,7 @@ import {
   computeStoreKey,
   computeProductSkuKey,
   computeProductUrlKeyKey,
+  computeProductPathKey,
   computeSiteKey,
   computeProductKeys,
   compute404Key,
@@ -49,6 +50,37 @@ describe('Cache Functions', () => {
     it('computes surrogate key for valid product url key parameters', async () => {
       const key = await computeProductUrlKeyKey('adobe', 'site1', 'store1', 'view1', 'product-url');
       assert.strictEqual(key, 'DV15mkThz3E4NNUq');
+    });
+  });
+
+  describe('computeProductPathKey', () => {
+    it('computes surrogate key for valid product path parameters', async () => {
+      const key = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      assert.strictEqual(key, 'ZB7d8561tx75wQVt');
+    });
+
+    it('returns consistent keys for same inputs', async () => {
+      const key1 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      const key2 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      assert.strictEqual(key1, key2);
+    });
+
+    it('returns different keys for different paths', async () => {
+      const key1 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      const key2 = await computeProductPathKey('adobe', 'site1', '/products/mixer-pro-300');
+      assert.notStrictEqual(key1, key2);
+    });
+
+    it('returns different keys for different orgs', async () => {
+      const key1 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      const key2 = await computeProductPathKey('other-org', 'site1', '/products/blender-pro-500');
+      assert.notStrictEqual(key1, key2);
+    });
+
+    it('returns different keys for different sites', async () => {
+      const key1 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      const key2 = await computeProductPathKey('adobe', 'site2', '/products/blender-pro-500');
+      assert.notStrictEqual(key1, key2);
     });
   });
 

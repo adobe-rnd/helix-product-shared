@@ -62,6 +62,17 @@ export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCod
 }
 
 /**
+ * Compute the surrogate key for a product path.
+ * @param {string} org
+ * @param {string} site
+ * @param {string} path - The product path (e.g., /products/blender-pro-500)
+ * @returns {Promise<string>}
+ */
+export async function computeProductPathKey(org, site, path) {
+  return computeSurrogateKey(`/${org}/${site}${path}`);
+}
+
+/**
  * Compute the surrogate key for an authored content inserted in the pipeline.
  * @param {string} contentBusId The content bus id of the authored content
  * @param {string} path The path of the authored content
