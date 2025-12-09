@@ -431,7 +431,6 @@ export interface StoredMerchantFeed extends StoredIndex {
 
 export interface StoredRegistry {
   [catalogKey: string]: {
-    oaiOptedIn: boolean;
     gmcLastModified: number; // ms since epoch
     indexLastModified: number; // ms since epoch
   }
