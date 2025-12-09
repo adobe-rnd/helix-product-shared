@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.1...v1.3.2) (2025-12-09)
+
+
+### Bug Fixes
+
+* update job typings ([211b3f5](https://github.com/adobe-rnd/helix-product-shared/commit/211b3f5adc6cebffdac9f47e8e8d4cf9d528afea))
+
 ## [1.3.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.0...v1.3.1) (2025-12-09)
 
 
