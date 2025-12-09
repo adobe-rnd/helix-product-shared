@@ -73,6 +73,19 @@ export function computeProductUrlKeyKey(
 ): Promise<string>;
 
 /**
+ * Compute the surrogate key for a product path.
+ * @param org - The organization identifier
+ * @param site - The site identifier
+ * @param path - The product path (e.g., /products/blender-pro-500)
+ * @returns A promise that resolves to the computed surrogate key
+ */
+export function computeProductPathKey(
+  org: string,
+  site: string,
+  path: string
+): Promise<string>;
+
+/**
  * Compute the surrogate key for an authored content inserted in the pipeline.
  * @param {string} contentBusId The content bus id of the authored content
  * @param {string} path The path of the authored content
