@@ -399,6 +399,35 @@ export interface MerchantFeedEntry {
   shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
 }
 
+/**
+ * Stored Merchant Feed is the same as Stored Index, but with MerchantFeedEntry instead of Record<string, any>
+ * @example {
+ *  "/products/foo": {
+ *    filters: {
+ *      noindex: true,
+ *    },
+ *    data: {
+ *      path: "/products/foo",
+ *      name: "Product Foo",
+ *      description: "Product Foo Description",
+ *      link: "https://example.com/products/foo",
+ *      image: "https://example.com/image.jpg",
+ *      custom_bar: "baz"
+ *      variants: {
+ *        "foo-one": {
+ *          sku: "foo-one",
+ *          name: "Product Foo One",
+ *          description: "Product Foo One Description",
+ *          link: "https://example.com/products/foo",
+ *          image: "https://example.com/image-one.jpg",
+ *          custom_bar: "baz",
+ *        },
+ *      },
+ *    },
+ *  },
+ *  ...
+ * }
+ */
 export interface StoredIndex {
   // top-level products are addressed by path
   [path: string]: {
@@ -416,6 +445,37 @@ export interface StoredIndex {
   };
 }
 
+/**
+ * Stored Merchant Feed is the same as Stored Index, but with MerchantFeedEntry instead of Record<string, any>
+ * @example {
+ *  "/products/foo": {
+ *    filters: {
+ *      noindex: true,
+ *    },
+ *    data: {
+ *      id: "foo",
+ *      title: "Product Foo",
+ *      description: "Product Foo Description",
+ *      link: "https://example.com/products/foo",
+ *      image_link: "https://example.com/image.jpg",
+ *      condition: "new",
+ *      availability: "in_stock",
+ *      price: "10.00 USD",
+ *      brand: "Example Brand",
+ *      variants: {
+ *        "foo-one": {
+ *          id: "foo-one",
+ *          title: "Product Foo One",
+ *          description: "Product Foo One Description",
+ *          link: "https://example.com/products/foo",
+ *          image_link: "https://example.com/image.jpg",
+ *        },     
+ *      },
+ *    },
+ *  },
+ *  ...
+ * }
+ */
 export interface StoredMerchantFeed extends StoredIndex {
   // top-level products are addressed by path
   [path: string]: {
