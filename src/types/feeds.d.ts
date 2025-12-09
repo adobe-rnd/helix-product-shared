@@ -400,13 +400,15 @@ export interface MerchantFeedEntry {
 }
 
 export interface StoredIndex {
-  [sku: string]: {
+  // top-level products are addressed by path
+  [path: string]: {
     filters?: {
       noindex?: boolean;
       [key: string]: boolean | undefined;
     }
     data: {
       variants?: {
+        // variants are addressed by sku, since they share the same path with the parent
         [variantSku: string]: Record<string, any>;
       };
       [key: string]: string | Record<string, Record<string, any>> | undefined;
@@ -415,13 +417,15 @@ export interface StoredIndex {
 }
 
 export interface StoredMerchantFeed extends StoredIndex {
-  [sku: string]: {
+  // top-level products are addressed by path
+  [path: string]: {
     filters?: {
       noindex?: boolean;
       [key: string]: boolean | undefined;
     }
     data: MerchantFeedEntry & {
       variants?: {
+        // variants are addressed by sku, since they share the same path with the parent
         [variantSku: string]: MerchantFeedEntry;
       };
       [key: string]: string | Record<string, Record<string, any>> | undefined;
