@@ -16,6 +16,8 @@ export declare class StorageClient {
   static fromContext(ctx: Context): StorageClient;
   ctx: Context;
 
+  bucket: R2Bucket;
+
   /**
    * Put data into storage.
    * 
@@ -82,6 +84,48 @@ export declare class StorageClient {
    * @param {SharedTypes.StoredMerchantFeed} data
    */
   saveMerchantFeed(catalogKey: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
+
+  /**
+   * Load stored index for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredIndex>}
+   */
+  fetchQueryIndexByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredIndex | null>;
+
+  /**
+   * Save index for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @param {SharedTypes.StoredIndex} data
+   */
+  saveQueryIndexByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredIndex): Promise<void>;
+
+  /**
+   * Load stored merchant feed for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   */
+  fetchMerchantFeedByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredMerchantFeed | null>;
+
+  /**
+   * Save merchant feed for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @param {SharedTypes.StoredMerchantFeed} data
+   */
+  saveMerchantFeedByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
 
   /**
    * Save product for a site.

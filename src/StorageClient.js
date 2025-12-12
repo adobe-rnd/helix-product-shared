@@ -230,6 +230,80 @@ export class StorageClient {
   }
 
   /**
+   * Load stored index for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredIndex>}
+   */
+  async fetchQueryIndexByPath(org, site, rootPath) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices${rootPath}/index.json`;
+    log.debug('Fetching index from R2:', key);
+
+    const object = await this.bucket.get(key);
+    if (!object) {
+      return {};
+    }
+
+    const index = await object.json();
+    return index;
+  }
+
+  /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @param {SharedTypes.StoredIndex} data
+   */
+  async saveQueryIndexByPath(org, site, rootPath, data) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices${rootPath}/index.json`;
+    log.debug('Saving index to R2:', key);
+    await this.put(key, JSON.stringify(data));
+  }
+
+  /**
+   * Load stored merchant feed for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   */
+  async fetchMerchantFeedByPath(org, site, rootPath) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
+    log.debug('Fetching merchant feed from R2:', key);
+
+    const object = await this.bucket.get(key);
+    if (!object) {
+      return {};
+    }
+
+    const index = await object.json();
+    return index;
+  }
+
+  /**
+   * @param {string} catalogKey
+   * @param {SharedTypes.StoredMerchantFeed} data
+   */
+  async saveMerchantFeedByPath(org, site, rootPath, data) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
+    log.debug('Saving merchant feed to R2:', key);
+    await this.put(key, JSON.stringify(data));
+  }
+
+  /**
    * @returns {Promise<SharedTypes.StoredRegistry>}
    */
   async fetchRegistry() {

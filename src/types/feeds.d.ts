@@ -494,8 +494,10 @@ export interface StoredMerchantFeed extends StoredIndex {
 }
 
 export interface StoredRegistry {
-  [catalogKey: string]: {
-    gmcLastModified: number; // ms since epoch
-    indexLastModified: number; // ms since epoch
+  [orgSiteKey: string]: {
+    [rootPath: string]: {
+      gmcLastModified: number; // ms since epoch
+      indexLastModified: number; // ms since epoch
+    }
   }
 }
