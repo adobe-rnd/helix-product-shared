@@ -137,6 +137,16 @@ export declare class StorageClient {
   fetchProduct(catalogKey: string, sku: string): Promise<SharedTypes.ProductBusEntry | null>;
 
   /**
+   * Fetch product by path for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @returns {Promise<SharedTypes.ProductBusEntry | null>}
+   */
+  fetchProductByPath(org: string, site: string, path: string): Promise<SharedTypes.ProductBusEntry | null>;
+
+  /**
    * Save product for a site.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
@@ -144,6 +154,16 @@ export declare class StorageClient {
    * @param {SharedTypes.ProductBusEntry} product
    */
   saveProduct(catalogKey: string, sku: string, product: SharedTypes.ProductBusEntry): Promise<void>;
+
+  /**
+   * Save product by path for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @param {SharedTypes.ProductBusEntry} product
+   */
+  saveProductByPath(org: string, site: string, path: string, product: SharedTypes.ProductBusEntry): Promise<void>;
 
   /**
    * Fetch registry.

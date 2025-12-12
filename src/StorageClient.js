@@ -109,6 +109,24 @@ export class StorageClient {
   }
 
   /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @returns {Promise<SharedTypes.ProductBusEntry|null>}
+   */
+  async fetchProductByPath(org, site, path) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/catalog${path}${path.endsWith('.json') ? '' : '.json'}`;
+    log.debug('Fetching product from R2:', key);
+    const object = await this.bucket.get(key);
+    if (!object) {
+      return null;
+    }
+    return object.json();
+  }
+
+  /**
    * @param {string} catalogKey
    * @param {string} sku
    * @param {SharedTypes.ProductBusEntry} product
@@ -116,6 +134,22 @@ export class StorageClient {
   async saveProduct(catalogKey, sku, product) {
     const { log } = this.ctx;
     const key = `${catalogKey}/products/${sku}.json`;
+    log.debug('Saving product to R2:', key);
+    await this.put(key, JSON.stringify(product), {
+      httpMetadata: { contentType: 'application/json' },
+    });
+  }
+
+  /**
+   * @param {string} catalogKey
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @param {SharedTypes.ProductBusEntry} product
+   */
+  async saveProductByPath(org, site, path, product) {
+    const { log } = this.ctx;
+    const key = `${org}/${site}/catalog${path}${path.endsWith('.json') ? '' : '.json'}`;
     log.debug('Saving product to R2:', key);
     await this.put(key, JSON.stringify(product), {
       httpMetadata: { contentType: 'application/json' },
