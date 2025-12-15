@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.3...v1.3.4) (2025-12-15)
+
+
+### Bug Fixes
+
+* force deploy ([#21](https://github.com/adobe-rnd/helix-product-shared/issues/21)) ([a1d542b](https://github.com/adobe-rnd/helix-product-shared/commit/a1d542b86062f5c66c92882737fe3435ff7ec914))
+
 ## [1.3.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.2...v1.3.3) (2025-12-15)
 
 
