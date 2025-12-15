@@ -1,3 +1,13 @@
+## [1.3.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.2...v1.3.3) (2025-12-15)
+
+
+### Bug Fixes
+
+* add examples to types ([183e0ee](https://github.com/adobe-rnd/helix-product-shared/commit/183e0ee96e530d47538657249194737158a71e5e))
+* add index/feed byPath methods ([15e2169](https://github.com/adobe-rnd/helix-product-shared/commit/15e2169a215c517763c8b823ecd1162bc9461785))
+* add product byPath methods ([0dfadea](https://github.com/adobe-rnd/helix-product-shared/commit/0dfadea67859992517ed5c6266fcf97453370138))
+* change index key name, add comment ([0dd9d18](https://github.com/adobe-rnd/helix-product-shared/commit/0dd9d181886a3aa715c75e0a2bed229febaac9b3))
+
 ## [1.3.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.1...v1.3.2) (2025-12-09)
 
 
