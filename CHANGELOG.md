@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.4...v1.4.0) (2025-12-16)
+
+
+### Features
+
+* media, error utils ([#22](https://github.com/adobe-rnd/helix-product-shared/issues/22)) ([8a879ab](https://github.com/adobe-rnd/helix-product-shared/commit/8a879ab9d1922e260e4b28fe26f6c9f114c92e39))
+
 ## [1.3.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.3...v1.3.4) (2025-12-15)
 
 
