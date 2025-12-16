@@ -32,7 +32,9 @@ export function isRelativePath(pathOrUrl) {
  */
 const extractExtension = (url) => {
   const match = url.match(/\.([^.]+)$/);
-  return match ? match[1] : undefined;
+  return match?.[1]
+    ? match[1].split('?')[0].split('#')[0]
+    : undefined;
 };
 
 /**

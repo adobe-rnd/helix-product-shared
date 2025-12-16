@@ -108,6 +108,107 @@ describe('media', () => {
       ]);
     });
 
+    it('should not include query params or hash in the extension stored in metadata', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+      };
+
+      const mockStorageClient = {
+        lookupImageLocation: async (...args) => {
+          calls.lookupImageLocation.push(args);
+          return null;
+        },
+        saveImage: async (...args) => {
+          calls.saveImage.push(args);
+          return './media_abc123.jpg';
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      // Mock crypto.subtle.digest
+      const mockHash = new Uint8Array([0xab, 0xc1, 0x23]);
+      crypto.subtle.digest = async () => mockHash.buffer;
+
+      // Mock fetch
+      const mockImageData = new ArrayBuffer(100);
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => mockImageData,
+          headers: {
+            get: () => 'image/jpeg',
+          },
+        };
+      };
+
+      const product = {
+        images: [
+          { url: 'https://example.com/image.jpg?id=123' },
+          { url: 'https://example.com/image.jpg#123' },
+        ],
+      };
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.images[0].url, './media_abc123.jpg');
+      assert.strictEqual(result.images[1].url, './media_abc123.jpg');
+      assert.strictEqual(calls.lookupImageLocation.length, 2);
+      assert.strictEqual(calls.saveImage.length, 2);
+      assert.strictEqual(calls.fetch.length, 2); // still honor query params as distinct urls
+      assert.deepStrictEqual(calls.lookupImageLocation[0], [ctx, 'org', 'site', 'https://example.com/image.jpg?id=123']);
+      assert.deepStrictEqual(calls.lookupImageLocation[1], [ctx, 'org', 'site', 'https://example.com/image.jpg#123']);
+      assert.deepStrictEqual(calls.saveImage[0], [
+        ctx,
+        'org',
+        'site',
+        {
+          data: mockImageData,
+          sourceUrl: 'https://example.com/image.jpg?id=123',
+          hash: 'abc123',
+          mimeType: 'image/jpeg',
+          length: 100,
+          extension: 'jpg',
+        },
+      ]);
+      assert.deepStrictEqual(calls.saveImage[1], [
+        ctx,
+        'org',
+        'site',
+        {
+          data: mockImageData,
+          sourceUrl: 'https://example.com/image.jpg#123',
+          hash: 'abc123',
+          mimeType: 'image/jpeg',
+          length: 100,
+          extension: 'jpg',
+        },
+      ]);
+      assert.deepStrictEqual(calls.fetch[0], [
+        'https://example.com/image.jpg?id=123',
+        {
+          method: 'GET',
+          headers: {
+            'accept-encoding': 'identity',
+            accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
+          },
+        },
+      ]);
+      assert.deepStrictEqual(calls.fetch[1], [
+        'https://example.com/image.jpg#123',
+        {
+          method: 'GET',
+          headers: {
+            'accept-encoding': 'identity',
+            accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
+          },
+        },
+      ]);
+    });
+
     it('should reuse cache image location, if available', async () => {
       const ctx = TEST_CONTEXT();
       const calls = {

@@ -1,5 +1,5 @@
-import { ProductBusEntry } from "./types";
-import { Context } from "./types/context";
+import type { ProductBusEntry } from "./types";
+import type { Context } from "./types/context";
 
 /**
  * @param {string} pathOrUrl
@@ -12,7 +12,7 @@ export declare function isRelativePath(pathOrUrl: string): boolean;
  * @param {string} org
  * @param {string} site
  * @param {SharedTypes.ProductBusEntry} product
- * @returns {Promise<SharedTypes.ProductBusEntry>}
+ * @returns {Promise<ProductBusEntry>}
  */
 export declare function extractAndReplaceImages(ctx: Context, org: string, site: string, product: ProductBusEntry): Promise<ProductBusEntry>;
 
