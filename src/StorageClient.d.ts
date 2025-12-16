@@ -1,15 +1,7 @@
 import { R2Bucket } from "@cloudflare/workers-types";
 import * as SharedTypes from './types';
-
-export interface Context {
-  env: Record<string, any>;
-  log: Console;
-
-  attributes: {
-    storageClient?: StorageClient;
-    [key: string]: any;
-  };
-}
+import type { Context } from "./types/context";
+import type { MediaData } from "./types/media.js";
 
 export declare class StorageClient {
   constructor(ctx: Context);
@@ -46,7 +38,7 @@ export declare class StorageClient {
    * @param {Context} ctx
    * @param {string} org
    * @param {string} site
-   * @param {SharedTypes.MediaData} image
+   * @param {MediaData} image
    * @returns {Promise<string>} new filename
    */
   saveImage(ctx: Context, org: string, site: string, image: SharedTypes.MediaData): Promise<string>;
