@@ -10,8 +10,22 @@
  * governing permissions and limitations under the License.
  */
 
-export * from './slugger.js';
-export * from './StorageClient.js';
-export * from './cache.js';
-export * from './media.js';
-export * from './error.js';
+/**
+ *
+ * @param {Record<string, unknown>} overrides
+ * @returns {Context}
+ */
+export const TEST_CONTEXT = (overrides = {}) => ({
+  ...overrides,
+  log: {
+    ...console,
+    ...(overrides.log ?? {}),
+  },
+  env: {
+    ...(overrides.env ?? {}),
+  },
+  executionContext: {},
+  attributes: {
+    ...(overrides.attributes ?? {}),
+  },
+});

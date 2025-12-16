@@ -13,6 +13,7 @@
 /**
  * @typedef {import("@cloudflare/workers-types").R2Bucket} R2Bucket
  * @typedef {import("./types/index").ProductBusEntry} ProductBusEntry
+ * @typedef {import("./types/context").Context} Context
  */
 
 /**
@@ -24,9 +25,13 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * @param {Context} ctx
+ * @returns {StorageClient}
+ */
 export class StorageClient {
   /**
-   * @param {import("./StorageClient").Context} ctx
+   * @param {Context} ctx
    * @returns {StorageClient}
    */
   static fromContext(ctx) {
@@ -36,14 +41,14 @@ export class StorageClient {
     return ctx.attributes.storageClient;
   }
 
-  /** @type {import("./StorageClient").Context} */
+  /** @type {Context} */
   ctx = undefined;
 
   /** @type {R2Bucket} */
   bucket = undefined;
 
   /**
-   * @param {import("./StorageClient").Context} ctx
+   * @param {Context} ctx
    */
   constructor(ctx) {
     this.ctx = ctx;
@@ -94,7 +99,7 @@ export class StorageClient {
   /**
    * @param {string} catalogKey
    * @param {string} sku
-   * @returns {Promise<SharedTypes.ProductBusEntry|null>}
+   * @returns {Promise<ProductBusEntry|null>}
    */
   async fetchProduct(catalogKey, sku) {
     const { log } = this.ctx;
@@ -112,7 +117,7 @@ export class StorageClient {
    * @param {string} org
    * @param {string} site
    * @param {string} path
-   * @returns {Promise<SharedTypes.ProductBusEntry|null>}
+   * @returns {Promise<ProductBusEntry|null>}
    */
   async fetchProductByPath(org, site, path) {
     const { log } = this.ctx;
@@ -129,7 +134,7 @@ export class StorageClient {
   /**
    * @param {string} catalogKey
    * @param {string} sku
-   * @param {SharedTypes.ProductBusEntry} product
+   * @param {ProductBusEntry} product
    */
   async saveProduct(catalogKey, sku, product) {
     const { log } = this.ctx;
@@ -145,7 +150,7 @@ export class StorageClient {
    * @param {string} org
    * @param {string} site
    * @param {string} path
-   * @param {SharedTypes.ProductBusEntry} product
+   * @param {ProductBusEntry} product
    */
   async saveProductByPath(org, site, path, product) {
     const { log } = this.ctx;
@@ -160,7 +165,39 @@ export class StorageClient {
    * @param {Context} ctx
    * @param {string} org
    * @param {string} site
-   * @param {SharedTypes.MediaData} image
+   * @param {string} url
+   * @param {string} location // eg. "./media_hash.jpg"
+   */
+  async saveImageLocation(ctx, org, site, url, location) {
+    const { log } = ctx;
+    const key = `${org}/${site}/media/.lookup/${encodeURIComponent(url)}`;
+    log.debug('Saving image location to R2:', key);
+    await this.put(key, '', { customMetadata: { location } });
+  }
+
+  /**
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {string} url
+   * @returns {Promise<string|null>} // eg. "./media_hash.jpg"
+   */
+  async lookupImageLocation(ctx, org, site, url) {
+    const { log } = ctx;
+    const key = `${org}/${site}/media/.lookup/${encodeURIComponent(url)}`;
+    log.debug('Fetching image location from R2:', key);
+    const object = await this.bucket.head(key);
+    if (!object) {
+      return null;
+    }
+    return object.customMetadata?.location;
+  }
+
+  /**
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {import("./types/media").MediaData} image
    * @returns {Promise<string>} new filename
    */
   async saveImage(ctx, org, site, image) {
@@ -192,6 +229,7 @@ export class StorageClient {
         sourceLocation: sourceUrl,
       },
     });
+    await this.saveImageLocation(ctx, org, site, sourceUrl, `./${filename}`);
     return `./${filename}`;
   }
 
