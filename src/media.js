@@ -23,7 +23,31 @@ export function isRelativePath(pathOrUrl) {
   if (typeof pathOrUrl !== 'string') {
     return false;
   }
-  return pathOrUrl.startsWith('/') || pathOrUrl.startsWith('./');
+  return (pathOrUrl.startsWith('/') || pathOrUrl.startsWith('./')) && !pathOrUrl.includes('..') && !pathOrUrl.includes(' ');
+}
+
+/**
+ * check if url is invalid, ie. not parseable as a URL
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isInvalidURL(url) {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(url);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * check if url is either a relative path or a valid URL
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isValidURL(url) {
+  return typeof url === 'string' && !!url.trim() && (!isRelativePath(url) || isInvalidURL(url));
 }
 
 /**
@@ -51,10 +75,6 @@ async function fetchImage(pctx, pimageUrl) {
    */
   async function doFetch(ctx, imageUrl, attempts = 0) {
     const { log } = ctx;
-    if (typeof imageUrl !== 'string' || !imageUrl.trim()) {
-      log.info(`invalid image url provided: "${imageUrl}"`);
-      return null;
-    }
 
     log.debug('fetching image: ', imageUrl);
     const resp = await fetch(imageUrl, {
@@ -112,6 +132,9 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
    * @returns {Promise<string|undefined>} new url
    */
   const processImage = async (url) => {
+    if (isInvalidURL(url)) {
+      return null;
+    }
     if (isRelativePath(url)) {
       log.debug(`image already relative: ${url}`);
       return url;
@@ -138,6 +161,7 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     processed.set(url, promise);
 
     const img = await fetchImage(ctx, url);
+    // only set the image if the fetch succeeded
     let newUrl;
     if (img) {
       newUrl = await storageClient.saveImage(ctx, org, site, img);
@@ -156,6 +180,7 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     try {
     // eslint-disable-next-line no-await-in-loop
       const newUrl = await processImage(image.url);
+      // only set the image if the fetch succeeded
       if (newUrl) {
         image.url = newUrl;
       }

@@ -108,6 +108,80 @@ describe('media', () => {
       ]);
     });
 
+    it('should ignore invalid image URLs', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+      };
+
+      const mockStorageClient = {
+        lookupImageLocation: async (...args) => {
+          calls.lookupImageLocation.push(args);
+          return null;
+        },
+        saveImage: async (...args) => {
+          // should not be called
+          calls.saveImage.push(args);
+          // return './media_abc123.jpg';
+          return null;
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      // Mock crypto.subtle.digest
+      const mockHash = new Uint8Array([0xab, 0xc1, 0x23]);
+      crypto.subtle.digest = async () => mockHash.buffer;
+
+      // Mock fetch
+      const mockImageData = new ArrayBuffer(100);
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => mockImageData,
+          headers: {
+            get: () => 'image/jpeg',
+          },
+        };
+      };
+
+      const product = {
+        images: [
+          { url: '' },
+          { url: null },
+          { url: undefined },
+          { url: 0 },
+          { url: false },
+          { url: true },
+          { url: NaN },
+          { url: Infinity },
+          { url: -Infinity },
+          { url: [] },
+          { url: 'not relative path or url' },
+        ],
+      };
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.images[0].url, '');
+      assert.strictEqual(result.images[1].url, null);
+      assert.strictEqual(result.images[2].url, undefined);
+      assert.strictEqual(result.images[3].url, 0);
+      assert.strictEqual(result.images[4].url, false);
+      assert.strictEqual(result.images[5].url, true);
+      assert.strictEqual(result.images[6].url, NaN);
+      assert.strictEqual(result.images[7].url, Infinity);
+      assert.strictEqual(result.images[8].url, -Infinity);
+      assert.deepStrictEqual(result.images[9].url, []);
+      assert.deepStrictEqual(result.images[10].url, 'not relative path or url');
+
+      assert.strictEqual(calls.lookupImageLocation.length, 0);
+      assert.strictEqual(calls.saveImage.length, 0);
+      assert.strictEqual(calls.fetch.length, 0);
+    });
+
     it('should not include query params or hash in the extension stored in metadata', async () => {
       const ctx = TEST_CONTEXT();
       const calls = {
@@ -289,6 +363,7 @@ describe('media', () => {
         images: [
           { url: 'https://example.com/same-image.jpg' },
           { url: 'https://example.com/same-image.jpg' },
+          { url: './relative-image.jpg' }, // relative path is treated as already processed & replaced
         ],
         variants: [
           {
@@ -304,6 +379,7 @@ describe('media', () => {
       // All three images should have the same URL
       assert.strictEqual(result.images[0].url, './media_def456.jpg');
       assert.strictEqual(result.images[1].url, './media_def456.jpg');
+      assert.strictEqual(result.images[2].url, './relative-image.jpg');
       assert.strictEqual(result.variants[0].images[0].url, './media_def456.jpg');
 
       // fetch should only be called once despite having 3 references to the same image
