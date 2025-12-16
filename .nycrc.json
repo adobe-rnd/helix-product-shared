@@ -7,7 +7,7 @@
   "check-coverage": true,
   "lines": 49.5,
   "branches": 82.97,
-  "statements": 77.27,
-  "functions": 49.5,
+  "statements": 49.5,
+  "functions": 77.27,
   "skip-full": true
 }
