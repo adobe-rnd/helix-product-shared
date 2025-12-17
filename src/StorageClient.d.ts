@@ -99,6 +99,25 @@ export declare class StorageClient {
   saveQueryIndexByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredIndex): Promise<void>;
 
   /**
+   * Check if index exists for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  queryIndexExists(org: string, site: string, rootPath: string): Promise<boolean>;
+
+  /**
+   * Delete index for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  deleteQueryIndex(org: string, site: string, rootPath: string): Promise<void>;
+
+  /**
    * Load stored merchant feed for a site.
    * If it doesn't exist, return empty object.
    *
@@ -118,6 +137,25 @@ export declare class StorageClient {
    * @param {SharedTypes.StoredMerchantFeed} data
    */
   saveMerchantFeedByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
+
+  /**
+   * Check if merchant feed exists for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  merchantFeedExists(org: string, site: string, rootPath: string): Promise<boolean>;
+
+  /**
+   * Delete merchant feed for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  deleteMerchantFeed(org: string, site: string, rootPath: string): Promise<void>;
 
   /**
    * Save product for a site.
