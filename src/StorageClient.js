@@ -340,6 +340,29 @@ export class StorageClient {
   }
 
   /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  async queryIndexExists(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/index.json`;
+    const object = await this.bucket.head(key);
+    return !!object;
+  }
+
+  /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  async deleteQueryIndex(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/index.json`;
+    this.ctx.log.debug('Deleting index from R2:', key);
+    return this.bucket.delete(key);
+  }
+
+  /**
    * Load stored merchant feed for a site.
    * If it doesn't exist, return empty object.
    *
@@ -373,6 +396,29 @@ export class StorageClient {
     const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
     log.debug('Saving merchant feed to R2:', key);
     await this.put(key, JSON.stringify(data));
+  }
+
+  /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  async merchantFeedExists(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
+    const object = await this.bucket.head(key);
+    return !!object;
+  }
+
+  /**
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  async deleteMerchantFeed(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
+    this.ctx.log.debug('Deleting merchant feed from R2:', key);
+    return this.bucket.delete(key);
   }
 
   /**
