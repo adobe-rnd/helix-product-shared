@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.0...v1.4.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* add head/delete methods ([#23](https://github.com/adobe-rnd/helix-product-shared/issues/23)) ([4e2ac7f](https://github.com/adobe-rnd/helix-product-shared/commit/4e2ac7f1c4c9a5972223b3eeafd7a24e5f2b2516))
+
 # [1.4.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.4...v1.4.0) (2025-12-16)
 
 
