@@ -449,4 +449,66 @@ export class StorageClient {
     log.debug('Saving registry to R2:', key);
     await this.put(key, JSON.stringify(registry));
   }
+
+  /**
+   * Fetch the index registry for a site.
+   * Returns an object mapping index paths to their metadata.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @returns {Promise<{data: Record<string, {lastmod: string}>, etag: string | null}>}
+   */
+  async fetchIndexRegistry(org, site) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices/.registry.json`;
+    log.debug('Fetching index registry from R2:', key);
+
+    const object = await this.bucket.get(key);
+    if (!object) {
+      return { data: {}, etag: null };
+    }
+
+    const registry = await object.json();
+    return { data: registry, etag: object.etag };
+  }
+
+  /**
+   * Save the index registry for a site.
+   *
+   * @throws {Error} if etag mismatch (precondition failed)
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {Record<string, {lastmod: string}>} registry
+   * @param {string | null} [etag] - Optional etag for conditional write
+   * @returns {Promise<void>}
+   */
+  async saveIndexRegistry(org, site, registry, etag) {
+    const { log } = this.ctx;
+
+    const key = `${org}/${site}/indices/.registry.json`;
+    log.debug('Saving index registry to R2:', key);
+
+    const options = {
+      httpMetadata: { contentType: 'application/json' },
+    };
+
+    // conditional write if etag is provided
+    if (etag !== undefined && etag !== null) {
+      options.onlyIf = { etagMatches: etag };
+    }
+
+    try {
+      await this.put(key, JSON.stringify(registry), options);
+    } catch (e) {
+      // R2 throws an error if the precondition fails
+      if (e.message && e.message.includes('precondition')) {
+        const error = new Error('Precondition failed: etag mismatch');
+        error.code = 'PRECONDITION_FAILED';
+        throw error;
+      }
+      throw e;
+    }
+  }
 }
