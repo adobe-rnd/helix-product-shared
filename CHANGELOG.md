@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.1...v1.5.0) (2026-01-08)
+
+
+### Features
+
+* index registry methods ([#24](https://github.com/adobe-rnd/helix-product-shared/issues/24)) ([c41de48](https://github.com/adobe-rnd/helix-product-shared/commit/c41de48c6aecd67ec34461ce007ce3c5ac8f301e))
+
 ## [1.4.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.0...v1.4.1) (2025-12-18)
 
 
