@@ -208,4 +208,27 @@ export declare class StorageClient {
    * @param {SharedTypes.StoredRegistry} registry
    */
   saveRegistry(registry: SharedTypes.StoredRegistry): Promise<void>;
+
+  /**
+   * Fetch the index registry for a site.
+   * Returns an object mapping index paths to their metadata.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @returns {Promise<{data: Record<string, {lastmod: string}>, etag: string | null}>}
+   */
+  fetchIndexRegistry(org: string, site: string): Promise<{ data: Record<string, { lastmod: string }>, etag: string | null }>;
+
+  /**
+   * Save the index registry for a site.
+   * Uses conditional write with etag to prevent concurrent modification issues.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {Record<string, {lastmod: string}>} registry
+   * @param {string | null} [etag] - Optional etag for conditional write
+   * @returns {Promise<void>}
+   * @throws {Error} if etag mismatch (precondition failed)
+   */
+  saveIndexRegistry(org: string, site: string, registry: Record<string, { lastmod: string }>, etag?: string | null): Promise<void>;
 }
