@@ -20,6 +20,8 @@ import { TEST_CONTEXT } from './util.js';
 function createMockBucket() {
   const storage = new Map();
   const metadata = new Map();
+  const etags = new Map();
+  let etagCounter = 0;
 
   return {
     storage,
@@ -29,6 +31,9 @@ function createMockBucket() {
       if (options?.customMetadata) {
         metadata.set(key, options.customMetadata);
       }
+      // Generate a new etag for this put
+      etagCounter += 1;
+      etags.set(key, `etag-${etagCounter}`);
     },
     get: async (key) => {
       const item = storage.get(key);
@@ -37,6 +42,7 @@ function createMockBucket() {
         json: async () => JSON.parse(item.data),
         text: async () => item.data,
         customMetadata: metadata.get(key),
+        etag: etags.get(key),
       };
     },
     head: async (key) => {
@@ -44,11 +50,13 @@ function createMockBucket() {
       if (!item) return null;
       return {
         customMetadata: metadata.get(key),
+        etag: etags.get(key),
       };
     },
     delete: async (key) => {
       storage.delete(key);
       metadata.delete(key);
+      etags.delete(key);
     },
   };
 }
@@ -660,6 +668,202 @@ describe('StorageClient', () => {
         assert.ok(result);
         const data = await result.json();
         assert.deepStrictEqual(data, registry);
+      });
+    });
+  });
+
+  describe('Index Registry', () => {
+    describe('fetchIndexRegistry', () => {
+      it('returns empty registry with null etag when registry does not exist', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+
+        const result = await client.fetchIndexRegistry('test-org', 'test-site');
+
+        assert.deepStrictEqual(result.data, {});
+        assert.strictEqual(result.etag, null);
+      });
+
+      it('fetches existing registry with etag', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registryData = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+          '/us/en_us/index.json': { lastmod: '2025-01-07T01:00:00.000Z' },
+        };
+
+        // Manually add registry to storage
+        await ctx.env.CATALOG_BUCKET.put(
+          'test-org/test-site/indices/.registry.json',
+          JSON.stringify(registryData),
+        );
+
+        const result = await client.fetchIndexRegistry('test-org', 'test-site');
+
+        assert.deepStrictEqual(result.data, registryData);
+        // etag should be present
+        assert.ok(result.etag);
+        assert.strictEqual(typeof result.etag, 'string');
+      });
+
+      it('handles different org/site combinations', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registry1 = { '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' } };
+        const registry2 = { '/items/index.json': { lastmod: '2025-01-07T02:00:00.000Z' } };
+
+        await ctx.env.CATALOG_BUCKET.put(
+          'org1/site1/indices/.registry.json',
+          JSON.stringify(registry1),
+        );
+        await ctx.env.CATALOG_BUCKET.put(
+          'org2/site2/indices/.registry.json',
+          JSON.stringify(registry2),
+        );
+
+        const result1 = await client.fetchIndexRegistry('org1', 'site1');
+        const result2 = await client.fetchIndexRegistry('org2', 'site2');
+
+        assert.deepStrictEqual(result1.data, registry1);
+        assert.deepStrictEqual(result2.data, registry2);
+      });
+    });
+
+    describe('saveIndexRegistry', () => {
+      it('saves registry without etag', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', registry);
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        assert.ok(result);
+        const data = await result.json();
+        assert.deepStrictEqual(data, registry);
+      });
+
+      it('saves registry with etag for conditional write', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', registry, 'test-etag');
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        assert.ok(result);
+        const data = await result.json();
+        assert.deepStrictEqual(data, registry);
+      });
+
+      it('updates existing registry', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const initialRegistry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+        const updatedRegistry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+          '/us/en_us/index.json': { lastmod: '2025-01-07T01:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', initialRegistry);
+        await client.saveIndexRegistry('test-org', 'test-site', updatedRegistry);
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        const data = await result.json();
+        assert.deepStrictEqual(data, updatedRegistry);
+      });
+
+      it('can remove entries from registry', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const initialRegistry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+          '/us/en_us/index.json': { lastmod: '2025-01-07T01:00:00.000Z' },
+        };
+        const updatedRegistry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', initialRegistry);
+        await client.saveIndexRegistry('test-org', 'test-site', updatedRegistry);
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        const data = await result.json();
+        assert.deepStrictEqual(data, updatedRegistry);
+        assert.strictEqual(data['/us/en_us/index.json'], undefined);
+      });
+
+      it('saves empty registry', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+
+        await client.saveIndexRegistry('test-org', 'test-site', {});
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        const data = await result.json();
+        assert.deepStrictEqual(data, {});
+      });
+
+      it('handles null etag', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', registry, null);
+
+        const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
+        assert.ok(result);
+        const data = await result.json();
+        assert.deepStrictEqual(data, registry);
+      });
+    });
+
+    describe('integration: fetch and save', () => {
+      it('can fetch registry after saving', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const registry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+          '/us/en_us/index.json': { lastmod: '2025-01-07T01:00:00.000Z' },
+        };
+
+        await client.saveIndexRegistry('test-org', 'test-site', registry);
+        const result = await client.fetchIndexRegistry('test-org', 'test-site');
+
+        assert.deepStrictEqual(result.data, registry);
+        assert.ok(result.etag !== null);
+      });
+
+      it('simulates optimistic concurrency pattern', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const initialRegistry = {
+          '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
+        };
+
+        // Save initial registry
+        await client.saveIndexRegistry('test-org', 'test-site', initialRegistry);
+
+        // Fetch with etag
+        const { data: fetchedRegistry, etag } = await client.fetchIndexRegistry('test-org', 'test-site');
+
+        // Modify and save with etag
+        fetchedRegistry['/us/en_us/index.json'] = { lastmod: '2025-01-07T01:00:00.000Z' };
+        await client.saveIndexRegistry('test-org', 'test-site', fetchedRegistry, etag);
+
+        // Verify update
+        const { data: updatedRegistry } = await client.fetchIndexRegistry('test-org', 'test-site');
+        assert.strictEqual(Object.keys(updatedRegistry).length, 2);
+        assert.ok(updatedRegistry['/products/index.json']);
+        assert.ok(updatedRegistry['/us/en_us/index.json']);
       });
     });
   });
