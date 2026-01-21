@@ -39,16 +39,23 @@ describe('media', () => {
         lookupImageLocation: [],
         saveImage: [],
         fetch: [],
+        saveImageLocation: [],
       };
 
       const mockStorageClient = {
-        lookupImageLocation: async (...args) => {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
           calls.lookupImageLocation.push(args);
-          return null;
+          return this.imageLocations[args[3]] || null;
         },
-        saveImage: async (...args) => {
+        async saveImage(...args) {
           calls.saveImage.push(args);
           return './media_abc123.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
         },
       };
       StorageClient.fromContext = () => mockStorageClient;
@@ -105,6 +112,16 @@ describe('media', () => {
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
         },
+      ]);
+
+      // saveImageLocation should be called once to store the image location
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+      assert.deepStrictEqual(calls.saveImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        'https://example.com/image.jpg',
+        './media_abc123.jpg',
       ]);
     });
 
@@ -188,16 +205,23 @@ describe('media', () => {
         lookupImageLocation: [],
         saveImage: [],
         fetch: [],
+        saveImageLocation: [],
       };
 
       const mockStorageClient = {
-        lookupImageLocation: async (...args) => {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
           calls.lookupImageLocation.push(args);
-          return null;
+          return this.imageLocations[args[3]] || null;
         },
-        saveImage: async (...args) => {
+        async saveImage(...args) {
           calls.saveImage.push(args);
           return './media_abc123.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
         },
       };
       StorageClient.fromContext = () => mockStorageClient;
@@ -281,6 +305,16 @@ describe('media', () => {
           },
         },
       ]);
+
+      // saveImageLocation should be called once to store the image location
+      assert.strictEqual(calls.saveImageLocation.length, 2);
+      assert.deepStrictEqual(calls.saveImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        'https://example.com/image.jpg?id=123',
+        './media_abc123.jpg',
+      ]);
     });
 
     it('should reuse cache image location, if available', async () => {
@@ -327,17 +361,24 @@ describe('media', () => {
       const calls = {
         lookupImageLocation: [],
         saveImage: [],
+        saveImageLocation: [],
         fetch: [],
       };
 
       const mockStorageClient = {
-        lookupImageLocation: async (...args) => {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
           calls.lookupImageLocation.push(args);
-          return null;
+          return this.imageLocations[args[3]] || null;
         },
-        saveImage: async (...args) => {
+        async saveImage(...args) {
           calls.saveImage.push(args);
           return './media_def456.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
         },
       };
       StorageClient.fromContext = () => mockStorageClient;
@@ -410,6 +451,16 @@ describe('media', () => {
           },
         },
       ]);
+
+      // saveImageLocation should be called once to store the image location
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+      assert.deepStrictEqual(calls.saveImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        'https://example.com/same-image.jpg',
+        './media_def456.jpg',
+      ]);
     });
 
     it('should retry on error', async () => {
@@ -418,16 +469,23 @@ describe('media', () => {
         lookupImageLocation: [],
         saveImage: [],
         fetch: [],
+        saveImageLocation: [],
       };
 
       const mockStorageClient = {
-        lookupImageLocation: async (...args) => {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
           calls.lookupImageLocation.push(args);
-          return null;
+          return this.imageLocations[args[3]] || null;
         },
-        saveImage: async (...args) => {
+        async saveImage(...args) {
           calls.saveImage.push(args);
           return './media_123456.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
         },
       };
       StorageClient.fromContext = () => mockStorageClient;
@@ -498,6 +556,16 @@ describe('media', () => {
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
         },
+      ]);
+
+      // saveImageLocation should be called once to store the image location
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+      assert.deepStrictEqual(calls.saveImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        'https://example.com/image.jpg',
+        './media_123456.jpg',
       ]);
     });
 

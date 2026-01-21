@@ -44,6 +44,29 @@ export declare class StorageClient {
   saveImage(ctx: Context, org: string, site: string, image: SharedTypes.MediaData): Promise<string>;
 
   /**
+   * Save image location for a site.
+   * 
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {string} url
+   * @param {string} location eg. "./media_hash.jpg"
+   */
+  saveImageLocation(ctx: Context, org: string, site: string, url: string, location: string): Promise<void>;
+
+  /**
+   * Lookup image location for a previously processed image.
+   * Returns either the image filename or null if the image has not been processed yet.
+   * 
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {string} url
+   * @returns {Promise<string>} location, eg. "./media_hash.jpg"
+   */
+  lookupImageLocation(ctx: Context, org: string, site: string, url: string): Promise<string | null>;
+
+  /**
    * Load stored index for a site.
    * If it doesn't exist, return empty object.
    *
