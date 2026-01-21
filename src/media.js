@@ -165,9 +165,7 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     let newUrl;
     if (img) {
       newUrl = await storageClient.saveImage(ctx, org, site, img);
-      if (newUrl) {
-        await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
-      }
+      await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
     }
     resolve(newUrl);
     return newUrl;
