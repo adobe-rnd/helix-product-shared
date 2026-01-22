@@ -76,7 +76,7 @@ async function fetchImage(pctx, pimageUrl) {
   async function doFetch(ctx, imageUrl, attempts = 0) {
     const { log } = ctx;
 
-    log.debug('fetching image: ', imageUrl);
+    log.debug('fetching image from origin: ', imageUrl);
     const resp = await fetch(imageUrl, {
       method: 'GET',
       headers: {
@@ -144,15 +144,6 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       return processed.get(url);
     }
 
-    // avoid fetching the image if possible
-    // assumes that the source image never changes
-    const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
-    if (imageLocation) {
-      // store for next time to avoid the HEAD
-      processed.set(url, imageLocation);
-      return imageLocation;
-    }
-
     /** @type {(value: string) => void} */
     let resolve;
     const promise = new Promise((r) => {
@@ -160,11 +151,21 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     });
     processed.set(url, promise);
 
+    // avoid fetching the image if possible
+    // assumes that the source image never changes
+    const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
+    if (imageLocation) {
+      // store for next time to avoid the HEAD
+      resolve(imageLocation);
+      return imageLocation;
+    }
+
     const img = await fetchImage(ctx, url);
     // only set the image if the fetch succeeded
     let newUrl;
     if (img) {
       newUrl = await storageClient.saveImage(ctx, org, site, img);
+      await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
     }
     resolve(newUrl);
     return newUrl;
