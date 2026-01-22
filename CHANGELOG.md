@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.0...v1.5.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* Image lookup ([#25](https://github.com/adobe-rnd/helix-product-shared/issues/25)) ([0d4cd5c](https://github.com/adobe-rnd/helix-product-shared/commit/0d4cd5c40d7c1821b58ac2e84ef4d71881475d90))
+
 # [1.5.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.1...v1.5.0) (2026-01-08)
 
 
