@@ -1,3 +1,11 @@
+## [1.5.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.1...v1.5.2) (2026-02-03)
+
+
+### Bug Fixes
+
+* remove slugger ([53f1058](https://github.com/adobe-rnd/helix-product-shared/commit/53f105893c2bb7d4df01413a29d729c8672bcbc7))
+* update computeProductKeys and add metadata cache keys ([ea026dc](https://github.com/adobe-rnd/helix-product-shared/commit/ea026dc496f674b231f9f7046ad77d8391a1dac6))
+
 ## [1.5.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.0...v1.5.1) (2026-01-22)
 
 
