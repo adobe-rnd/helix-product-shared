@@ -12,47 +12,15 @@
 
 import assert from 'node:assert';
 import {
-  computeStoreViewKey,
-  computeStoreKey,
-  computeProductSkuKey,
-  computeProductUrlKeyKey,
   computeProductPathKey,
   computeSiteKey,
-  computeProductKeys,
   compute404Key,
   computeMediaKeys,
   computeAuthoredContentKey,
+  computeProductKeys,
 } from '../src/cache.js';
 
 describe('Cache Functions', () => {
-  describe('computeStoreViewKey', () => {
-    it('computes surrogate key for valid store view parameters', async () => {
-      const key = await computeStoreViewKey('adobe', 'site1', 'store1', 'view1');
-      assert.strictEqual(key, 'zw5YBl1DUvNuASw9');
-    });
-  });
-
-  describe('computeStoreKey', () => {
-    it('computes surrogate key for valid store parameters', async () => {
-      const key = await computeStoreKey('adobe', 'site1', 'store1');
-      assert.strictEqual(key, '8hpdiz7qP5l7mDnb');
-    });
-  });
-
-  describe('computeProductSkuKey', () => {
-    it('computes surrogate key for valid product sku parameters', async () => {
-      const key = await computeProductSkuKey('adobe', 'site1', 'store1', 'view1', 'sku123');
-      assert.strictEqual(key, 'SUsyd_Y356ZS-pcw');
-    });
-  });
-
-  describe('computeProductUrlKeyKey', () => {
-    it('computes surrogate key for valid product url key parameters', async () => {
-      const key = await computeProductUrlKeyKey('adobe', 'site1', 'store1', 'view1', 'product-url');
-      assert.strictEqual(key, 'DV15mkThz3E4NNUq');
-    });
-  });
-
   describe('computeProductPathKey', () => {
     it('computes surrogate key for valid product path parameters', async () => {
       const key = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
@@ -85,24 +53,14 @@ describe('Cache Functions', () => {
   });
 
   describe('computeSiteKey', () => {
-    it('computes surrogate key for valid site parameters', async () => {
-      const key = await computeSiteKey('adobe', 'site1');
+    it('computes surrogate key for valid site parameters', () => {
+      const key = computeSiteKey('adobe', 'site1');
       assert.strictEqual(key, 'main--site1--adobe');
     });
-  });
 
-  describe('computeProductKeys', () => {
-    it('computes all product keys for valid parameters', async () => {
-      const keys = await computeProductKeys('adobe', 'site1', 'store1', 'view1', 'sku123', 'product-url');
-      assert.ok(Array.isArray(keys));
-      assert.strictEqual(keys.length, 5);
-
-      // Verify exact key values in expected order
-      assert.strictEqual(keys[0], 'zw5YBl1DUvNuASw9'); // Store View Key
-      assert.strictEqual(keys[1], '8hpdiz7qP5l7mDnb'); // Store Key
-      assert.strictEqual(keys[2], 'SUsyd_Y356ZS-pcw'); // Product SKU Key
-      assert.strictEqual(keys[3], 'DV15mkThz3E4NNUq'); // Product URL Key
-      assert.strictEqual(keys[4], 'main--site1--adobe'); // Site Key
+    it('handles special characters in parameters', () => {
+      const key = computeSiteKey('adobe-rnd', 'site-with-dashes');
+      assert.strictEqual(key, 'main--site-with-dashes--adobe-rnd');
     });
   });
 
@@ -114,21 +72,21 @@ describe('Cache Functions', () => {
   });
 
   describe('compute404Key', () => {
-    it('computes surrogate key for valid 404 parameters', async () => {
-      const key = await compute404Key('adobe', 'site1');
+    it('computes surrogate key for valid 404 parameters', () => {
+      const key = compute404Key('adobe', 'site1');
       assert.strictEqual(key, 'main--site1--adobe_404');
     });
 
-    it('returns consistent keys for same inputs', async () => {
-      const key1 = await compute404Key('adobe', 'site1');
-      const key2 = await compute404Key('adobe', 'site1');
+    it('returns consistent keys for same inputs', () => {
+      const key1 = compute404Key('adobe', 'site1');
+      const key2 = compute404Key('adobe', 'site1');
       assert.strictEqual(key1, key2);
       assert.strictEqual(key1, 'main--site1--adobe_404');
     });
 
-    it('returns different keys for different inputs', async () => {
-      const key1 = await compute404Key('adobe', 'site1');
-      const key2 = await compute404Key('adobe', 'site2');
+    it('returns different keys for different inputs', () => {
+      const key1 = compute404Key('adobe', 'site1');
+      const key2 = compute404Key('adobe', 'site2');
       assert.notStrictEqual(key1, key2);
       assert.strictEqual(key1, 'main--site1--adobe_404');
       assert.strictEqual(key2, 'main--site2--adobe_404');
@@ -144,46 +102,26 @@ describe('Cache Functions', () => {
     });
   });
 
-  describe('Integration Tests', () => {
-    it('returns consistent keys for same inputs', async () => {
-      const key1 = await computeStoreViewKey('adobe', 'site1', 'store1', 'view1');
-      const key2 = await computeStoreViewKey('adobe', 'site1', 'store1', 'view1');
-      assert.strictEqual(key1, key2);
-      assert.strictEqual(key1, 'zw5YBl1DUvNuASw9');
+  describe('computeProductKeys', () => {
+    it('computes keys without contentBusId', async () => {
+      const keys = await computeProductKeys('adobe', 'site1', '/products/blender-pro-500');
+      assert.strictEqual(keys.length, 2);
+      assert.strictEqual(keys[0], 'ZB7d8561tx75wQVt'); // productPathKey
+      assert.strictEqual(keys[1], 'main--site1--adobe'); // siteKey
     });
 
-    it('returns different keys for different inputs', async () => {
-      const key1 = await computeStoreViewKey('adobe', 'site1', 'store1', 'view1');
-      const key2 = await computeStoreViewKey('adobe', 'site1', 'store1', 'view2');
-      assert.notStrictEqual(key1, key2);
-      assert.strictEqual(key1, 'zw5YBl1DUvNuASw9');
-      assert.strictEqual(key2, 'Z44FZ58s2oZAH7VP');
-    });
-
-    it('computeProductKeys includes all expected key types', async () => {
-      const keys = await computeProductKeys('adobe', 'site1', 'store1', 'view1', 'sku123', 'product-url');
-
-      // Verify we get the expected number of keys
-      assert.strictEqual(keys.length, 5);
-
-      // Verify each key is unique
-      const uniqueKeys = new Set(keys);
-      assert.strictEqual(uniqueKeys.size, 5);
-
-      // Verify the keys match expected values
-      const expectedKeys = [
-        'zw5YBl1DUvNuASw9', // Store View Key
-        '8hpdiz7qP5l7mDnb', // Store Key
-        'SUsyd_Y356ZS-pcw', // Product SKU Key
-        'DV15mkThz3E4NNUq', // Product URL Key
-        'main--site1--adobe', // Site Key
-      ];
-      assert.deepStrictEqual(keys, expectedKeys);
-    });
-
-    it('computeSiteKey handles special characters in parameters', async () => {
-      const key = await computeSiteKey('adobe-rnd', 'site-with-dashes');
-      assert.strictEqual(key, 'main--site-with-dashes--adobe-rnd');
+    it('computes keys with contentBusId', async () => {
+      const keys = await computeProductKeys('adobe', 'site1', '/products/blender-pro-500', 'myContentBusId');
+      assert.strictEqual(keys.length, 6);
+      assert.strictEqual(keys[0], 'ZB7d8561tx75wQVt'); // productPathKey
+      assert.strictEqual(keys[1], 'main--site1--adobe'); // siteKey
+      // authoredContentKey
+      const expectedAuthoredKey = await computeAuthoredContentKey('myContentBusId', '/products/blender-pro-500');
+      assert.strictEqual(keys[2], expectedAuthoredKey);
+      // additional content keys
+      assert.strictEqual(keys[3], 'myContentBusId_metadata');
+      assert.strictEqual(keys[4], 'main--site1--adobe_head');
+      assert.strictEqual(keys[5], 'myContentBusId');
     });
   });
 });

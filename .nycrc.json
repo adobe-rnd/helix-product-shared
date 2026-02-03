@@ -5,9 +5,9 @@
     "text-summary"
   ],
   "check-coverage": true,
-  "lines": 50.9,
-  "branches": 80.76,
-  "statements": 50.9,
-  "functions": 75,
+  "lines": 95,
+  "branches": 89,
+  "statements": 95,
+  "functions": 91,
   "skip-full": true
 }

@@ -11,68 +11,6 @@
  */
 
 /**
- * Compute the surrogate key for a store view.
- * @param org - The organization identifier
- * @param site - The site identifier
- * @param storeCode - The store code
- * @param storeViewCode - The store view code
- * @returns A promise that resolves to the computed surrogate key
- */
-export function computeStoreViewKey(
-  org: string,
-  site: string,
-  storeCode: string,
-  storeViewCode: string
-): Promise<string>;
-
-/**
- * Compute the surrogate key for a store.
- * @param org - The organization identifier
- * @param site - The site identifier
- * @param storeCode - The store code
- * @returns A promise that resolves to the computed surrogate key
- */
-export function computeStoreKey(
-  org: string,
-  site: string,
-  storeCode: string
-): Promise<string>;
-
-/**
- * Compute the surrogate key for a product sku.
- * @param org - The organization identifier
- * @param site - The site identifier
- * @param storeCode - The store code
- * @param storeViewCode - The store view code
- * @param sku - The product SKU
- * @returns A promise that resolves to the computed surrogate key
- */
-export function computeProductSkuKey(
-  org: string,
-  site: string,
-  storeCode: string,
-  storeViewCode: string,
-  sku: string
-): Promise<string>;
-
-/**
- * Compute the surrogate key for a product url key.
- * @param org - The organization identifier
- * @param site - The site identifier
- * @param storeCode - The store code
- * @param storeViewCode - The store view code
- * @param urlKey - The product URL key
- * @returns A promise that resolves to the computed surrogate key
- */
-export function computeProductUrlKeyKey(
-  org: string,
-  site: string,
-  storeCode: string,
-  storeViewCode: string,
-  urlKey: string
-): Promise<string>;
-
-/**
  * Compute the surrogate key for a product path.
  * @param org - The organization identifier
  * @param site - The site identifier
@@ -87,9 +25,9 @@ export function computeProductPathKey(
 
 /**
  * Compute the surrogate key for an authored content inserted in the pipeline.
- * @param {string} contentBusId The content bus id of the authored content
- * @param {string} path The path of the authored content
- * @returns {Promise<string>} A promise that resolves to the computed surrogate key
+ * @param contentBusId The content bus id of the authored content
+ * @param path The path of the authored content
+ * @returns A promise that resolves to the computed surrogate key
  */
 export function computeAuthoredContentKey(contentBusId: string, path: string): Promise<string>;
 
@@ -97,7 +35,7 @@ export function computeAuthoredContentKey(contentBusId: string, path: string): P
  * Compute the surrogate key for a site.
  * @param org - The organization identifier
  * @param site - The site identifier
- * @returns A promise that resolves to the computed surrogate key
+ * @returns The computed surrogate key
  */
 export function computeSiteKey(
   org: string,
@@ -108,7 +46,7 @@ export function computeSiteKey(
  * Compute the surrogate key for a 404.
  * @param org - The organization identifier
  * @param site - The site identifier
- * @returns A promise that resolves to the computed surrogate key
+ * @returns The computed surrogate key
  */
 export function compute404Key(
   org: string,
@@ -116,22 +54,19 @@ export function compute404Key(
 ): string;
 
 /**
- * Compute the surrogate keys for a product.
+ * Compute the surrogate keys for a successful product request.
+ * This is a convenience function that returns all keys needed for cache invalidation.
  * @param org - The organization identifier
  * @param site - The site identifier
- * @param storeCode - The store code
- * @param storeViewCode - The store view code
- * @param sku - The product SKU
- * @param urlKey - The product URL key
+ * @param path - The product path (e.g., /products/blender-pro-500)
+ * @param contentBusId - Optional content bus ID for authored content keys
  * @returns A promise that resolves to an array of computed surrogate keys
  */
 export function computeProductKeys(
   org: string,
   site: string,
-  storeCode: string,
-  storeViewCode: string,
-  sku: string,
-  urlKey: string
+  path: string,
+  contentBusId?: string
 ): Promise<string[]>;
 
 /**
