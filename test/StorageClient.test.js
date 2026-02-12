@@ -509,19 +509,19 @@ describe('StorageClient', () => {
     });
   });
 
-  describe('Merchant Feed operations', () => {
-    describe('fetchMerchantFeed', () => {
-      it('fetches merchant feed', async () => {
+  describe('Feed operations', () => {
+    describe('fetchFeed', () => {
+      it('fetches feed', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [{ id: '1', price: 100 }] };
 
         await ctx.env.CATALOG_BUCKET.put(
-          'org/site/store/view/merchant-feed/default.json',
+          'org/site/store/view/feed/default.json',
           JSON.stringify(feed),
         );
 
-        const result = await client.fetchMerchantFeed('org/site/store/view');
+        const result = await client.fetchFeed('org/site/store/view');
         assert.deepStrictEqual(result, feed);
       });
 
@@ -529,38 +529,38 @@ describe('StorageClient', () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
 
-        const result = await client.fetchMerchantFeed('org/site/store/view');
+        const result = await client.fetchFeed('org/site/store/view');
         assert.deepStrictEqual(result, {});
       });
     });
 
-    describe('saveMerchantFeed', () => {
-      it('saves merchant feed', async () => {
+    describe('saveFeed', () => {
+      it('saves feed', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [{ id: '1', price: 100 }] };
 
-        await client.saveMerchantFeed('org/site/store/view', feed);
+        await client.saveFeed('org/site/store/view', feed);
 
-        const result = await ctx.env.CATALOG_BUCKET.get('org/site/store/view/merchant-feed/default.json');
+        const result = await ctx.env.CATALOG_BUCKET.get('org/site/store/view/feed/default.json');
         assert.ok(result);
         const data = await result.json();
         assert.deepStrictEqual(data, feed);
       });
     });
 
-    describe('fetchMerchantFeedByPath', () => {
-      it('fetches merchant feed by path', async () => {
+    describe('fetchFeedByPath', () => {
+      it('fetches feed by path', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [{ id: '1', price: 100 }] };
 
         await ctx.env.CATALOG_BUCKET.put(
-          'org/site/indices/products/merchant-feed.json',
+          'org/site/indices/products/feed.json',
           JSON.stringify(feed),
         );
 
-        const result = await client.fetchMerchantFeedByPath('org', 'site', '/products');
+        const result = await client.fetchFeedByPath('org', 'site', '/products');
         assert.deepStrictEqual(result, feed);
       });
 
@@ -568,38 +568,38 @@ describe('StorageClient', () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
 
-        const result = await client.fetchMerchantFeedByPath('org', 'site', '/products');
+        const result = await client.fetchFeedByPath('org', 'site', '/products');
         assert.deepStrictEqual(result, {});
       });
     });
 
-    describe('saveMerchantFeedByPath', () => {
-      it('saves merchant feed by path', async () => {
+    describe('saveFeedByPath', () => {
+      it('saves feed by path', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [{ id: '1', price: 100 }] };
 
-        await client.saveMerchantFeedByPath('org', 'site', '/products', feed);
+        await client.saveFeedByPath('org', 'site', '/products', feed);
 
-        const result = await ctx.env.CATALOG_BUCKET.get('org/site/indices/products/merchant-feed.json');
+        const result = await ctx.env.CATALOG_BUCKET.get('org/site/indices/products/feed.json');
         assert.ok(result);
         const data = await result.json();
         assert.deepStrictEqual(data, feed);
       });
     });
 
-    describe('merchantFeedExists', () => {
+    describe('feedExists', () => {
       it('returns true when feed exists', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [] };
 
         await ctx.env.CATALOG_BUCKET.put(
-          'org/site/indices/products/merchant-feed.json',
+          'org/site/indices/products/feed.json',
           JSON.stringify(feed),
         );
 
-        const exists = await client.merchantFeedExists('org', 'site', '/products');
+        const exists = await client.feedExists('org', 'site', '/products');
         assert.strictEqual(exists, true);
       });
 
@@ -607,25 +607,25 @@ describe('StorageClient', () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
 
-        const exists = await client.merchantFeedExists('org', 'site', '/products');
+        const exists = await client.feedExists('org', 'site', '/products');
         assert.strictEqual(exists, false);
       });
     });
 
-    describe('deleteMerchantFeed', () => {
-      it('deletes merchant feed', async () => {
+    describe('deleteFeed', () => {
+      it('deletes feed', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const feed = { items: [] };
 
         await ctx.env.CATALOG_BUCKET.put(
-          'org/site/indices/products/merchant-feed.json',
+          'org/site/indices/products/feed.json',
           JSON.stringify(feed),
         );
 
-        await client.deleteMerchantFeed('org', 'site', '/products');
+        await client.deleteFeed('org', 'site', '/products');
 
-        const result = await ctx.env.CATALOG_BUCKET.get('org/site/indices/products/merchant-feed.json');
+        const result = await ctx.env.CATALOG_BUCKET.get('org/site/indices/products/feed.json');
         assert.strictEqual(result, null);
       });
     });
