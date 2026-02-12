@@ -200,6 +200,17 @@ export declare class StorageClient {
   fetchProductByPath(org: string, site: string, path: string): Promise<SharedTypes.ProductBusEntry | null>;
 
   /**
+   * Fetch product by path for a site with internal data.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @param {boolean} includeInternal - Whether to include internal data in the response
+   * @returns {Promise<SharedTypes.ProductBusEntryInternal | null>}
+   */
+  fetchProductByPath(org: string, site: string, path: string, includeInternal: true): Promise<SharedTypes.ProductBusEntryInternal | null>;
+
+  /**
    * Save product for a site.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
@@ -214,9 +225,10 @@ export declare class StorageClient {
    * @param {string} org
    * @param {string} site
    * @param {string} path
-   * @param {SharedTypes.ProductBusEntry} product
+   * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
+   * @param {Record<string, string>} [customMetadata] - Optional custom metadata to store
    */
-  saveProductByPath(org: string, site: string, path: string, product: SharedTypes.ProductBusEntry): Promise<void>;
+  saveProductByPath(org: string, site: string, path: string, product: SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal, customMetadata?: Record<string, string>): Promise<void>;
 
   /**
    * Fetch registry.

@@ -240,6 +240,121 @@ describe('StorageClient', () => {
       const result = await client.fetchProductByPath('org', 'site', '/products/nonexistent');
       assert.strictEqual(result, null);
     });
+
+    it('removes internal property by default', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'ABC123',
+        name: 'Test Product',
+        internal: {
+          images: {
+            'https://example.com/image.jpg': {
+              sourceUrl: './media_hash123.jpg',
+              size: 1000,
+              mimeType: 'image/jpeg',
+            },
+          },
+        },
+      };
+
+      await ctx.env.CATALOG_BUCKET.put(
+        'org/site/catalog/products/test-product.json',
+        JSON.stringify(product),
+      );
+
+      const result = await client.fetchProductByPath('org', 'site', '/products/test-product');
+      assert.strictEqual(result.sku, 'ABC123');
+      assert.strictEqual(result.name, 'Test Product');
+      assert.strictEqual(result.internal, undefined);
+    });
+
+    it('includes internal property when includeInternal=true', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'ABC123',
+        name: 'Test Product',
+        internal: {
+          images: {
+            'https://example.com/image.jpg': {
+              sourceUrl: './media_hash123.jpg',
+              size: 1000,
+              mimeType: 'image/jpeg',
+            },
+          },
+        },
+      };
+
+      await ctx.env.CATALOG_BUCKET.put(
+        'org/site/catalog/products/test-product.json',
+        JSON.stringify(product),
+      );
+
+      const result = await client.fetchProductByPath('org', 'site', '/products/test-product', true);
+      assert.strictEqual(result.sku, 'ABC123');
+      assert.strictEqual(result.name, 'Test Product');
+      assert.ok(result.internal);
+      assert.ok(result.internal.images);
+      assert.strictEqual(result.internal.images['https://example.com/image.jpg'].sourceUrl, './media_hash123.jpg');
+      assert.strictEqual(result.internal.images['https://example.com/image.jpg'].size, 1000);
+      assert.strictEqual(result.internal.images['https://example.com/image.jpg'].mimeType, 'image/jpeg');
+    });
+
+    it('removes internal property when includeInternal=false', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'ABC123',
+        name: 'Test Product',
+        internal: {
+          images: {
+            'https://example.com/image.jpg': {
+              sourceUrl: './media_hash123.jpg',
+              size: 1000,
+              mimeType: 'image/jpeg',
+            },
+          },
+        },
+      };
+
+      await ctx.env.CATALOG_BUCKET.put(
+        'org/site/catalog/products/test-product.json',
+        JSON.stringify(product),
+      );
+
+      const result = await client.fetchProductByPath('org', 'site', '/products/test-product', false);
+      assert.strictEqual(result.sku, 'ABC123');
+      assert.strictEqual(result.name, 'Test Product');
+      assert.strictEqual(result.internal, undefined);
+    });
+
+    it('handles products without internal property', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'ABC123',
+        name: 'Test Product',
+      };
+
+      await ctx.env.CATALOG_BUCKET.put(
+        'org/site/catalog/products/test-product.json',
+        JSON.stringify(product),
+      );
+
+      // Should work fine whether includeInternal is true or false
+      const resultDefault = await client.fetchProductByPath('org', 'site', '/products/test-product');
+      assert.strictEqual(resultDefault.sku, 'ABC123');
+      assert.strictEqual(resultDefault.internal, undefined);
+
+      const resultTrue = await client.fetchProductByPath('org', 'site', '/products/test-product', true);
+      assert.strictEqual(resultTrue.sku, 'ABC123');
+      assert.strictEqual(resultTrue.internal, undefined);
+
+      const resultFalse = await client.fetchProductByPath('org', 'site', '/products/test-product', false);
+      assert.strictEqual(resultFalse.sku, 'ABC123');
+      assert.strictEqual(resultFalse.internal, undefined);
+    });
   });
 
   describe('saveProduct', () => {
