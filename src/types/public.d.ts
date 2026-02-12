@@ -16,6 +16,21 @@ export interface ProductBusPrice {
   regular?: string;
 }
 
+export interface ProductBusFeedCommon {
+  geoTargetCountries?: string[];
+  geoStoreCountry?: string;
+}
+
+export interface ProductBusFeedOpenAI {
+  isEligibleForSearch?: boolean;
+  isEligibleForCheckout?: boolean;
+}
+
+export interface ProductBusFeeds {
+  common?: ProductBusFeedCommon & ProductBusFeedOpenAI;
+  openai?: ProductBusFeedOpenAI;
+}
+
 export interface ProductBusVariant {
   sku: string;
   name: string;
@@ -114,4 +129,9 @@ export interface ProductBusEntry {
    * ]
    */
   shipping?: string | FeedShipping | FeedShipping[];
+
+  /**
+   * Feeds for both Google Merchant Center and OpenAI
+   */
+  feeds?: ProductBusFeeds;
 }
