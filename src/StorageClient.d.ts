@@ -84,21 +84,21 @@ export declare class StorageClient {
   saveQueryIndex(catalogKey: string, data: SharedTypes.StoredIndex): Promise<void>;
 
   /**
-   * Load stored merchant feed for a site.
+   * Load stored feed for a site.
    * If it doesn't exist, return empty object.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
-   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   * @returns {Promise<SharedTypes.StoredFeed>}
    */
-  fetchMerchantFeed(catalogKey: string): Promise<SharedTypes.StoredMerchantFeed | null>;
+  fetchFeed(catalogKey: string): Promise<SharedTypes.StoredFeed | null>;
 
   /**
-   * Save merchant feed for a site.
+   * Save feed for a site.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
-   * @param {SharedTypes.StoredMerchantFeed} data
+   * @param {SharedTypes.StoredFeed} data
    */
-  saveMerchantFeed(catalogKey: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
+  saveFeed(catalogKey: string, data: SharedTypes.StoredFeed): Promise<void>;
 
   /**
    * Load stored index for a site.
@@ -141,44 +141,44 @@ export declare class StorageClient {
   deleteQueryIndex(org: string, site: string, rootPath: string): Promise<void>;
 
   /**
-   * Load stored merchant feed for a site.
+   * Load stored feed for a site.
    * If it doesn't exist, return empty object.
    *
    * @param {string} org
    * @param {string} site
    * @param {string} rootPath
-   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   * @returns {Promise<SharedTypes.StoredFeed>}
    */
-  fetchMerchantFeedByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredMerchantFeed | null>;
+  fetchFeedByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredFeed | null>;
 
   /**
-   * Save merchant feed for a site.
+   * Save feed for a site.
    *
    * @param {string} org
    * @param {string} site
    * @param {string} rootPath
-   * @param {SharedTypes.StoredMerchantFeed} data
+   * @param {SharedTypes.StoredFeed} data
    */
-  saveMerchantFeedByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
+  saveFeedByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredFeed): Promise<void>;
 
   /**
-   * Check if merchant feed exists for a site/rootPath.
+   * Check if feed exists for a site/rootPath.
    *
    * @param {string} org
    * @param {string} site
    * @param {string} rootPath
    * @returns {Promise<boolean>}
    */
-  merchantFeedExists(org: string, site: string, rootPath: string): Promise<boolean>;
+  feedExists(org: string, site: string, rootPath: string): Promise<boolean>;
 
   /**
-   * Delete merchant feed for a site/rootPath.
+   * Delete feed for a site/rootPath.
    *
    * @param {string} org
    * @param {string} site
    * @param {string} rootPath
    */
-  deleteMerchantFeed(org: string, site: string, rootPath: string): Promise<void>;
+  deleteFeed(org: string, site: string, rootPath: string): Promise<void>;
 
   /**
    * Save product for a site.

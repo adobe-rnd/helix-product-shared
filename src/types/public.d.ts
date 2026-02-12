@@ -16,6 +16,21 @@ export interface ProductBusPrice {
   regular?: string;
 }
 
+export interface ProductBusFeedCommon {
+  geoTargetCountries?: string[];
+  geoStoreCountry?: string;
+}
+
+export interface ProductBusFeedOpenAI {
+  isEligibleForSearch?: boolean;
+  isEligibleForCheckout?: boolean;
+}
+
+export interface ProductBusFeeds {
+  common?: ProductBusFeedCommon & ProductBusFeedOpenAI;
+  openai?: ProductBusFeedOpenAI;
+}
+
 export interface ProductBusVariant {
   sku: string;
   name: string;
@@ -47,7 +62,7 @@ export interface ProductBusOption {
   values: ProductBusOptionValue[];
 }
 
-export interface MerchantFeedShipping {
+export interface FeedShipping {
   country: string;
   region: string;
   service: string;
@@ -57,6 +72,11 @@ export interface MerchantFeedShipping {
   min_transit_time: string;
   max_transit_time: string;
 }
+
+/**
+ * @deprecated Use FeedShipping instead
+ */
+export type MerchantFeedShipping = FeedShipping;
 
 /**
  * Helix product-bus entry
@@ -108,5 +128,10 @@ export interface ProductBusEntry {
    *   { country: 'US', region: 'CA', service: '2-Day', price: '10.00 USD', min_handling_time: '1', max_handling_time: '2', min_transit_time: '3', max_transit_time: '4' }
    * ]
    */
-  shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+  shipping?: string | FeedShipping | FeedShipping[];
+
+  /**
+   * Feeds for both Google Merchant Center and OpenAI
+   */
+  feeds?: ProductBusFeeds;
 }
