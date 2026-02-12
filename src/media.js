@@ -52,19 +52,24 @@ export function isValidURL(url) {
 
 /**
  * Apply image lookup to a product, replacing external URLs with hashed URLs
- * @param {SharedTypes.ProductBusEntry} product
- * @param {Record<string, string>} imageLookup
+ * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
  * @returns {SharedTypes.ProductBusEntry} - Mutated product
  */
-export function applyImageLookup(product, imageLookup) {
+export function applyImageLookup(product) {
+  if (!product.internal?.images) {
+    return product;
+  }
+
+  const { images: imageLookup } = product.internal;
   const images = [
     ...(product.images ?? []),
     ...(product.variants ?? []).flatMap((v) => v.images ?? []),
   ];
 
   for (const image of images) {
-    if (imageLookup[image.url]) {
-      image.url = imageLookup[image.url];
+    const imageData = imageLookup[image.url];
+    if (imageData) {
+      image.url = imageData.sourceUrl;
     }
   }
 
@@ -72,12 +77,12 @@ export function applyImageLookup(product, imageLookup) {
 }
 
 /**
- * Check if product has new images not in the lookup table
- * @param {SharedTypes.ProductBusEntry} product
- * @param {Record<string, string>} imageLookup
+ * Check if product has new images not in the internal images lookup
+ * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
  * @returns {boolean}
  */
-export function hasNewImages(product, imageLookup) {
+export function hasNewImages(product) {
+  const imageLookup = product.internal?.images || {};
   const images = [
     ...(product.images ?? []),
     ...(product.variants ?? []).flatMap((v) => v.images ?? []),
@@ -162,17 +167,17 @@ async function fetchImage(pctx, pimageUrl) {
  * @param {Context} ctx
  * @param {string} org
  * @param {string} site
- * @param {SharedTypes.ProductBusEntry} product
- * @param {Record<string, string>} [existingLookup] - Existing image lookup table
- * @returns {Promise<{product: SharedTypes.ProductBusEntry, imageLookup: Record<string, string>}>}
+ * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
+ * @returns {Promise<SharedTypes.ProductBusEntryInternal>}
  */
-export async function extractAndReplaceImages(ctx, org, site, product, existingLookup = {}) {
+export async function extractAndReplaceImages(ctx, org, site, product) {
   const { log } = ctx;
   const storageClient = StorageClient.fromContext(ctx);
   /** @type {Map<string, Promise<string>>} */
   const processed = new Map();
-  /** @type {Record<string, string>} */
-  const imageLookup = { ...existingLookup };
+
+  // Get existing image lookup from internal property
+  const existingImages = product.internal?.images || {};
 
   /**
    * @param {string} url
@@ -198,11 +203,12 @@ export async function extractAndReplaceImages(ctx, org, site, product, existingL
     });
     processed.set(url, promise);
 
-    // Check existing lookup first
-    if (imageLookup[url]) {
-      log.debug(`image found in lookup: ${url} -> ${imageLookup[url]}`);
-      resolve(imageLookup[url]);
-      return imageLookup[url];
+    // Check existing internal images first
+    if (existingImages[url]) {
+      const { sourceUrl } = existingImages[url];
+      log.debug(`image found in internal: ${url} -> ${sourceUrl}`);
+      resolve(sourceUrl);
+      return sourceUrl;
     }
 
     // avoid fetching the image if possible
@@ -210,7 +216,6 @@ export async function extractAndReplaceImages(ctx, org, site, product, existingL
     const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
     if (imageLocation) {
       // store for next time to avoid the HEAD
-      imageLookup[url] = imageLocation;
       resolve(imageLocation);
       return imageLocation;
     }
@@ -221,7 +226,16 @@ export async function extractAndReplaceImages(ctx, org, site, product, existingL
     if (img) {
       newUrl = await storageClient.saveImage(ctx, org, site, img);
       await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
-      imageLookup[url] = newUrl;
+
+      // Store in internal property
+      if (!product.internal) {
+        product.internal = { images: {} };
+      }
+      product.internal.images[url] = {
+        sourceUrl: newUrl,
+        size: img.length,
+        mimeType: img.mimeType,
+      };
     }
     resolve(newUrl);
     return newUrl;
@@ -246,5 +260,5 @@ export async function extractAndReplaceImages(ctx, org, site, product, existingL
       // TODO: requeue the product to reprocess image
     }
   }
-  return { product, imageLookup };
+  return product;
 }

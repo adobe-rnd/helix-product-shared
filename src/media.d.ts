@@ -1,4 +1,4 @@
-import type { ProductBusEntry } from "./types";
+import type { ProductBusEntry, ProductBusEntryInternal } from "./types";
 import type { Context } from "./types/context";
 
 /**
@@ -15,34 +15,28 @@ export declare function isValidURL(url: string): boolean;
 
 /**
  * Apply image lookup to a product, replacing external URLs with hashed URLs
- * @param {ProductBusEntry} product
- * @param {Record<string, string>} imageLookup
+ * @param {ProductBusEntry | ProductBusEntryInternal} product
  * @returns {ProductBusEntry} - Mutated product
  */
-export declare function applyImageLookup(product: ProductBusEntry, imageLookup: Record<string, string>): ProductBusEntry;
+export declare function applyImageLookup(product: ProductBusEntry | ProductBusEntryInternal): ProductBusEntry;
 
 /**
- * Check if product has new images not in the lookup table
- * @param {ProductBusEntry} product
- * @param {Record<string, string>} imageLookup
+ * Check if product has new images not in the internal images lookup
+ * @param {ProductBusEntry | ProductBusEntryInternal} product
  * @returns {boolean}
  */
-export declare function hasNewImages(product: ProductBusEntry, imageLookup: Record<string, string>): boolean;
+export declare function hasNewImages(product: ProductBusEntry | ProductBusEntryInternal): boolean;
 
 /**
  * @param {Context} ctx
  * @param {string} org
  * @param {string} site
- * @param {ProductBusEntry} product
- * @param {Record<string, string>} [existingLookup] - Existing image lookup table
- * @returns {Promise<{product: ProductBusEntry, imageLookup: Record<string, string>}>}
+ * @param {ProductBusEntry | ProductBusEntryInternal} product
+ * @returns {Promise<ProductBusEntryInternal>}
  */
 export declare function extractAndReplaceImages(
   ctx: Context,
   org: string,
   site: string,
-  product: ProductBusEntry,
-  existingLookup?: Record<string, string>
-): Promise<{ product: ProductBusEntry, imageLookup: Record<string, string> }>;
-
-
+  product: ProductBusEntry | ProductBusEntryInternal
+): Promise<ProductBusEntryInternal>;

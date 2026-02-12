@@ -117,13 +117,13 @@ export class StorageClient {
    * @param {string} org
    * @param {string} site
    * @param {string} path
-   * @param {boolean} [includeMetadata=false] - Include customMetadata in response
+   * @param {boolean} [includeInternal=false] - Include internal data in response
    * @returns {Promise<ProductBusEntry|null|{
    *   product: ProductBusEntry,
    *   metadata: Record<string, string>
    * }>}
    */
-  async fetchProductByPath(org, site, path, includeMetadata = false) {
+  async fetchProductByPath(org, site, path, includeInternal = false) {
     const { log } = this.ctx;
 
     const key = `${org}/${site}/catalog${path}${path.endsWith('.json') ? '' : '.json'}`;
@@ -133,12 +133,12 @@ export class StorageClient {
       return null;
     }
     const product = await object.json();
-    if (includeMetadata) {
-      return {
-        product,
-        metadata: object.customMetadata || {},
-      };
+
+    // By default, remove internal property before returning
+    if (!includeInternal && product.internal) {
+      delete product.internal;
     }
+
     return product;
   }
 
