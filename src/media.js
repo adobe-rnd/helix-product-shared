@@ -51,6 +51,50 @@ export function isValidURL(url) {
 }
 
 /**
+ * Apply image lookup to a product, replacing external URLs with hashed URLs
+ * @param {SharedTypes.ProductBusEntry} product
+ * @param {Record<string, string>} imageLookup
+ * @returns {SharedTypes.ProductBusEntry} - Mutated product
+ */
+export function applyImageLookup(product, imageLookup) {
+  const images = [
+    ...(product.images ?? []),
+    ...(product.variants ?? []).flatMap((v) => v.images ?? []),
+  ];
+
+  for (const image of images) {
+    if (imageLookup[image.url]) {
+      image.url = imageLookup[image.url];
+    }
+  }
+
+  return product;
+}
+
+/**
+ * Check if product has new images not in the lookup table
+ * @param {SharedTypes.ProductBusEntry} product
+ * @param {Record<string, string>} imageLookup
+ * @returns {boolean}
+ */
+export function hasNewImages(product, imageLookup) {
+  const images = [
+    ...(product.images ?? []),
+    ...(product.variants ?? []).flatMap((v) => v.images ?? []),
+  ];
+
+  for (const image of images) {
+    const { url } = image;
+    // If it's an external URL (not relative) and not in lookup, it's new
+    if (!isRelativePath(url) && !imageLookup[url]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * @param {string} url
  * @returns {string|undefined}
  */
@@ -119,13 +163,16 @@ async function fetchImage(pctx, pimageUrl) {
  * @param {string} org
  * @param {string} site
  * @param {SharedTypes.ProductBusEntry} product
- * @returns {Promise<SharedTypes.ProductBusEntry>}
+ * @param {Record<string, string>} [existingLookup] - Existing image lookup table
+ * @returns {Promise<{product: SharedTypes.ProductBusEntry, imageLookup: Record<string, string>}>}
  */
-export async function extractAndReplaceImages(ctx, org, site, product) {
+export async function extractAndReplaceImages(ctx, org, site, product, existingLookup = {}) {
   const { log } = ctx;
   const storageClient = StorageClient.fromContext(ctx);
   /** @type {Map<string, Promise<string>>} */
   const processed = new Map();
+  /** @type {Record<string, string>} */
+  const imageLookup = { ...existingLookup };
 
   /**
    * @param {string} url
@@ -151,11 +198,19 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     });
     processed.set(url, promise);
 
+    // Check existing lookup first
+    if (imageLookup[url]) {
+      log.debug(`image found in lookup: ${url} -> ${imageLookup[url]}`);
+      resolve(imageLookup[url]);
+      return imageLookup[url];
+    }
+
     // avoid fetching the image if possible
     // assumes that the source image never changes
     const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
     if (imageLocation) {
       // store for next time to avoid the HEAD
+      imageLookup[url] = imageLocation;
       resolve(imageLocation);
       return imageLocation;
     }
@@ -166,6 +221,7 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     if (img) {
       newUrl = await storageClient.saveImage(ctx, org, site, img);
       await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
+      imageLookup[url] = newUrl;
     }
     resolve(newUrl);
     return newUrl;
@@ -190,5 +246,5 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       // TODO: requeue the product to reprocess image
     }
   }
-  return product;
+  return { product, imageLookup };
 }

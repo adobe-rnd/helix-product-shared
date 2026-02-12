@@ -11,7 +11,11 @@
  */
 
 import assert from 'node:assert';
-import { extractAndReplaceImages } from '../src/media.js';
+import {
+  extractAndReplaceImages,
+  applyImageLookup,
+  hasNewImages,
+} from '../src/media.js';
 import { StorageClient } from '../src/StorageClient.js';
 import { TEST_CONTEXT } from './util.js';
 
@@ -83,9 +87,10 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result, imageLookup } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, './media_abc123.jpg');
+      assert.strictEqual(imageLookup['https://example.com/image.jpg'], './media_abc123.jpg');
       assert.strictEqual(calls.lookupImageLocation.length, 1);
       assert.strictEqual(calls.saveImage.length, 1);
       assert.strictEqual(calls.fetch.length, 1);
@@ -180,7 +185,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, '');
       assert.strictEqual(result.images[1].url, null);
@@ -250,7 +255,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, './media_abc123.jpg');
       assert.strictEqual(result.images[1].url, './media_abc123.jpg');
@@ -347,7 +352,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, './media_cached123.jpg');
       assert.strictEqual(calls.lookupImageLocation.length, 1);
@@ -415,7 +420,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       // All three images should have the same URL
       assert.strictEqual(result.images[0].url, './media_def456.jpg');
@@ -521,7 +526,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       // All three images should have the same URL
       assert.strictEqual(result.images[0].url, './media_def456.jpg');
@@ -654,7 +659,7 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, './media_123456.jpg');
       assert.strictEqual(calls.fetch.length, 2);
@@ -736,13 +741,292 @@ describe('media', () => {
         ],
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const { product: result } = await extractAndReplaceImages(ctx, 'org', 'site', product);
 
       assert.strictEqual(result.images[0].url, '/media/existing-image.jpg');
       assert.strictEqual(result.images[1].url, './media/another-image.jpg');
       assert.strictEqual(calls.lookupImageLocation.length, 0);
       assert.strictEqual(calls.saveImage.length, 0);
       assert.strictEqual(calls.fetch.length, 0);
+    });
+
+    it('should use existing imageLookup to avoid fetching images', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+        saveImageLocation: [],
+      };
+
+      const mockStorageClient = {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return null; // Not in .lookup folder
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_new123.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => new ArrayBuffer(100),
+          headers: {
+            get: () => 'image/jpeg',
+          },
+        };
+      };
+
+      // Mock crypto.subtle.digest
+      crypto.subtle.digest = async () => new Uint8Array([0x99, 0x88, 0x77]).buffer;
+
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+          { url: 'https://example.com/image2.jpg' },
+        ],
+      };
+
+      const existingLookup = {
+        'https://example.com/image1.jpg': './media_existing123.jpg',
+      };
+
+      const { product: result, imageLookup } = await extractAndReplaceImages(
+        ctx,
+        'org',
+        'site',
+        product,
+        existingLookup,
+      );
+
+      // First image should use existing lookup, second should be fetched
+      assert.strictEqual(result.images[0].url, './media_existing123.jpg');
+      assert.strictEqual(result.images[1].url, './media_new123.jpg');
+
+      // Lookup should include both images
+      assert.strictEqual(imageLookup['https://example.com/image1.jpg'], './media_existing123.jpg');
+      assert.strictEqual(imageLookup['https://example.com/image2.jpg'], './media_new123.jpg');
+
+      // Only second image should be looked up and fetched
+      assert.strictEqual(calls.lookupImageLocation.length, 1);
+      assert.strictEqual(calls.fetch.length, 1);
+      assert.strictEqual(calls.saveImage.length, 1);
+      assert.deepStrictEqual(calls.lookupImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        'https://example.com/image2.jpg',
+      ]);
+    });
+
+    it('should return imageLookup with all processed images', async () => {
+      const ctx = TEST_CONTEXT();
+      const mockStorageClient = {
+        async lookupImageLocation() {
+          return null;
+        },
+        async saveImage() {
+          return './media_hash.jpg';
+        },
+        // eslint-disable-next-line no-empty-function
+        async saveImageLocation() {},
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      global.fetch = async () => ({
+        ok: true,
+        arrayBuffer: async () => new ArrayBuffer(100),
+        headers: { get: () => 'image/jpeg' },
+      });
+
+      crypto.subtle.digest = async () => new Uint8Array([0xaa, 0xbb]).buffer;
+
+      const product = {
+        images: [
+          { url: 'https://example.com/img1.jpg' },
+          { url: './relative.jpg' }, // Should not be in lookup
+        ],
+        variants: [
+          {
+            images: [
+              { url: 'https://example.com/img2.jpg' },
+            ],
+          },
+        ],
+      };
+
+      const { imageLookup } = await extractAndReplaceImages(
+        ctx,
+        'org',
+        'site',
+        product,
+      );
+
+      assert.strictEqual(Object.keys(imageLookup).length, 2);
+      assert.strictEqual(imageLookup['https://example.com/img1.jpg'], './media_hash.jpg');
+      assert.strictEqual(imageLookup['https://example.com/img2.jpg'], './media_hash.jpg');
+      assert.strictEqual(imageLookup['./relative.jpg'], undefined);
+    });
+  });
+
+  describe('applyImageLookup()', () => {
+    it('should replace external URLs with hashed URLs from lookup', () => {
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+          { url: 'https://example.com/image2.jpg' },
+          { url: './media_existing.jpg' },
+        ],
+        variants: [
+          {
+            images: [
+              { url: 'https://example.com/image1.jpg' },
+            ],
+          },
+        ],
+      };
+
+      const imageLookup = {
+        'https://example.com/image1.jpg': './media_hash1.jpg',
+        'https://example.com/image2.jpg': './media_hash2.jpg',
+      };
+
+      const result = applyImageLookup(product, imageLookup);
+
+      assert.strictEqual(result.images[0].url, './media_hash1.jpg');
+      assert.strictEqual(result.images[1].url, './media_hash2.jpg');
+      assert.strictEqual(result.images[2].url, './media_existing.jpg');
+      assert.strictEqual(result.variants[0].images[0].url, './media_hash1.jpg');
+    });
+
+    it('should not modify URLs not in lookup', () => {
+      const product = {
+        images: [
+          { url: 'https://example.com/unknown.jpg' },
+          { url: './media_existing.jpg' },
+        ],
+      };
+
+      const imageLookup = {
+        'https://example.com/other.jpg': './media_hash.jpg',
+      };
+
+      const result = applyImageLookup(product, imageLookup);
+
+      assert.strictEqual(result.images[0].url, 'https://example.com/unknown.jpg');
+      assert.strictEqual(result.images[1].url, './media_existing.jpg');
+    });
+
+    it('should handle products with no images', () => {
+      const product = {
+        sku: 'test-sku',
+      };
+
+      const imageLookup = {
+        'https://example.com/image.jpg': './media_hash.jpg',
+      };
+
+      const result = applyImageLookup(product, imageLookup);
+
+      assert.strictEqual(result.sku, 'test-sku');
+      assert.strictEqual(result.images, undefined);
+    });
+  });
+
+  describe('hasNewImages()', () => {
+    it('should return true if product has new external image URLs', () => {
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+          { url: 'https://example.com/new-image.jpg' },
+        ],
+      };
+
+      const imageLookup = {
+        'https://example.com/image1.jpg': './media_hash1.jpg',
+      };
+
+      const result = hasNewImages(product, imageLookup);
+
+      assert.strictEqual(result, true);
+    });
+
+    it('should return false if all external images are in lookup', () => {
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+          { url: 'https://example.com/image2.jpg' },
+          { url: './media_existing.jpg' },
+        ],
+      };
+
+      const imageLookup = {
+        'https://example.com/image1.jpg': './media_hash1.jpg',
+        'https://example.com/image2.jpg': './media_hash2.jpg',
+      };
+
+      const result = hasNewImages(product, imageLookup);
+
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false if product has only relative paths', () => {
+      const product = {
+        images: [
+          { url: './media_existing1.jpg' },
+          { url: '/media/existing2.jpg' },
+        ],
+      };
+
+      const imageLookup = {};
+
+      const result = hasNewImages(product, imageLookup);
+
+      assert.strictEqual(result, false);
+    });
+
+    it('should check variant images too', () => {
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+        ],
+        variants: [
+          {
+            images: [
+              { url: 'https://example.com/new-variant-image.jpg' },
+            ],
+          },
+        ],
+      };
+
+      const imageLookup = {
+        'https://example.com/image1.jpg': './media_hash1.jpg',
+      };
+
+      const result = hasNewImages(product, imageLookup);
+
+      assert.strictEqual(result, true);
+    });
+
+    it('should handle products with no images', () => {
+      const product = {
+        sku: 'test-sku',
+      };
+
+      const imageLookup = {};
+
+      const result = hasNewImages(product, imageLookup);
+
+      assert.strictEqual(result, false);
     });
   });
 });

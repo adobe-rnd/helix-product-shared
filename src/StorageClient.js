@@ -117,9 +117,13 @@ export class StorageClient {
    * @param {string} org
    * @param {string} site
    * @param {string} path
-   * @returns {Promise<ProductBusEntry|null>}
+   * @param {boolean} [includeMetadata=false] - Include customMetadata in response
+   * @returns {Promise<ProductBusEntry|null|{
+   *   product: ProductBusEntry,
+   *   metadata: Record<string, string>
+   * }>}
    */
-  async fetchProductByPath(org, site, path) {
+  async fetchProductByPath(org, site, path, includeMetadata = false) {
     const { log } = this.ctx;
 
     const key = `${org}/${site}/catalog${path}${path.endsWith('.json') ? '' : '.json'}`;
@@ -128,7 +132,14 @@ export class StorageClient {
     if (!object) {
       return null;
     }
-    return object.json();
+    const product = await object.json();
+    if (includeMetadata) {
+      return {
+        product,
+        metadata: object.customMetadata || {},
+      };
+    }
+    return product;
   }
 
   /**
@@ -146,18 +157,19 @@ export class StorageClient {
   }
 
   /**
-   * @param {string} catalogKey
    * @param {string} org
    * @param {string} site
    * @param {string} path
    * @param {ProductBusEntry} product
+   * @param {Record<string, string>} [customMetadata] - Optional custom metadata to store
    */
-  async saveProductByPath(org, site, path, product) {
+  async saveProductByPath(org, site, path, product, customMetadata) {
     const { log } = this.ctx;
     const key = `${org}/${site}/catalog${path}${path.endsWith('.json') ? '' : '.json'}`;
     log.debug('Saving product to R2:', key);
     await this.put(key, JSON.stringify(product), {
       httpMetadata: { contentType: 'application/json' },
+      customMetadata,
     });
   }
 
