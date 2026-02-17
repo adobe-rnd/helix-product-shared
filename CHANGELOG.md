@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.4...v1.5.5) (2026-02-17)
+
+
+### Bug Fixes
+
+* for extensionless get extension from content-type ([6ea43b0](https://github.com/adobe-rnd/helix-product-shared/commit/6ea43b0cfcad09975dd5517d6f15226fef9358f9))
+
 ## [1.5.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.3...v1.5.4) (2026-02-17)
 
 
