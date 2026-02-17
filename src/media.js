@@ -99,6 +99,24 @@ export function hasNewImages(product) {
   return false;
 }
 
+const MIME_TO_EXT = {
+  'image/jpeg': 'jpeg',
+  'image/jpg': 'jpeg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+};
+
+/**
+ * @param {string|null} mimeType
+ * @returns {string|undefined}
+ */
+export function extensionFromMimeType(mimeType) {
+  if (!mimeType) return undefined;
+  const base = mimeType.split(';')[0].trim().toLowerCase();
+  return MIME_TO_EXT[base];
+}
+
 /**
  * @param {string} url
  * @returns {string|undefined}
@@ -156,13 +174,15 @@ async function fetchImage(pctx, pimageUrl) {
       .map((byte) => byte.toString(16).padStart(2, '0'))
       .join('');
 
+    const contentType = resp.headers.get('content-type');
+
     return {
       data,
       sourceUrl: imageUrl,
       hash,
-      mimeType: resp.headers.get('content-type'),
+      mimeType: contentType,
       length: data.byteLength,
-      extension: extractExtension(imageUrl),
+      extension: extractExtension(imageUrl) || extensionFromMimeType(contentType),
     };
   }
 
