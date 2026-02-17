@@ -14,6 +14,7 @@ import assert from 'node:assert';
 import {
   extractAndReplaceImages,
   extractExtension,
+  extensionFromMimeType,
   applyImageLookup,
   hasNewImages,
 } from '../src/media.js';
@@ -608,6 +609,64 @@ describe('media', () => {
       ]);
     });
 
+    it('should derive extension from Content-Type for extensionless URLs', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+        saveImageLocation: [],
+      };
+
+      const mockStorageClient = {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return this.imageLocations[args[3]] || null;
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_abc123.jpeg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      const mockHash = new Uint8Array([0xab, 0xc1, 0x23]);
+      crypto.subtle.digest = async () => mockHash.buffer;
+
+      const mockImageData = new ArrayBuffer(100);
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => mockImageData,
+          headers: {
+            get: () => 'image/jpeg',
+          },
+        };
+      };
+
+      const product = {
+        images: [
+          { url: 'https://s7d9.scene7.com/is/image/danaherstage/product-image1' },
+        ],
+      };
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.images[0].url, './media_abc123.jpeg');
+      assert.strictEqual(calls.saveImage.length, 1);
+      // The image passed to saveImage should have extension derived from mimeType
+      const savedImage = calls.saveImage[0][3];
+      assert.strictEqual(savedImage.extension, 'jpeg');
+      assert.strictEqual(savedImage.mimeType, 'image/jpeg');
+    });
+
     it('should retry on error', async () => {
       const ctx = TEST_CONTEXT();
       const calls = {
@@ -1061,6 +1120,41 @@ describe('media', () => {
       const result = hasNewImages(product);
 
       assert.strictEqual(result, false);
+    });
+  });
+
+  describe('extensionFromMimeType()', () => {
+    it('should return extension for known mime types', () => {
+      assert.strictEqual(extensionFromMimeType('image/jpeg'), 'jpeg');
+      assert.strictEqual(extensionFromMimeType('image/jpg'), 'jpeg');
+      assert.strictEqual(extensionFromMimeType('image/png'), 'png');
+      assert.strictEqual(extensionFromMimeType('image/gif'), 'gif');
+      assert.strictEqual(extensionFromMimeType('image/avif'), 'avif');
+    });
+
+    it('should handle mime types with parameters', () => {
+      assert.strictEqual(extensionFromMimeType('image/jpeg; charset=utf-8'), 'jpeg');
+      assert.strictEqual(extensionFromMimeType('image/png; q=0.9'), 'png');
+    });
+
+    it('should be case insensitive', () => {
+      assert.strictEqual(extensionFromMimeType('IMAGE/JPEG'), 'jpeg');
+      assert.strictEqual(extensionFromMimeType('Image/Png'), 'png');
+    });
+
+    it('should return undefined for unknown or null mime types', () => {
+      assert.strictEqual(extensionFromMimeType(null), undefined);
+      assert.strictEqual(extensionFromMimeType(''), undefined);
+      assert.strictEqual(extensionFromMimeType('application/octet-stream'), undefined);
+    });
+
+    it('should return undefined for unsupported image mime types', () => {
+      assert.strictEqual(extensionFromMimeType('image/webp'), undefined);
+      assert.strictEqual(extensionFromMimeType('image/svg+xml'), undefined);
+      assert.strictEqual(extensionFromMimeType('image/tiff'), undefined);
+      assert.strictEqual(extensionFromMimeType('image/bmp'), undefined);
+      assert.strictEqual(extensionFromMimeType('image/x-icon'), undefined);
+      assert.strictEqual(extensionFromMimeType('video/mp4'), undefined);
     });
   });
 
