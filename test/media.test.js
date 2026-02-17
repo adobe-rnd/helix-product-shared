@@ -13,6 +13,7 @@
 import assert from 'node:assert';
 import {
   extractAndReplaceImages,
+  extractExtension,
   applyImageLookup,
   hasNewImages,
 } from '../src/media.js';
@@ -1060,6 +1061,66 @@ describe('media', () => {
       const result = hasNewImages(product);
 
       assert.strictEqual(result, false);
+    });
+  });
+
+  describe('extractExtension()', () => {
+    it('should extract common image extensions', () => {
+      assert.strictEqual(extractExtension('https://example.com/image.jpg'), 'jpg');
+      assert.strictEqual(extractExtension('https://example.com/image.png'), 'png');
+      assert.strictEqual(extractExtension('https://example.com/image.gif'), 'gif');
+      assert.strictEqual(extractExtension('https://example.com/image.webp'), 'webp');
+      assert.strictEqual(extractExtension('https://example.com/image.avif'), 'avif');
+      assert.strictEqual(extractExtension('https://example.com/image.svg'), 'svg');
+    });
+
+    it('should return undefined for extensionless URLs', () => {
+      assert.strictEqual(
+        extractExtension('https://s7d9.scene7.com/is/image/danaherstage/leica-microsystems-mica-embryo-product-image1'),
+        undefined,
+      );
+      assert.strictEqual(
+        extractExtension('https://example.com/images/photo'),
+        undefined,
+      );
+    });
+
+    it('should not treat domain TLD as an extension', () => {
+      assert.strictEqual(
+        extractExtension('https://s7d9.scene7.com/is/image/danaherstage/product-image1'),
+        undefined,
+      );
+      assert.notStrictEqual(
+        extractExtension('https://s7d9.scene7.com/is/image/test'),
+        'com/is/image/test',
+      );
+    });
+
+    it('should strip query params from extension', () => {
+      assert.strictEqual(extractExtension('https://example.com/image.jpg?w=200'), 'jpg');
+      assert.strictEqual(extractExtension('https://example.com/image.png?w=200&h=300'), 'png');
+    });
+
+    it('should strip hash from extension', () => {
+      assert.strictEqual(extractExtension('https://example.com/image.jpg#section'), 'jpg');
+    });
+
+    it('should handle URLs with multiple dots in path', () => {
+      assert.strictEqual(extractExtension('https://example.com/path/file.name.jpg'), 'jpg');
+      assert.strictEqual(extractExtension('https://example.com/v1.2/image.png'), 'png');
+    });
+
+    it('should return undefined for invalid URLs', () => {
+      assert.strictEqual(extractExtension('not a url'), undefined);
+      assert.strictEqual(extractExtension(''), undefined);
+    });
+
+    it('should handle URLs with port numbers', () => {
+      assert.strictEqual(extractExtension('https://example.com:8080/image.jpg'), 'jpg');
+    });
+
+    it('should handle deep paths', () => {
+      assert.strictEqual(extractExtension('https://cdn.example.com/a/b/c/d/image.webp'), 'webp');
     });
   });
 });
