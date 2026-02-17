@@ -103,11 +103,17 @@ export function hasNewImages(product) {
  * @param {string} url
  * @returns {string|undefined}
  */
-const extractExtension = (url) => {
-  const match = url.match(/\.([^.]+)$/);
-  return match?.[1]
-    ? match[1].split('?')[0].split('#')[0]
-    : undefined;
+export const extractExtension = (url) => {
+  try {
+    const { pathname } = new URL(url);
+    const lastSegment = pathname.split('/').pop() || '';
+    const match = lastSegment.match(/\.([^.]+)$/);
+    return match?.[1]
+      ? match[1].split('?')[0].split('#')[0]
+      : undefined;
+  } catch {
+    return undefined;
+  }
 };
 
 /**
