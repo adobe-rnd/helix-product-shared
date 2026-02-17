@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.3...v1.5.4) (2026-02-17)
+
+
+### Bug Fixes
+
+* extractExtension bug ([a0a577b](https://github.com/adobe-rnd/helix-product-shared/commit/a0a577b8a11d19564bd6b3104b1d6c59a92e90b2))
+
 ## [1.5.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.2...v1.5.3) (2026-02-12)
 
 
