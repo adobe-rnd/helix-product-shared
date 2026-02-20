@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.5...v1.5.6) (2026-02-20)
+
+
+### Bug Fixes
+
+* add webp to mime lookup ([#31](https://github.com/adobe-rnd/helix-product-shared/issues/31)) ([b4740cb](https://github.com/adobe-rnd/helix-product-shared/commit/b4740cb7522c9ba9bc1e081791986592f639387f))
+
 ## [1.5.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.4...v1.5.5) (2026-02-17)
 
 
