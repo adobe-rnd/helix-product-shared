@@ -105,6 +105,7 @@ const MIME_TO_EXT = {
   'image/png': 'png',
   'image/gif': 'gif',
   'image/avif': 'avif',
+  'image/webp': 'webp',
 };
 
 /**
