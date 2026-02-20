@@ -1130,6 +1130,7 @@ describe('media', () => {
       assert.strictEqual(extensionFromMimeType('image/png'), 'png');
       assert.strictEqual(extensionFromMimeType('image/gif'), 'gif');
       assert.strictEqual(extensionFromMimeType('image/avif'), 'avif');
+      assert.strictEqual(extensionFromMimeType('image/webp'), 'webp');
     });
 
     it('should handle mime types with parameters', () => {
@@ -1149,7 +1150,6 @@ describe('media', () => {
     });
 
     it('should return undefined for unsupported image mime types', () => {
-      assert.strictEqual(extensionFromMimeType('image/webp'), undefined);
       assert.strictEqual(extensionFromMimeType('image/svg+xml'), undefined);
       assert.strictEqual(extensionFromMimeType('image/tiff'), undefined);
       assert.strictEqual(extensionFromMimeType('image/bmp'), undefined);
