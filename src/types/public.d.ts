@@ -83,7 +83,6 @@ export interface ProductBusEntry {
   type?: string;
   gtin?: string;
   options?: ProductBusOption[];
-  specifications?: string;
 
   /**
    * Override "escape hatch" for json-ld
