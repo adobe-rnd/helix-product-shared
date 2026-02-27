@@ -1,9 +1,11 @@
-import { MerchantFeedShipping } from "./public";
+import { FeedShipping } from "./public";
 
 /**
-   * @link https://support.google.com/merchants/answer/7052112?hl=en
-   */
-export interface MerchantFeedEntry {
+  * Product feed entry that supports both Google Merchant Center and OpenAI feeds
+  * @link https://support.google.com/merchants/answer/7052112?hl=en (GMC spec)
+  * @link https://developers.openai.com/commerce/product-feeds/spec (OpenAI spec)
+  */
+export interface FeedEntry {
   /** 
    * sku
    */
@@ -396,7 +398,7 @@ export interface MerchantFeedEntry {
    * 
    * @example "US:CA:Overnight:16.00 USD:1:1:2:3"
    */
-  shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+  shipping?: string | FeedShipping | FeedShipping[];
 }
 
 /**
@@ -446,7 +448,7 @@ export interface StoredIndex {
 }
 
 /**
- * Stored Merchant Feed is the same as Stored Index, but with MerchantFeedEntry instead of Record<string, any>
+ * Stored Feed is the same as Stored Index, but with FeedEntry instead of Record<string, any>
  * @example {
  *  "/products/foo": {
  *    filters: {
@@ -476,22 +478,32 @@ export interface StoredIndex {
  *  ...
  * }
  */
-export interface StoredMerchantFeed extends StoredIndex {
+export interface StoredFeed extends StoredIndex {
   // top-level products are addressed by path
   [path: string]: {
     filters?: {
       noindex?: boolean;
       [key: string]: boolean | undefined;
     }
-    data: MerchantFeedEntry & {
+    data: FeedEntry & {
       variants?: {
         // variants are addressed by sku, since they share the same path with the parent
-        [variantSku: string]: MerchantFeedEntry;
+        [variantSku: string]: FeedEntry;
       };
       [key: string]: string | Record<string, Record<string, any>> | undefined;
     };
   }
 }
+
+/**
+ * @deprecated Use StoredFeed instead
+ */
+export type StoredMerchantFeed = StoredFeed;
+
+/**
+ * @deprecated Use FeedEntry instead
+ */
+export type MerchantFeedEntry = FeedEntry;
 
 export interface StoredRegistry {
   [orgSiteKey: string]: {
