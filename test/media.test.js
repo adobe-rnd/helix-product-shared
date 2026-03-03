@@ -17,6 +17,7 @@ import {
   extensionFromMimeType,
   applyImageLookup,
   hasNewImages,
+  appendFilenameToMediaUrl,
 } from '../src/media.js';
 import { StorageClient } from '../src/StorageClient.js';
 import { TEST_CONTEXT } from './util.js';
@@ -943,6 +944,100 @@ describe('media', () => {
       assert.strictEqual(result.internal.images['https://example.com/img1.jpg'].sourceUrl, './media_hash.jpg');
       assert.strictEqual(result.internal.images['https://example.com/img2.jpg'].sourceUrl, './media_hash.jpg');
       assert.strictEqual(result.internal.images['./relative.jpg'], undefined);
+    });
+  });
+
+  describe('appendFilenameToMediaUrl()', () => {
+    it('returns original URL when filename is missing', () => {
+      assert.strictEqual(appendFilenameToMediaUrl('./media_abc123.jpg'), './media_abc123.jpg');
+      assert.strictEqual(appendFilenameToMediaUrl('./media_abc123.jpg', ''), './media_abc123.jpg');
+    });
+
+    it('returns original URL for non-media URLs', () => {
+      assert.strictEqual(
+        appendFilenameToMediaUrl('https://example.com/image.jpg', 'blue-mug'),
+        'https://example.com/image.jpg',
+      );
+    });
+
+    it('appends filename to hashed media URL', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'blue-mug'),
+        `./media_${hash}/blue-mug.jpg`,
+      );
+    });
+
+    it('preserves query string after appending filename', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg?width=750&format=webp`, 'blue-mug'),
+        `./media_${hash}/blue-mug.jpg?width=750&format=webp`,
+      );
+    });
+
+    it('preserves fragment after appending filename', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg#section`, 'blue-mug'),
+        `./media_${hash}/blue-mug.jpg#section`,
+      );
+    });
+
+    it('rejects filename with path traversal', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, '../secret'),
+        `./media_${hash}.jpg`,
+      );
+    });
+
+    it('rejects filename with slash', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'foo/bar'),
+        `./media_${hash}.jpg`,
+      );
+    });
+
+    it('rejects filename with space', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'foo bar'),
+        `./media_${hash}.jpg`,
+      );
+    });
+
+    it('rejects filename with dot', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'file.name'),
+        `./media_${hash}.jpg`,
+      );
+    });
+
+    it('rejects filename with angle brackets', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, '<script>'),
+        `./media_${hash}.jpg`,
+      );
+    });
+
+    it('accepts single character filename', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'a'),
+        `./media_${hash}/a.jpg`,
+      );
+    });
+
+    it('accepts filename with underscores and hyphens', () => {
+      const hash = '13f34abcff863c53e25028911749e9a9d1d6f1c4';
+      assert.strictEqual(
+        appendFilenameToMediaUrl(`./media_${hash}.jpg`, 'product_photo-2024'),
+        `./media_${hash}/product_photo-2024.jpg`,
+      );
     });
   });
 

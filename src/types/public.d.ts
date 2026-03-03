@@ -32,6 +32,7 @@ export interface ProductBusVariant {
 export interface ProductBusImage {
   url: string;
   label?: string;
+  filename?: string;
   roles?: string[];
 }
 

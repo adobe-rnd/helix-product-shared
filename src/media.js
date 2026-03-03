@@ -136,6 +136,31 @@ export const extractExtension = (url) => {
 };
 
 /**
+ * Append a filename to a media URL.
+ * @param {string} url
+ * @param {string|undefined} filename
+ * @returns {string}
+ */
+export function appendFilenameToMediaUrl(url, filename) {
+  if (!url || !filename) {
+    return url;
+  }
+
+  // Defense-in-depth: reject filenames with unsafe characters
+  if (!/^[A-Za-z0-9_-]+$/.test(filename)) {
+    return url;
+  }
+
+  const mediaMatch = url.match(/^(\.?\/media_[0-9a-f]{40,})(\.[0-9a-z]+)([?#].*)?$/i);
+  if (!mediaMatch) {
+    return url;
+  }
+
+  const [, mediaPath, extension, suffix = ''] = mediaMatch;
+  return `${mediaPath}/${filename}${extension}${suffix}`;
+}
+
+/**
  * @param {Context} pctx
  * @param {string} pimageUrl
  * @returns {Promise<SharedTypes.MediaData | null>}
