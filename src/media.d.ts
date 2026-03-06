@@ -40,3 +40,14 @@ export declare function extractAndReplaceImages(
   site: string,
   product: ProductBusEntry | ProductBusEntryInternal
 ): Promise<ProductBusEntryInternal>;
+
+/**
+ * Append a filename to a media URL.
+ * If filename is not provided, the URL is returned unchanged.
+ * @param url - The media URL to transform
+ * @param filename - The filename to insert (optional)
+ */
+export declare function appendFilenameToMediaUrl(
+  url: string,
+  filename: string | undefined
+): string;
