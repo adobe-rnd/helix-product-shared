@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.6...v1.6.0) (2026-03-06)
+
+
+### Features
+
+* support optional image filename metadata ([#32](https://github.com/adobe-rnd/helix-product-shared/issues/32)) ([fe4227d](https://github.com/adobe-rnd/helix-product-shared/commit/fe4227d2fc5ea34fc662f2f8d1ee565eda89851b))
+
 ## [1.5.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.5...v1.5.6) (2026-02-20)
 
 
