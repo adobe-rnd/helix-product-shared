@@ -280,17 +280,17 @@ export class StorageClient {
   }
 
   /**
-   * Load stored merchant feed for a site.
+   * Load stored feed for a site.
    * If it doesn't exist, return empty object.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
-   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   * @returns {Promise<SharedTypes.StoredFeed>}
    */
-  async fetchMerchantFeed(catalogKey) {
+  async fetchFeed(catalogKey) {
     const { log } = this.ctx;
 
-    const key = `${catalogKey}/merchant-feed/default.json`;
-    log.debug('Fetching merchant feed from R2:', key);
+    const key = `${catalogKey}/feed/default.json`;
+    log.debug('Fetching feed from R2:', key);
 
     const object = await this.bucket.get(key);
     if (!object) {
@@ -303,13 +303,13 @@ export class StorageClient {
 
   /**
    * @param {string} catalogKey
-   * @param {SharedTypes.StoredMerchantFeed} data
+   * @param {SharedTypes.StoredFeed} data
    */
-  async saveMerchantFeed(catalogKey, data) {
+  async saveFeed(catalogKey, data) {
     const { log } = this.ctx;
 
-    const key = `${catalogKey}/merchant-feed/default.json`;
-    log.debug('Saving merchant feed to R2:', key);
+    const key = `${catalogKey}/feed/default.json`;
+    log.debug('Saving feed to R2:', key);
     await this.put(key, JSON.stringify(data));
   }
 
@@ -375,19 +375,19 @@ export class StorageClient {
   }
 
   /**
-   * Load stored merchant feed for a site.
+   * Load stored feed for a site.
    * If it doesn't exist, return empty object.
    *
    * @param {string} org
    * @param {string} site
    * @param {string} rootPath
-   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   * @returns {Promise<SharedTypes.StoredFeed>}
    */
-  async fetchMerchantFeedByPath(org, site, rootPath) {
+  async fetchFeedByPath(org, site, rootPath) {
     const { log } = this.ctx;
 
-    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
-    log.debug('Fetching merchant feed from R2:', key);
+    const key = `${org}/${site}/indices${rootPath}/feed.json`;
+    log.debug('Fetching feed from R2:', key);
 
     const object = await this.bucket.get(key);
     if (!object) {
@@ -400,13 +400,13 @@ export class StorageClient {
 
   /**
    * @param {string} catalogKey
-   * @param {SharedTypes.StoredMerchantFeed} data
+   * @param {SharedTypes.StoredFeed} data
    */
-  async saveMerchantFeedByPath(org, site, rootPath, data) {
+  async saveFeedByPath(org, site, rootPath, data) {
     const { log } = this.ctx;
 
-    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
-    log.debug('Saving merchant feed to R2:', key);
+    const key = `${org}/${site}/indices${rootPath}/feed.json`;
+    log.debug('Saving feed to R2:', key);
     await this.put(key, JSON.stringify(data));
   }
 
@@ -416,8 +416,8 @@ export class StorageClient {
    * @param {string} rootPath
    * @returns {Promise<boolean>}
    */
-  async merchantFeedExists(org, site, rootPath) {
-    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
+  async feedExists(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/feed.json`;
     const object = await this.bucket.head(key);
     return !!object;
   }
@@ -427,9 +427,9 @@ export class StorageClient {
    * @param {string} site
    * @param {string} rootPath
    */
-  async deleteMerchantFeed(org, site, rootPath) {
-    const key = `${org}/${site}/indices${rootPath}/merchant-feed.json`;
-    this.ctx.log.debug('Deleting merchant feed from R2:', key);
+  async deleteFeed(org, site, rootPath) {
+    const key = `${org}/${site}/indices${rootPath}/feed.json`;
+    this.ctx.log.debug('Deleting feed from R2:', key);
     return this.bucket.delete(key);
   }
 
