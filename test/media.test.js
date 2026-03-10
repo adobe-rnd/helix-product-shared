@@ -364,6 +364,76 @@ describe('media', () => {
       assert.strictEqual(calls.saveImage.length, 0);
       assert.strictEqual(calls.fetch.length, 0);
       assert.deepStrictEqual(calls.lookupImageLocation[0], [ctx, 'org', 'site', 'https://example.com/image.jpg']);
+
+      // internal.images should be populated from the lookup result
+      assert.ok(result.internal, 'internal property should be set');
+      assert.ok(result.internal.images, 'internal.images should be set');
+      assert.deepStrictEqual(result.internal.images['https://example.com/image.jpg'], {
+        sourceUrl: './media_cached123.jpg',
+      });
+    });
+
+    it('should populate internal.images for all images resolved via lookup when product has no prior internal', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+      };
+
+      const lookupMap = {
+        'https://example.com/image1.jpg': './media_aaa.jpg',
+        'https://example.com/image2.jpg': './media_bbb.jpg',
+        'https://example.com/variant-image.jpg': './media_ccc.jpg',
+      };
+
+      const mockStorageClient = {
+        lookupImageLocation: async (...args) => {
+          calls.lookupImageLocation.push(args);
+          return lookupMap[args[3]] || null;
+        },
+        saveImage: async (...args) => {
+          calls.saveImage.push(args);
+          return './media_new.jpg';
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+      };
+
+      const product = {
+        images: [
+          { url: 'https://example.com/image1.jpg' },
+          { url: 'https://example.com/image2.jpg' },
+        ],
+        variants: [
+          {
+            images: [
+              { url: 'https://example.com/variant-image.jpg' },
+            ],
+          },
+        ],
+      };
+
+      assert.strictEqual(product.internal, undefined, 'product should start without internal');
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.images[0].url, './media_aaa.jpg');
+      assert.strictEqual(result.images[1].url, './media_bbb.jpg');
+      assert.strictEqual(result.variants[0].images[0].url, './media_ccc.jpg');
+
+      assert.strictEqual(calls.lookupImageLocation.length, 3);
+      assert.strictEqual(calls.saveImage.length, 0, 'no images should be fetched/saved');
+      assert.strictEqual(calls.fetch.length, 0, 'no images should be fetched');
+
+      assert.ok(result.internal, 'internal property should be created');
+      assert.strictEqual(Object.keys(result.internal.images).length, 3);
+      assert.deepStrictEqual(result.internal.images['https://example.com/image1.jpg'], { sourceUrl: './media_aaa.jpg' });
+      assert.deepStrictEqual(result.internal.images['https://example.com/image2.jpg'], { sourceUrl: './media_bbb.jpg' });
+      assert.deepStrictEqual(result.internal.images['https://example.com/variant-image.jpg'], { sourceUrl: './media_ccc.jpg' });
     });
 
     it('should not process already processed images', async () => {
