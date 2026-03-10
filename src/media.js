@@ -267,7 +267,10 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     // assumes that the source image never changes
     const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
     if (imageLocation) {
-      // store for next time to avoid the HEAD
+      if (!product.internal) {
+        product.internal = { images: {} };
+      }
+      product.internal.images[url] = { sourceUrl: imageLocation };
       resolve(imageLocation);
       return imageLocation;
     }
