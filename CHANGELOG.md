@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.0...v1.6.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* always add images to internal ([#33](https://github.com/adobe-rnd/helix-product-shared/issues/33)) ([2c30803](https://github.com/adobe-rnd/helix-product-shared/commit/2c30803412418d79feb69ad6f1d7f70f24066e5c))
+
 # [1.6.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.6...v1.6.0) (2026-03-06)
 
 
