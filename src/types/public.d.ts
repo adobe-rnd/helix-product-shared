@@ -165,6 +165,7 @@ export interface OrderItem {
 export interface Order {
   customer: OrderCustomer;
   shipping: OrderAddress;
+  billing: OrderAddress;
   items: OrderItem[];
   locale?: string;
   /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
@@ -183,15 +184,10 @@ export interface TaxRate {
 
 export interface ShippingRate {
   name: string;
+  /** Shipping rate as a decimal value, e.g. 12.00 */
   rate: number;
   estimatedDelivery?: string;
   shippingType?: string;
-}
-
-export interface PriceRule {
-  type: string;
-  description?: string;
-  amount?: number;
 }
 
 export interface OrderPreview {
@@ -199,10 +195,12 @@ export interface OrderPreview {
   subtotal: string;
   /** Calculated tax amount as a decimal string */
   taxAmount: string;
+  /** Tax rate as a percentage, e.g. 12.0 for 12%, that was used for the calculation */
+  taxRate: number;
   /** Available shipping rates sorted by price ascending */
   shippingRates: ShippingRate[];
-  /** Applied price/discount rules */
-  discounts: PriceRule[];
+  /** Applied price/discount rules — format not yet defined */
+  discounts: unknown[];
   /** Total (subtotal + tax + lowest shipping rate) as a decimal string */
   total: string;
   /** Short-lived signed JWT encapsulating estimate results for order submission */
