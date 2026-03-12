@@ -16,6 +16,18 @@ export interface ProductBusPrice {
   regular?: string;
 }
 
+export interface ShippingDimensionValue {
+  value: number;
+  unit?: string;
+}
+
+export interface ShippingDimensions {
+  weight?: ShippingDimensionValue;
+  height?: ShippingDimensionValue;
+  width?: ShippingDimensionValue;
+  length?: ShippingDimensionValue;
+}
+
 export interface ProductBusVariant {
   sku: string;
   name: string;
@@ -27,6 +39,7 @@ export interface ProductBusVariant {
   description?: string;
   itemCondition?: SchemaOrgItemCondition;
   custom?: Record<string, unknown>;
+  shippingDimensions?: ShippingDimensions;
 }
 
 export interface ProductBusImage {
@@ -101,7 +114,7 @@ export interface ProductBusEntry {
   /**
    * Shipping options, as string, object, or array of objects.
    * If an array, each object contains shipping information for one option.
-   * 
+   *
    * @example "US:CA:Overnight:16.00 USD:1:1:2:3"
    * @example { country: 'US', region: 'CA', service: 'Overnight', price: '16.00 USD', min_handling_time: '1', max_handling_time: '2', min_transit_time: '3', max_transit_time: '4' }
    * @example [
@@ -110,4 +123,88 @@ export interface ProductBusEntry {
    * ]
    */
   shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+
+  /** Physical dimensions used for shipping rate calculation. */
+  shippingDimensions?: ShippingDimensions;
+}
+
+// ─── Order types ─────────────────────────────────────────────────────────────
+
+export interface OrderAddress {
+  name: string;
+  email: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  company?: string;
+  phone?: string;
+  isDefault?: boolean;
+}
+
+export interface OrderCustomer {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
+
+export interface OrderItem {
+  sku: string;
+  path: string;
+  quantity: number;
+  price: ProductBusPrice;
+  name?: string;
+  note?: string;
+  shippingDimensions?: ShippingDimensions;
+  custom?: Record<string, unknown>;
+}
+
+export interface Order {
+  customer: OrderCustomer;
+  shipping: OrderAddress;
+  items: OrderItem[];
+  locale?: string;
+  /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
+  country?: string;
+}
+
+// ─── Estimate types ───────────────────────────────────────────────────────────
+
+export interface TaxRate {
+  country: string;
+  state: string;
+  /** Tax rate as a percentage, e.g. 12.0 for 12% */
+  rate: number;
+  code?: string;
+}
+
+export interface ShippingRate {
+  name: string;
+  rate: number;
+  estimatedDelivery?: string;
+  shippingType?: string;
+}
+
+export interface PriceRule {
+  type: string;
+  description?: string;
+  amount?: number;
+}
+
+export interface OrderPreview {
+  /** Order subtotal as a decimal string, e.g. "99.95" */
+  subtotal: string;
+  /** Calculated tax amount as a decimal string */
+  taxAmount: string;
+  /** Available shipping rates sorted by price ascending */
+  shippingRates: ShippingRate[];
+  /** Applied price/discount rules */
+  discounts: PriceRule[];
+  /** Total (subtotal + tax + lowest shipping rate) as a decimal string */
+  total: string;
+  /** Short-lived signed JWT encapsulating estimate results for order submission */
+  estimateToken: string;
 }
