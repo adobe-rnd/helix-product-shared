@@ -165,11 +165,13 @@ export interface OrderItem {
 export interface Order {
   customer: OrderCustomer;
   shipping: OrderAddress;
-  billing: OrderAddress;
+  billing?: OrderAddress;
   items: OrderItem[];
   locale?: string;
   /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
   country?: string;
+  /** Shipping method selected by the customer from the estimate rates. Required for order preview. */
+  shippingMethod?: { id: string };
 }
 
 // ─── Estimate types ───────────────────────────────────────────────────────────
@@ -183,11 +185,14 @@ export interface TaxRate {
 }
 
 export interface ShippingRate {
-  name: string;
-  /** Shipping rate as a decimal value, e.g. 12.00 */
+  /** Unique identifier from the shipping configuration sheet */
+  id: string;
+  /** Customer-facing label, e.g. "Standard Shipping: 8-10 Business Days" */
+  label: string;
+  /** Shipping method type, e.g. "standard" */
+  type: string;
+  /** Shipping cost as a decimal value */
   rate: number;
-  estimatedDelivery?: string;
-  shippingType?: string;
 }
 
 export interface OrderPreview {
@@ -195,13 +200,13 @@ export interface OrderPreview {
   subtotal: string;
   /** Calculated tax amount as a decimal string */
   taxAmount: string;
-  /** Tax rate as a percentage, e.g. 12.0 for 12%, that was used for the calculation */
+  /** Tax rate percentage used for the calculation, e.g. 12.0 for 12% */
   taxRate: number;
-  /** Available shipping rates sorted by price ascending */
-  shippingRates: ShippingRate[];
+  /** The shipping method selected by the customer */
+  shippingMethod: ShippingRate;
   /** Applied price/discount rules — format not yet defined */
   discounts: unknown[];
-  /** Total (subtotal + tax + lowest shipping rate) as a decimal string */
+  /** Total (subtotal + tax + shipping) as a decimal string */
   total: string;
   /** Short-lived signed JWT encapsulating estimate results for order submission */
   estimateToken: string;
