@@ -16,6 +16,18 @@ export interface ProductBusPrice {
   regular?: string;
 }
 
+export interface ShippingDimensionValue {
+  value: number;
+  unit?: string;
+}
+
+export interface ShippingDimensions {
+  weight?: ShippingDimensionValue;
+  height?: ShippingDimensionValue;
+  width?: ShippingDimensionValue;
+  length?: ShippingDimensionValue;
+}
+
 export interface ProductBusVariant {
   sku: string;
   name: string;
@@ -27,6 +39,7 @@ export interface ProductBusVariant {
   description?: string;
   itemCondition?: SchemaOrgItemCondition;
   custom?: Record<string, unknown>;
+  shippingDimensions?: ShippingDimensions;
 }
 
 export interface ProductBusImage {
@@ -67,6 +80,7 @@ export interface ProductBusEntry {
    * Product data used to generate markup/json-ld
    */
   sku: string;
+  path: string;
   urlKey: string;
   name: string; // used for product name in json-ld
   metaTitle?: string; // used for title in markup meta tag
@@ -101,7 +115,7 @@ export interface ProductBusEntry {
   /**
    * Shipping options, as string, object, or array of objects.
    * If an array, each object contains shipping information for one option.
-   * 
+   *
    * @example "US:CA:Overnight:16.00 USD:1:1:2:3"
    * @example { country: 'US', region: 'CA', service: 'Overnight', price: '16.00 USD', min_handling_time: '1', max_handling_time: '2', min_transit_time: '3', max_transit_time: '4' }
    * @example [
@@ -110,4 +124,91 @@ export interface ProductBusEntry {
    * ]
    */
   shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+
+  /** Physical dimensions used for shipping rate calculation. */
+  shippingDimensions?: ShippingDimensions;
+}
+
+// ─── Order types ─────────────────────────────────────────────────────────────
+
+export interface OrderAddress {
+  name: string;
+  email: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  company?: string;
+  phone?: string;
+  isDefault?: boolean;
+}
+
+export interface OrderCustomer {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
+
+export interface OrderItem {
+  sku: string;
+  path: string;
+  quantity: number;
+  price: ProductBusPrice;
+  name?: string;
+  note?: string;
+  shippingDimensions?: ShippingDimensions;
+  custom?: Record<string, unknown>;
+}
+
+export interface Order {
+  // customer is the billing address
+  customer: OrderCustomer;
+  shipping: OrderAddress;
+  items: OrderItem[];
+  locale?: string;
+  /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
+  country?: string;
+  /** Shipping method selected by the customer from the estimate rates. Required for order preview. */
+  shippingMethod?: { id: string };
+}
+
+// ─── Estimate types ───────────────────────────────────────────────────────────
+
+export interface TaxRate {
+  country: string;
+  state: string;
+  /** Tax rate as a percentage, e.g. 12.0 for 12% */
+  rate: number;
+  id?: string;
+}
+
+export interface ShippingRate {
+  /** Unique identifier from the shipping configuration sheet */
+  id: string;
+  /** Customer-facing label, e.g. "Standard Shipping: 8-10 Business Days" */
+  label: string;
+  /** Shipping method type, e.g. "standard" */
+  type: string;
+  /** Shipping cost as a decimal value */
+  rate: number;
+}
+
+export interface OrderPreview {
+  /** Order subtotal as a decimal string, e.g. "99.95" */
+  subtotal: string;
+  /** Calculated tax amount as a decimal string */
+  taxAmount: string;
+  /** Tax rate percentage used for the calculation, e.g. 12.0 for 12% */
+  taxRate: number;
+  /** The shipping method selected by the customer */
+  shippingMethod: ShippingRate;
+  /** Applied price/discount rules — format not yet defined */
+  discounts: unknown[];
+  /** Total (subtotal + tax + shipping) as a decimal string */
+  total: string;
+  /** Short-lived signed JWT encapsulating estimate results for order submission */
+  estimateToken: string;
 }
