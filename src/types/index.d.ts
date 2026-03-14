@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
+export * from './context.js';
 export * from './public.js';
 export * from './jobs.js';
 export * from './media.js';

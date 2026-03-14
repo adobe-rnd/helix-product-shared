@@ -80,6 +80,7 @@ export interface ProductBusEntry {
    * Product data used to generate markup/json-ld
    */
   sku: string;
+  path: string;
   urlKey: string;
   name: string; // used for product name in json-ld
   metaTitle?: string; // used for title in markup meta tag
@@ -163,9 +164,9 @@ export interface OrderItem {
 }
 
 export interface Order {
+  // customer is the billing address
   customer: OrderCustomer;
   shipping: OrderAddress;
-  billing?: OrderAddress;
   items: OrderItem[];
   locale?: string;
   /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
