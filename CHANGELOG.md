@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.1...v1.6.2) (2026-03-14)
+
+
+### Bug Fixes
+
+* add types ([#34](https://github.com/adobe-rnd/helix-product-shared/issues/34)) ([bc64f84](https://github.com/adobe-rnd/helix-product-shared/commit/bc64f84b4914173e7e2ffaee6384af8bd800bb7d))
+
 ## [1.6.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.0...v1.6.1) (2026-03-10)
 
 
