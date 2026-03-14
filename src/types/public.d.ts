@@ -181,7 +181,7 @@ export interface TaxRate {
   state: string;
   /** Tax rate as a percentage, e.g. 12.0 for 12% */
   rate: number;
-  code?: string;
+  id?: string;
 }
 
 export interface ShippingRate {
