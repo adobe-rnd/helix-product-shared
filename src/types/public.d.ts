@@ -164,9 +164,10 @@ export interface OrderItem {
 }
 
 export interface Order {
-  // customer is the billing address
   customer: OrderCustomer;
   shipping: OrderAddress;
+  /** Optional billing address for payment AVS verification. Falls back to shipping if omitted. */
+  billing?: OrderAddress;
   items: OrderItem[];
   locale?: string;
   /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
