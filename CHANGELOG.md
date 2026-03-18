@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.2...v1.6.3) (2026-03-18)
+
+
+### Bug Fixes
+
+* add billing address ([b57d500](https://github.com/adobe-rnd/helix-product-shared/commit/b57d5000d3e2c665b4597b42ae0f459f762a00c2))
+
 ## [1.6.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.1...v1.6.2) (2026-03-14)
 
 
