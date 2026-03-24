@@ -40,6 +40,13 @@ export interface ProductBusVariant {
   itemCondition?: SchemaOrgItemCondition;
   custom?: Record<string, unknown>;
   shippingDimensions?: ShippingDimensions;
+
+  /**
+   * Additional schema.org properties shallow-merged into this variant's Offer
+   * in the auto-generated JSON-LD. Ignored when the product-level jsonld
+   * override is used. Max 16,000 characters when serialized.
+   */
+  jsonldExtensions?: Record<string, unknown>;
 }
 
 export interface ProductBusImage {
@@ -104,6 +111,15 @@ export interface ProductBusEntry {
    * Override "escape hatch" for json-ld
    */
   jsonld?: string;
+
+  /**
+   * Additional schema.org properties shallow-merged into auto-generated JSON-LD.
+   * Intended for additive fields (e.g. potentialAction, aggregateRating, review)
+   * but can overwrite any pipeline-generated key.
+   * For simple products (no variants), also spread into the single Offer.
+   * Ignored when jsonld override is used. Max 32,000 characters when serialized.
+   */
+  jsonldExtensions?: Record<string, unknown>;
 
   /**
    * Additional data that can be retrieved via .json API
