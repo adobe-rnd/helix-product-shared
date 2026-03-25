@@ -113,10 +113,10 @@ export interface ProductBusEntry {
   jsonld?: string;
 
   /**
-   * Additional schema.org properties shallow-merged into auto-generated JSON-LD.
-   * Intended for additive fields (e.g. potentialAction, aggregateRating, review)
-   * but can overwrite any pipeline-generated key.
-   * For simple products (no variants), also spread into the single Offer.
+   * Additional schema.org properties shallow-merged into the auto-generated
+   * Product JSON-LD object. Intended for additive fields (e.g. potentialAction,
+   * aggregateRating, review) but can overwrite any pipeline-generated key.
+   * Not spread into Offers — use variant-level jsonldExtensions for that.
    * Ignored when jsonld override is used. Max 32,000 characters when serialized.
    */
   jsonldExtensions?: Record<string, unknown>;
