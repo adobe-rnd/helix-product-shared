@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.3...v1.7.0) (2026-03-25)
+
+
+### Features
+
+* add jsonldExtensions to ProductBusEntry and ProductBusVariant type ([#37](https://github.com/adobe-rnd/helix-product-shared/issues/37)) ([d2ab646](https://github.com/adobe-rnd/helix-product-shared/commit/d2ab6464cbf859fe56c2132c0cd504a4793cd88c))
+
 ## [1.6.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.2...v1.6.3) (2026-03-18)
 
 
