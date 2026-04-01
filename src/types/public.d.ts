@@ -228,3 +228,57 @@ export interface OrderPreview {
   /** Short-lived signed JWT encapsulating estimate results for order submission */
   estimateToken: string;
 }
+
+// ─── Journal entry types ────────────────────────────────────────────────────
+
+/** Common envelope shared by all journal entry types */
+export interface JournalEntry {
+  /** Unique entry identifier */
+  id: string;
+  /** ISO 8601 timestamp of the event */
+  timestamp: string;
+  /** Which journal this entry belongs to */
+  journal: 'orders' | 'general';
+  /** Event type (e.g. 'create', 'updateState', 'subrequest', 'update', 'add', 'remove') */
+  event: string;
+  /** Owning org */
+  org: string;
+  /** Owning site */
+  site: string;
+}
+
+/** Order journal entry — emitted for every order-related action */
+export interface OrderJournalEntry extends JournalEntry {
+  journal: 'orders';
+  /** The order this entry is for */
+  orderId: string;
+  /** New state (present on create and updateState events) */
+  state?: string;
+  /** Who triggered the event (e.g. "customer", "chase-callback", "admin:ops@example.com") */
+  actor?: string;
+  /** Human-readable reason for the state change */
+  reason?: string;
+  /** Payment provider name (present on subrequest events) */
+  provider?: string;
+  /** Outgoing request to the provider (present on subrequest events) */
+  request?: Record<string, unknown>;
+  /** Provider response (present on subrequest events) */
+  response?: Record<string, unknown>;
+  /** Time the subrequest took in milliseconds */
+  durationMs?: number;
+}
+
+/** General journal entry — emitted for non-order actions */
+export interface GeneralJournalEntry extends JournalEntry {
+  journal: 'general';
+  /** Entity type */
+  type: 'product' | 'coupon' | 'config';
+  /** Identifier of the entity that was changed */
+  entityId: string;
+  /** Who triggered the event */
+  actor: string;
+  /** Changed fields with before/after values */
+  changes?: Record<string, unknown>;
+  /** Full data payload (used when a changes map is not applicable) */
+  data?: Record<string, unknown>;
+}
