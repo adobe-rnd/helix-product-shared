@@ -228,3 +228,76 @@ export interface OrderPreview {
   /** Short-lived signed JWT encapsulating estimate results for order submission */
   estimateToken: string;
 }
+
+// ─── Journal entry types ────────────────────────────────────────────────────
+
+/** Common envelope shared by all journal entry types */
+export interface JournalEntry {
+  /** Unique entry identifier */
+  id: string;
+  /** ISO 8601 timestamp of the event */
+  timestamp: string;
+  /** Which journal this entry belongs to */
+  journal: 'orders' | 'general';
+  /** Event type (e.g. 'create', 'updateState', 'subrequest', 'update', 'add', 'remove') */
+  event: string;
+  /** Owning org */
+  org: string;
+  /** Owning site */
+  site: string;
+}
+
+/** Base interface shared by all order journal entries */
+export interface BaseOrderJournalEntry extends JournalEntry {
+  journal: 'orders';
+  /** The order this entry is for */
+  orderId: string;
+}
+
+/** Emitted when an order is created or a merchant/system updates its state */
+export interface OrderStateJournalEntry extends BaseOrderJournalEntry {
+  event: 'create' | 'state_updated';
+  /** New order state */
+  state: string;
+  /** Who triggered the event (e.g. "customer", "admin:ops@example.com") */
+  actor: string;
+  /** Human-readable reason for the state change */
+  reason?: string;
+}
+
+/** Emitted for payment provider interactions (initiate, callback, cancel) */
+export interface PaymentOrderJournalEntry extends BaseOrderJournalEntry {
+  event: 'payment_initiated' | 'payment_completed' | 'payment_cancelled';
+  /** Payment provider name (e.g. "chase") */
+  provider: string;
+  /** Payment attempt identifier */
+  attemptId?: string;
+  /** Idempotency key used for the payment request */
+  idempotencyKey?: string;
+  /** Payment method (e.g. "Visa", "Mastercard") */
+  paymentMethod?: string;
+  /** Outgoing request to the provider */
+  request?: Record<string, unknown>;
+  /** Provider response */
+  response?: Record<string, unknown>;
+  /** Time the provider call took in milliseconds */
+  durationMs?: number;
+}
+
+/** Discriminated union of all order journal entry types */
+export type OrderJournalEntry = OrderStateJournalEntry | PaymentOrderJournalEntry;
+
+/** General journal entry — emitted for non-order actions */
+export interface GeneralJournalEntry extends JournalEntry {
+  journal: 'general';
+  /** Entity type */
+  type: 'product' | 'coupon' | 'config';
+  /** Identifier of the entity that was changed */
+  entityId: string;
+  /** Who triggered the event */
+  actor: string;
+  /** Changed fields with before/after values */
+  changes?: Record<string, unknown>;
+  /** Full data payload (used when a changes map is not applicable) */
+  data?: Record<string, unknown>;
+}
