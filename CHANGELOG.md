@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.0...v1.7.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* add journal types ([#38](https://github.com/adobe-rnd/helix-product-shared/issues/38)) ([f9bf377](https://github.com/adobe-rnd/helix-product-shared/commit/f9bf37758da643e8fa396ce20af1a0c58c1d3ee3))
+
 # [1.7.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.3...v1.7.0) (2026-03-25)
 
 
