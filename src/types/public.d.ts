@@ -247,26 +247,45 @@ export interface JournalEntry {
   site: string;
 }
 
-/** Order journal entry — emitted for every order-related action */
-export interface OrderJournalEntry extends JournalEntry {
+/** Base interface shared by all order journal entries */
+export interface BaseOrderJournalEntry extends JournalEntry {
   journal: 'orders';
   /** The order this entry is for */
   orderId: string;
-  /** New state (present on create and updateState events) */
-  state?: string;
-  /** Who triggered the event (e.g. "customer", "chase-callback", "admin:ops@example.com") */
-  actor?: string;
+}
+
+/** Emitted when an order is created or a merchant/system updates its state */
+export interface OrderStateJournalEntry extends BaseOrderJournalEntry {
+  event: 'create' | 'state_updated';
+  /** New order state */
+  state: string;
+  /** Who triggered the event (e.g. "customer", "admin:ops@example.com") */
+  actor: string;
   /** Human-readable reason for the state change */
   reason?: string;
-  /** Payment provider name (present on subrequest events) */
-  provider?: string;
-  /** Outgoing request to the provider (present on subrequest events) */
+}
+
+/** Emitted for payment provider interactions (initiate, callback, cancel) */
+export interface PaymentOrderJournalEntry extends BaseOrderJournalEntry {
+  event: 'payment_initiated' | 'payment_completed' | 'payment_cancelled';
+  /** Payment provider name (e.g. "chase") */
+  provider: string;
+  /** Payment attempt identifier */
+  attemptId?: string;
+  /** Idempotency key used for the payment request */
+  idempotencyKey?: string;
+  /** Payment method (e.g. "Visa", "Mastercard") */
+  paymentMethod?: string;
+  /** Outgoing request to the provider */
   request?: Record<string, unknown>;
-  /** Provider response (present on subrequest events) */
+  /** Provider response */
   response?: Record<string, unknown>;
-  /** Time the subrequest took in milliseconds */
+  /** Time the provider call took in milliseconds */
   durationMs?: number;
 }
+
+/** Discriminated union of all order journal entry types */
+export type OrderJournalEntry = OrderStateJournalEntry | PaymentOrderJournalEntry;
 
 /** General journal entry — emitted for non-order actions */
 export interface GeneralJournalEntry extends JournalEntry {
