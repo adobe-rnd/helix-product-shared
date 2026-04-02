@@ -11,7 +11,6 @@
  */
 
 import { StorageClient } from './StorageClient.js';
-import { errorWithResponse } from './error.js';
 
 const RETRY_CODES = [429, 403];
 
@@ -191,7 +190,7 @@ async function fetchImage(pctx, pimageUrl) {
           return doFetch(ctx, imageUrl, attempts + 1);
         }
       }
-      throw errorWithResponse(502, `Failed to fetch image: ${imageUrl} (${resp.status})`);
+      throw Error(`Failed to fetch image: ${imageUrl} (${resp.status})`);
     }
 
     const data = await resp.arrayBuffer();
@@ -275,25 +274,32 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       return imageLocation;
     }
 
-    const img = await fetchImage(ctx, url);
-    // only set the image if the fetch succeeded
-    let newUrl;
-    if (img) {
-      newUrl = await storageClient.saveImage(ctx, org, site, img);
-      await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
+    try {
+      const img = await fetchImage(ctx, url);
+      // only set the image if the fetch succeeded
+      let newUrl;
+      if (img) {
+        newUrl = await storageClient.saveImage(ctx, org, site, img);
+        await storageClient.saveImageLocation(ctx, org, site, url, newUrl);
 
-      // Store in internal property
-      if (!product.internal) {
-        product.internal = { images: {} };
+        // Store in internal property
+        if (!product.internal) {
+          product.internal = { images: {} };
+        }
+        product.internal.images[url] = {
+          sourceUrl: newUrl,
+          size: img.length,
+          mimeType: img.mimeType,
+        };
       }
-      product.internal.images[url] = {
-        sourceUrl: newUrl,
-        size: img.length,
-        mimeType: img.mimeType,
-      };
+      resolve(newUrl);
+      return newUrl;
+    } catch (e) {
+      log.error('error processing image: ', e);
+      // resolve with null to allow simultaneous requests for the same image to continue
+      resolve(null);
+      throw e;
     }
-    resolve(newUrl);
-    return newUrl;
   };
 
   const images = [
