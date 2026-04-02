@@ -189,6 +189,8 @@ export interface Order {
   country?: string;
   /** Shipping method selected by the customer from the estimate rates. Required for order preview. */
   shippingMethod?: { id: string };
+  /** Optional estimate token from order preview. Used to lock in estimates at order creation time. */
+  estimateToken?: string;
 }
 
 // ─── Estimate types ───────────────────────────────────────────────────────────
