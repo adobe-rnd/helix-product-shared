@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.2...v1.7.3) (2026-04-03)
+
+
+### Bug Fixes
+
+* parallel image failure bug ([#40](https://github.com/adobe-rnd/helix-product-shared/issues/40)) ([6f64d75](https://github.com/adobe-rnd/helix-product-shared/commit/6f64d75b37e1589120b06b02a95a78eea62e92e8))
+
 ## [1.7.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.1...v1.7.2) (2026-04-02)
 
 
