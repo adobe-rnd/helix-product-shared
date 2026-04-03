@@ -967,6 +967,92 @@ describe('media', () => {
       ]);
     });
 
+    it('should resolve duplicate URLs as null when the first fetch fails, without hanging', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        fetch: [],
+        saveImageLocation: [],
+      };
+
+      const mockStorageClient = {
+        imageLocations: {},
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return this.imageLocations[args[3]] || null;
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_good.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+          // eslint-disable-next-line prefer-destructuring
+          this.imageLocations[args[3]] = args[4];
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      const mockHash = new Uint8Array([0xab, 0xc1, 0x23]);
+      crypto.subtle.digest = async () => mockHash.buffer;
+
+      // failing-image.jpg returns a non-retryable 404 — fetchImage throws
+      // good-image.jpg succeeds
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        const [url] = args;
+        if (url.includes('failing')) {
+          return { ok: false, status: 404 };
+        }
+        return {
+          ok: true,
+          arrayBuffer: async () => new ArrayBuffer(50),
+          headers: { get: () => 'image/jpeg' },
+        };
+      };
+
+      const product = {
+        images: [
+          { url: 'https://example.com/failing-image.jpg' },
+          // same URL as above — previously would hang waiting on the unresolved promise
+          { url: 'https://example.com/failing-image.jpg' },
+          { url: 'https://example.com/good-image.jpg' },
+        ],
+        variants: [
+          {
+            images: [
+              // third reference to the failing URL
+              { url: 'https://example.com/failing-image.jpg' },
+            ],
+          },
+        ],
+      };
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      // failing URL should be left unchanged (no new URL available)
+      assert.strictEqual(result.images[0].url, 'https://example.com/failing-image.jpg');
+      assert.strictEqual(result.images[1].url, 'https://example.com/failing-image.jpg');
+      assert.strictEqual(result.variants[0].images[0].url, 'https://example.com/failing-image.jpg');
+
+      // good image should still be processed successfully
+      assert.strictEqual(result.images[2].url, './media_good.jpg');
+
+      // fetch should be called exactly once for failing-image and once for good-image
+      assert.strictEqual(calls.fetch.length, 2);
+      assert.ok(calls.fetch.some(([url]) => url === 'https://example.com/failing-image.jpg'));
+      assert.ok(calls.fetch.some(([url]) => url === 'https://example.com/good-image.jpg'));
+
+      // lookupImageLocation called once per distinct URL
+      assert.strictEqual(calls.lookupImageLocation.length, 2);
+
+      // saveImage and saveImageLocation only called for the successful image
+      assert.strictEqual(calls.saveImage.length, 1);
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+      assert.deepStrictEqual(calls.saveImageLocation[0][3], 'https://example.com/good-image.jpg');
+    });
+
     it('should return imageLookup with all processed images', async () => {
       const ctx = TEST_CONTEXT();
       const mockStorageClient = {
