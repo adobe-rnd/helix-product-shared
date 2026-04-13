@@ -193,6 +193,8 @@ export interface Order {
   shippingMethod?: { id: string };
   /** Optional estimate token from order preview. Used to lock in estimates at order creation time. */
   estimateToken?: string;
+  /** Customer-defined key/value pairs for linking the order to external systems. */
+  custom?: Record<string, string>;
 }
 
 // ─── Estimate types ───────────────────────────────────────────────────────────
