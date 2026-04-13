@@ -174,6 +174,8 @@ export interface OrderItem {
   price: ProductBusPrice;
   name?: string;
   note?: string;
+  imageUrl?: string;
+  productUrl?: string;
   shippingDimensions?: ShippingDimensions;
   custom?: Record<string, unknown>;
 }
