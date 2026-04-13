@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.3...v1.8.0) (2026-04-13)
+
+
+### Features
+
+* add imageUrl and productUrl optional fields to OrderItem interface ([db9822d](https://github.com/adobe-rnd/helix-product-shared/commit/db9822dcbc250e12e070efe6f25dc655a5af0125))
+
 ## [1.7.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.2...v1.7.3) (2026-04-03)
 
 
