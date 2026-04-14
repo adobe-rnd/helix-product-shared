@@ -193,6 +193,8 @@ export interface Order {
   shippingMethod?: { id: string };
   /** Optional estimate token from order preview. Used to lock in estimates at order creation time. */
   estimateToken?: string;
+  /** Customer-defined key/value pairs for linking the order to external systems. */
+  custom?: Record<string, string>;
 }
 
 // ─── Estimate types ───────────────────────────────────────────────────────────
@@ -288,8 +290,17 @@ export interface PaymentOrderJournalEntry extends BaseOrderJournalEntry {
   durationMs?: number;
 }
 
+/** Emitted when order custom data is updated via the custom API */
+export interface OrderCustomUpdatedJournalEntry extends BaseOrderJournalEntry {
+  event: 'custom_updated';
+  /** The full custom data after the update */
+  custom: Record<string, string>;
+  /** Who triggered the event (e.g. "service-token:my-integration") */
+  actor?: string;
+}
+
 /** Discriminated union of all order journal entry types */
-export type OrderJournalEntry = OrderStateJournalEntry | PaymentOrderJournalEntry;
+export type OrderJournalEntry = OrderStateJournalEntry | PaymentOrderJournalEntry | OrderCustomUpdatedJournalEntry;
 
 /** General journal entry — emitted for non-order actions */
 export interface GeneralJournalEntry extends JournalEntry {
