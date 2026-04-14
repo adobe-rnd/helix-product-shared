@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.0...v1.8.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* add order.custom ([#42](https://github.com/adobe-rnd/helix-product-shared/issues/42)) ([e1e6c91](https://github.com/adobe-rnd/helix-product-shared/commit/e1e6c919bae8d0e2baab9c2a13f6a5588e2297c5))
+
 # [1.8.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.3...v1.8.0) (2026-04-13)
 
 
