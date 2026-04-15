@@ -79,6 +79,38 @@ export async function computeProductKeys(org, site, path, contentBusId) {
 }
 
 /**
+ * Compute the surrogate keys for an index.json resource.
+ * Same logic as computeProductKeys but without contentBusId since index files
+ * can never be served from content bus (authored content).
+ * @param {string} org - The organization identifier
+ * @param {string} site - The site identifier
+ * @param {string} path - The index path (e.g., /us/en/products/index.json)
+ * @returns {Promise<string[]>}
+ */
+export async function computeIndexKeys(org, site, path) {
+  return [
+    await computeProductPathKey(org, site, path),
+    computeSiteKey(org, site),
+  ];
+}
+
+/**
+ * Compute the surrogate keys for a sitemap.xml resource.
+ * Same logic as computeProductKeys but without contentBusId since sitemap files
+ * can never be served from content bus (authored content).
+ * @param {string} org - The organization identifier
+ * @param {string} site - The site identifier
+ * @param {string} path - The sitemap path (e.g., /us/en/sitemap.xml)
+ * @returns {Promise<string[]>}
+ */
+export async function computeSitemapKeys(org, site, path) {
+  return [
+    await computeProductPathKey(org, site, path),
+    computeSiteKey(org, site),
+  ];
+}
+
+/**
  * Compute the surrogate keys for a media resource.
  * @param {string} org
  * @param {string} site
