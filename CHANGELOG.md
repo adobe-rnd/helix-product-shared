@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.1...v1.8.2) (2026-04-15)
+
+
+### Bug Fixes
+
+* add index/sitemap purge key methods ([#43](https://github.com/adobe-rnd/helix-product-shared/issues/43)) ([a539c51](https://github.com/adobe-rnd/helix-product-shared/commit/a539c51be88df243ec3dfbb03adea1c5cb5db026))
+
 ## [1.8.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.0...v1.8.1) (2026-04-14)
 
 
