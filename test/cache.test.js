@@ -18,6 +18,8 @@ import {
   computeMediaKeys,
   computeAuthoredContentKey,
   computeProductKeys,
+  computeIndexKeys,
+  computeSitemapKeys,
 } from '../src/cache.js';
 
 describe('Cache Functions', () => {
@@ -99,6 +101,66 @@ describe('Cache Functions', () => {
       assert.ok(keys.includes('main--site1--adobe_media'));
       assert.ok(keys.includes('main--site1--adobe/1234hash'));
       assert.ok(keys.includes('main--site1--adobe'));
+    });
+  });
+
+  describe('computeIndexKeys', () => {
+    it('returns path key and site key only', async () => {
+      const keys = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      assert.strictEqual(keys.length, 2);
+      assert.strictEqual(keys[0], await computeProductPathKey('adobe', 'site1', '/products/index.json'));
+      assert.strictEqual(keys[1], 'main--site1--adobe');
+    });
+
+    it('returns consistent keys for same inputs', async () => {
+      const keys1 = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      const keys2 = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      assert.deepStrictEqual(keys1, keys2);
+    });
+
+    it('returns different path key for different root paths', async () => {
+      const keys1 = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      const keys2 = await computeIndexKeys('adobe', 'site1', '/us/en/index.json');
+      assert.notStrictEqual(keys1[0], keys2[0]);
+    });
+
+    it('returns different path key for different orgs', async () => {
+      const keys1 = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      const keys2 = await computeIndexKeys('other-org', 'site1', '/products/index.json');
+      assert.notStrictEqual(keys1[0], keys2[0]);
+    });
+
+    it('returns different path key than a product at the same directory', async () => {
+      const indexKeys = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      const productKey = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
+      assert.notStrictEqual(indexKeys[0], productKey);
+    });
+  });
+
+  describe('computeSitemapKeys', () => {
+    it('returns path key and site key only', async () => {
+      const keys = await computeSitemapKeys('adobe', 'site1', '/products/sitemap.xml');
+      assert.strictEqual(keys.length, 2);
+      assert.strictEqual(keys[0], await computeProductPathKey('adobe', 'site1', '/products/sitemap.xml'));
+      assert.strictEqual(keys[1], 'main--site1--adobe');
+    });
+
+    it('returns consistent keys for same inputs', async () => {
+      const keys1 = await computeSitemapKeys('adobe', 'site1', '/products/sitemap.xml');
+      const keys2 = await computeSitemapKeys('adobe', 'site1', '/products/sitemap.xml');
+      assert.deepStrictEqual(keys1, keys2);
+    });
+
+    it('returns different path key than the index at the same directory', async () => {
+      const sitemapKeys = await computeSitemapKeys('adobe', 'site1', '/products/sitemap.xml');
+      const indexKeys = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      assert.notStrictEqual(sitemapKeys[0], indexKeys[0]);
+    });
+
+    it('shares site key with index at the same org/site', async () => {
+      const sitemapKeys = await computeSitemapKeys('adobe', 'site1', '/products/sitemap.xml');
+      const indexKeys = await computeIndexKeys('adobe', 'site1', '/products/index.json');
+      assert.strictEqual(sitemapKeys[1], indexKeys[1]);
     });
   });
 
