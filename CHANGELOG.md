@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.2...v1.8.3) (2026-04-15)
+
+
+### Bug Fixes
+
+* add cache type exports ([#44](https://github.com/adobe-rnd/helix-product-shared/issues/44)) ([5b3761d](https://github.com/adobe-rnd/helix-product-shared/commit/5b3761d2551fccdc7beb3084fa87858474f2d568))
+
 ## [1.8.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.1...v1.8.2) (2026-04-15)
 
 
