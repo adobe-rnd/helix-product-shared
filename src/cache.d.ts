@@ -81,3 +81,29 @@ export function computeMediaKeys(
   site: string,
   path: string
 ): Promise<string[]>;
+
+/**
+ * Compute the surrogate keys for a sitemap.xml resource.
+ * @param org - The organization identifier
+ * @param site - The site identifier
+ * @param path - The sitemap path (e.g., /us/en/sitemap.xml)
+ * @returns A promise that resolves to an array of computed surrogate keys
+ */
+export function computeSitemapKeys(
+  org: string,
+  site: string,
+  path: string
+): Promise<string[]>;
+
+/**
+ * Compute the surrogate keys for an index.json resource.
+ * @param org - The organization identifier
+ * @param site - The site identifier
+ * @param path - The index path (e.g., /us/en/products/index.json)
+ * @returns A promise that resolves to an array of computed surrogate keys
+ */
+export function computeIndexKeys(
+  org: string,
+  site: string,
+  path: string
+): Promise<string[]>;
