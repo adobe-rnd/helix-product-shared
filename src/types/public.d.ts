@@ -316,3 +316,25 @@ export interface GeneralJournalEntry extends JournalEntry {
   /** Full data payload (used when a changes map is not applicable) */
   data?: Record<string, unknown>;
 }
+
+// ─── Price rule types ─────────────────────────────────────────────────────────
+
+export interface VariantPriceRule {
+  price: string;
+  start?: string;
+  end?: string;
+}
+
+export interface CatalogPriceRule {
+  price: string;
+  start?: string;
+  end?: string;
+  /** Per-SKU overrides. Variants not listed inherit the parent product price. */
+  variants?: Record<string, VariantPriceRule>;
+}
+
+/** Full catalog price rules map, keyed by product path (e.g. "/us/en/my-product") */
+export type CatalogPriceRules = Record<string, CatalogPriceRule>;
+
+/** Cart price rules — structure TBD, matches existing rules.json sheet format */
+export type CartPriceRules = Record<string, unknown>;
