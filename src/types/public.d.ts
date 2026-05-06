@@ -336,5 +336,28 @@ export interface CatalogPriceRule {
 /** Full catalog price rules map, keyed by product path (e.g. "/us/en/my-product") */
 export type CatalogPriceRules = Record<string, CatalogPriceRule>;
 
-/** Cart price rules — structure TBD, matches existing rules.json sheet format */
-export type CartPriceRules = Record<string, unknown>;
+export interface CartPriceRuleConditions {
+  minimumSubtotal: number;
+  products: string[];
+  categories: string[];
+}
+
+export interface CartPriceRuleActions {
+  percentOff: number | null;
+  fixedOff: number | null;
+  freeShipping: boolean;
+}
+
+export interface CartPriceRule {
+  id: string;
+  name: string;
+  priority: number;
+  conditions: CartPriceRuleConditions;
+  actions: CartPriceRuleActions;
+  couponCode: string | null;
+  stackable: boolean;
+  incompatibleTypes: string[];
+}
+
+/** Cart price rules — array of auto-discount rules consumed by applyAutoRules */
+export type CartPriceRules = CartPriceRule[];
