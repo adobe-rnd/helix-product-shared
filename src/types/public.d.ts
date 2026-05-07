@@ -320,21 +320,32 @@ export interface GeneralJournalEntry extends JournalEntry {
 // ─── Price rule types ─────────────────────────────────────────────────────────
 
 export interface VariantPriceRule {
+  sku: string;
   price: string;
   start?: string;
   end?: string;
+  metadata?: Record<string, string>;
 }
 
 export interface CatalogPriceRule {
+  path: string;
   price: string;
   start?: string;
   end?: string;
+  metadata?: Record<string, string>;
   /** Per-SKU overrides. Variants not listed inherit the parent product price. */
   variants?: Record<string, VariantPriceRule>;
 }
 
-/** Full catalog price rules map, keyed by product path (e.g. "/us/en/my-product") */
-export type CatalogPriceRules = Record<string, CatalogPriceRule>;
+export interface CatalogPromotion {
+  id: string;
+  name: string;
+  rules: CatalogPriceRule[];
+}
+
+export interface CatalogPriceRules {
+  promotions: CatalogPromotion[];
+}
 
 export interface CartPriceRuleConditions {
   minimumSubtotal: number;
