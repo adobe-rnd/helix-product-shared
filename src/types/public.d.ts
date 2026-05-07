@@ -354,7 +354,6 @@ export interface CartPriceRule {
   priority: number;
   conditions: CartPriceRuleConditions;
   actions: CartPriceRuleActions;
-  couponCode: string | null;
   stackable: boolean;
   incompatibleTypes: string[];
 }
