@@ -54,6 +54,18 @@ export function compute404Key(org, site) {
 }
 
 /**
+ * Compute the surrogate key for catalog price rules.
+ * Applied to index and sitemap responses so they can all be invalidated together
+ * when price rules change.
+ * @param {string} org
+ * @param {string} site
+ * @returns {string}
+ */
+export function computePriceRulesKey(org, site) {
+  return `main--${site}--${org}_pricerules`;
+}
+
+/**
  * Compute the surrogate keys for a successful product request.
  * This is a convenience function that returns all keys needed for cache invalidation.
  * @param {string} org - The organization identifier

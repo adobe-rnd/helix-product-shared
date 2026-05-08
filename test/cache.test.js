@@ -15,6 +15,7 @@ import {
   computeProductPathKey,
   computeSiteKey,
   compute404Key,
+  computePriceRulesKey,
   computeMediaKeys,
   computeAuthoredContentKey,
   computeProductKeys,
@@ -92,6 +93,27 @@ describe('Cache Functions', () => {
       assert.notStrictEqual(key1, key2);
       assert.strictEqual(key1, 'main--site1--adobe_404');
       assert.strictEqual(key2, 'main--site2--adobe_404');
+    });
+  });
+
+  describe('computePriceRulesKey', () => {
+    it('computes surrogate key for price rules', () => {
+      const key = computePriceRulesKey('adobe', 'site1');
+      assert.strictEqual(key, 'main--site1--adobe_pricerules');
+    });
+
+    it('returns consistent keys for same inputs', () => {
+      const key1 = computePriceRulesKey('adobe', 'site1');
+      const key2 = computePriceRulesKey('adobe', 'site1');
+      assert.strictEqual(key1, key2);
+    });
+
+    it('returns different keys for different sites', () => {
+      const key1 = computePriceRulesKey('adobe', 'site1');
+      const key2 = computePriceRulesKey('adobe', 'site2');
+      assert.notStrictEqual(key1, key2);
+      assert.strictEqual(key1, 'main--site1--adobe_pricerules');
+      assert.strictEqual(key2, 'main--site2--adobe_pricerules');
     });
   });
 
