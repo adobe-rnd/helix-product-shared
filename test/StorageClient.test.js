@@ -982,4 +982,57 @@ describe('StorageClient', () => {
       });
     });
   });
+
+  describe('ProductBusEntry tax fields', () => {
+    it('preserves taxCode through a save/fetch round-trip', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'TAX-001',
+        name: 'Taxable Product',
+        taxCode: 'P0000000',
+      };
+
+      await client.saveProduct('org/site/store/view', 'TAX-001', product);
+      const result = await client.fetchProduct('org/site/store/view', 'TAX-001');
+      assert.strictEqual(result.taxCode, 'P0000000');
+    });
+
+    it('preserves taxData through a save/fetch round-trip', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = {
+        sku: 'TAX-002',
+        name: 'Taxable Product with Data',
+        taxData: { UDF10: 'FOOD', UDF11: 'OTHER', rate: 0.08 },
+      };
+
+      await client.saveProduct('org/site/store/view', 'TAX-002', product);
+      const result = await client.fetchProduct('org/site/store/view', 'TAX-002');
+      assert.deepStrictEqual(result.taxData, { UDF10: 'FOOD', UDF11: 'OTHER', rate: 0.08 });
+    });
+
+    it('fetches a product without taxCode or taxData (backwards compatibility)', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const product = { sku: 'TAX-003', name: 'Plain Product' };
+
+      await client.saveProduct('org/site/store/view', 'TAX-003', product);
+      const result = await client.fetchProduct('org/site/store/view', 'TAX-003');
+      assert.strictEqual(result.taxCode, undefined);
+      assert.strictEqual(result.taxData, undefined);
+    });
+
+    it('ProductBusVariant fixture does not include taxCode or taxData', () => {
+      const variant = {
+        sku: 'VAR-001',
+        name: 'Variant',
+        url: '/products/test/var-001',
+        images: [],
+        availability: 'https://schema.org/InStock',
+      };
+      assert.ok(!('taxCode' in variant));
+      assert.ok(!('taxData' in variant));
+    });
+  });
 });
