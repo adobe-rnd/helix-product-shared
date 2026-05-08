@@ -316,3 +316,58 @@ export interface GeneralJournalEntry extends JournalEntry {
   /** Full data payload (used when a changes map is not applicable) */
   data?: Record<string, unknown>;
 }
+
+// ─── Price rule types ─────────────────────────────────────────────────────────
+
+export interface VariantPriceRule {
+  sku: string;
+  price: string;
+  start?: string;
+  end?: string;
+  metadata?: Record<string, string>;
+}
+
+export interface CatalogPriceRule {
+  path: string;
+  price: string;
+  start?: string;
+  end?: string;
+  metadata?: Record<string, string>;
+  /** Per-SKU overrides. Variants not listed inherit the parent product price. */
+  variants?: Record<string, VariantPriceRule>;
+}
+
+export interface CatalogPromotion {
+  id: string;
+  name: string;
+  rules: CatalogPriceRule[];
+}
+
+export interface CatalogPriceRules {
+  promotions: CatalogPromotion[];
+}
+
+export interface CartPriceRuleConditions {
+  minimumSubtotal: number;
+  products: string[];
+  categories: string[];
+}
+
+export interface CartPriceRuleActions {
+  percentOff: number | null;
+  fixedOff: number | null;
+  freeShipping: boolean;
+}
+
+export interface CartPriceRule {
+  id: string;
+  name: string;
+  priority: number;
+  conditions: CartPriceRuleConditions;
+  actions: CartPriceRuleActions;
+  stackable: boolean;
+  incompatibleTypes: string[];
+}
+
+/** Cart price rules — array of auto-discount rules consumed by applyAutoRules */
+export type CartPriceRules = CartPriceRule[];
