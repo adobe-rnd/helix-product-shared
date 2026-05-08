@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.4...v1.9.0) (2026-05-08)
+
+
+### Features
+
+* add `taxCode` and `taxData` fields to `ProductBusEntry` ([d8096ed](https://github.com/adobe-rnd/helix-product-shared/commit/d8096ed76c5ee76a60dde1d5a44b1b457cb830b5))
+
 ## [1.8.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.3...v1.8.4) (2026-05-08)
 
 
