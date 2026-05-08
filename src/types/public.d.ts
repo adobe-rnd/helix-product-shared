@@ -125,6 +125,16 @@ export interface ProductBusEntry {
    */
   custom?: Record<string, unknown>;
 
+  /**
+   * Tax classification code for this product.
+   */
+  taxCode?: string;
+
+  /**
+   * Free-form map of supplementary tax data
+   */
+  taxData?: Record<string, unknown>;
+
   // below are properties that are used to generate indices, not belonging to JSON-LD
 
   /**
