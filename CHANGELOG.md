@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.3...v1.8.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* price rule types ([#45](https://github.com/adobe-rnd/helix-product-shared/issues/45)) ([848f1e0](https://github.com/adobe-rnd/helix-product-shared/commit/848f1e0bb0b363d1facb472a72b8fcd812b190e0))
+
 ## [1.8.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.2...v1.8.3) (2026-04-15)
 
 
