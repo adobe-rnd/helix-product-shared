@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.0...v1.9.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* add country and locale to productbusentry ([#47](https://github.com/adobe-rnd/helix-product-shared/issues/47)) ([d0bb7b9](https://github.com/adobe-rnd/helix-product-shared/commit/d0bb7b916455d861461f30ca41da021d387ab81e))
+
 # [1.9.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.4...v1.9.0) (2026-05-08)
 
 
