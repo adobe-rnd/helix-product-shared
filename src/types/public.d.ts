@@ -93,6 +93,8 @@ export interface ProductBusEntry {
   metaTitle?: string; // used for title in markup meta tag
   description?: string;
   metaDescription?: string;
+  country?: string;
+  locale?: string;
   metadata?: Record<string, string>;
   url?: string;
   brand?: string;
