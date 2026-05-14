@@ -205,7 +205,7 @@ export interface Order {
   shippingMethod?: { id: string };
   /** Optional estimate token from order preview. Used to lock in estimates at order creation time. */
   estimateToken?: string;
-  /** Optional gift message to include with the order. */
+  /** Optional gift message to include with the order. Max 250 characters. */
   giftMessage?: string;
   /** Customer-defined key/value pairs for linking the order to external systems. */
   custom?: Record<string, string>;
