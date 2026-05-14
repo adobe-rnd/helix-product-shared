@@ -1,3 +1,11 @@
+## [1.9.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.1...v1.9.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* add giftMessage to order type ([5e00bb5](https://github.com/adobe-rnd/helix-product-shared/commit/5e00bb5e406f46da7c5e173083cc8b7c00dd2bce))
+* add limit ([bcbce5e](https://github.com/adobe-rnd/helix-product-shared/commit/bcbce5e4c2d7822cc6620bd80f6ebc0405b1523f))
+
 ## [1.9.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.0...v1.9.1) (2026-05-11)
 
 
