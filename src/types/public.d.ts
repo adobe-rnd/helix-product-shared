@@ -333,6 +333,8 @@ export interface GeneralJournalEntry extends JournalEntry {
 
 // ─── Price rule types ─────────────────────────────────────────────────────────
 
+export type ProductCondition = string | { path: string; sku?: string };
+
 export interface VariantPriceRule {
   sku: string;
   price: string;
@@ -367,9 +369,11 @@ export interface CatalogPriceRules {
 }
 
 export interface CartPriceRuleConditions {
-  minimumSubtotal: number;
-  products: string[];
-  categories: string[];
+  minimumSubtotal?: number;
+  requiredProducts?: ProductCondition[];
+  excludedProducts?: ProductCondition[];
+  requiredCategories?: string[];
+  excludedCategories?: string[];
 }
 
 export interface CartPriceRuleActions {
