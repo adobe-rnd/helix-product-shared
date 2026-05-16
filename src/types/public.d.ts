@@ -355,6 +355,11 @@ export interface CatalogPromotion {
   id: string;
   name: string;
   rules: CatalogPriceRule[];
+  country?: string;
+  locale?: string;
+  /** When present, the promotion is conditional and must not be applied during pipeline rendering.
+   *  It is evaluated at cart/order estimate time against the current cart. */
+  conditions?: CartPriceRuleConditions;
 }
 
 export interface CatalogPriceRules {
