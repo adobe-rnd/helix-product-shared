@@ -1,3 +1,10 @@
+## [1.9.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.2...v1.9.3) (2026-05-16)
+
+
+### Bug Fixes
+
+* update pricerule types ([#49](https://github.com/adobe-rnd/helix-product-shared/issues/49)) ([468b7a9](https://github.com/adobe-rnd/helix-product-shared/commit/468b7a9fcfb6d4aa17b6ac04c8699621faf472eb))
+
 ## [1.9.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.1...v1.9.2) (2026-05-14)
 
 
