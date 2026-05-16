@@ -1,3 +1,10 @@
+## [1.9.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.3...v1.9.4) (2026-05-16)
+
+
+### Bug Fixes
+
+* add types of product conditions on price-rules ([#50](https://github.com/adobe-rnd/helix-product-shared/issues/50)) ([d2a1740](https://github.com/adobe-rnd/helix-product-shared/commit/d2a1740299ff36a8f9e1efdb3249c8f104a5f836))
+
 ## [1.9.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.2...v1.9.3) (2026-05-16)
 
 
