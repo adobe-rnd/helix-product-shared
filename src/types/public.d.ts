@@ -84,8 +84,8 @@ export interface BundleItemPrice {
  * variant to ship by matching every entry here against the parent line item's
  * `selectedOptions` — comparing `id` to `id`, and this `name` to the parent's
  * `value`. The shape differs from the parent's `selectedOptions` intentionally:
- * the parent uses `value` (semantic edge cart format), bundle item variants use
- * `name` (Product Bus option-label format).
+ * `selectedOptions` carries semantic values, bundle item variants carry the
+ * Product Bus option-label format.
  */
 export interface BundleItemVariantOption {
   id: string;
@@ -264,11 +264,23 @@ export interface OrderItem {
 
   /**
    * Semantic option pairs selected by the customer (e.g. `{id: 'color', value: 'Red'}`).
-   * Used by the Commerce API at order preview to resolve which variant of each
-   * configurable bundle item to ship. Edge-checkout flow only — the Magento path
-   * sends Magento-format UIDs on a different field.
+   * Used at order preview to resolve which variant of each configurable bundle
+   * item to ship — matched against `bundleItem.variants[].options[].name`.
    */
   selectedOptions?: Array<{ id: string; value: string }>;
+
+  /**
+   * For bundle parents: the resolved component line items, nested on the parent.
+   * Each entry is a concrete line item (one variant picked per configurable
+   * source entry, price set). Components contribute to fulfillment and to the
+   * tax projection at preview time; they are **not** included in the order's
+   * charged subtotal — the parent line's `price` represents the chargeable
+   * value.
+   *
+   * Distinct from `ProductBusEntry.bundleItems`, which is the template form
+   * (can include configurable `variants`).
+   */
+  bundleItems?: OrderItem[];
 }
 
 export interface Order {
