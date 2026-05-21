@@ -1,3 +1,10 @@
+## [1.9.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.5...v1.9.6) (2026-05-21)
+
+
+### Bug Fixes
+
+* add friendlyId config types ([#52](https://github.com/adobe-rnd/helix-product-shared/issues/52)) ([9f161ba](https://github.com/adobe-rnd/helix-product-shared/commit/9f161ba6af6a835e788cdc4024f281ef1438d929))
+
 ## [1.9.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.4...v1.9.5) (2026-05-21)
 
 
