@@ -68,6 +68,69 @@ export interface ProductBusOption {
   values: ProductBusOptionValue[];
 }
 
+/**
+ * Price carried on a bundle item entry. Narrower than {@link ProductBusPrice}:
+ * bundle items declare the final tax-relevant amount and optionally a
+ * `regular` price for display (e.g., showing a discount). Currency comes from
+ * the parent line item at order time.
+ */
+export interface BundleItemPrice {
+  final: string;
+  regular?: string;
+}
+
+/**
+ * Option pair on a configurable bundle item variant. The server resolves which
+ * variant to ship by matching every entry here against the parent line item's
+ * `selectedOptions` — comparing `id` to `id`, and this `name` to the parent's
+ * `value`. The shape differs from the parent's `selectedOptions` intentionally:
+ * the parent uses `value` (semantic edge cart format), bundle item variants use
+ * `name` (Product Bus option-label format).
+ */
+export interface BundleItemVariantOption {
+  id: string;
+  name: string;
+}
+
+/**
+ * One variant of a configurable bundle item. The server picks the variant
+ * whose `options` are all satisfied by the parent line item's `selectedOptions`;
+ * zero or multiple matches reject the preview.
+ */
+export interface BundleItemVariant {
+  sku: string;
+  name?: string;
+  price: BundleItemPrice;
+  options: BundleItemVariantOption[];
+}
+
+/**
+ * Simple bundle item — a single SKU regardless of the parent's options.
+ */
+export interface BundleItemSimple {
+  sku: string;
+  name: string;
+  price: BundleItemPrice;
+}
+
+/**
+ * Configurable bundle item — the server selects one variant at preview time
+ * based on the parent's `selectedOptions`.
+ */
+export interface BundleItemConfigurable {
+  variants: BundleItemVariant[];
+}
+
+/**
+ * One entry in a bundle product's composition. Either a simple SKU or a
+ * configurable variant set. Presence of the parent product's `bundleItems`
+ * array (not its contents) marks the parent as a bundle; the field is
+ * additive alongside the existing `variants` and `options`. Bundle item
+ * prices must sum to the parent product's price — server-enforced at order
+ * preview.
+ */
+export type BundleItem = BundleItemSimple | BundleItemConfigurable;
+
 export interface MerchantFeedShipping {
   country: string;
   region: string;
@@ -108,6 +171,14 @@ export interface ProductBusEntry {
   gtin?: string;
   options?: ProductBusOption[];
   specifications?: string;
+
+  /**
+   * Bundle composition. When present (regardless of contents), marks this
+   * product as a bundle: the cart treats it as a single purchasable SKU, and
+   * the Commerce API expands it into component line items at order preview
+   * for tax calculation. Bundle item prices must sum to this product's price.
+   */
+  bundleItems?: BundleItem[];
 
   /**
    * Override "escape hatch" for json-ld
@@ -190,6 +261,14 @@ export interface OrderItem {
   productUrl?: string;
   shippingDimensions?: ShippingDimensions;
   custom?: Record<string, unknown>;
+
+  /**
+   * Semantic option pairs selected by the customer (e.g. `{id: 'color', value: 'Red'}`).
+   * Used by the Commerce API at order preview to resolve which variant of each
+   * configurable bundle item to ship. Edge-checkout flow only — the Magento path
+   * sends Magento-format UIDs on a different field.
+   */
+  selectedOptions?: Array<{ id: string; value: string }>;
 }
 
 export interface Order {
