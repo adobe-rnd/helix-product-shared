@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.0...v1.10.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* release ([0a7905e](https://github.com/adobe-rnd/helix-product-shared/commit/0a7905e9f5e01201229d0cb91013ed928d028eba))
+
 # [1.10.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.6...v1.10.0) (2026-05-21)
 
 
