@@ -473,3 +473,35 @@ export interface CartPriceRule {
 
 /** Cart price rules — array of auto-discount rules consumed by applyAutoRules */
 export type CartPriceRules = CartPriceRule[];
+
+/**
+ * Configuration for order friendly ID generation.
+ * The friendly ID is the short human-readable suffix appended to every orderId.
+ */
+export interface FriendlyIdConfig {
+  /**
+   * Character set for the friendly ID. Either a named preset or a literal string
+   * where every character in the string is allowed.
+   *
+   * Named presets:
+   *   "default" / omitted         – Crockford Base32 (0-9 A-Z minus I/L/O/U), uppercase
+   *   "numeric"                   – 0-9
+   *   "alphabetic"                – A-Z  (same as "alphabetic_uppercase")
+   *   "alphabetic_uppercase"      – A-Z
+   *   "alphabetic_lowercase"      – a-z
+   *   "alphabetic_anycase"        – A-Za-z
+   *   "alphanumeric"              – A-Z0-9  (same as "alphanumeric_uppercase")
+   *   "alphanumeric_uppercase"    – A-Z0-9
+   *   "alphanumeric_lowercase"    – a-z0-9
+   *   "alphanumeric_anycase"      – A-Za-z0-9
+   *
+   * Literal charset: every character in the string is an allowed character.
+   *   Must not contain "/" (R2 key path separator).
+   *   Must contain at least 2 distinct characters.
+   */
+  characters?: string;
+  /**
+   * Length of the friendly ID. Integer between 4 and 32 inclusive. Default: 8.
+   */
+  length?: number;
+}
