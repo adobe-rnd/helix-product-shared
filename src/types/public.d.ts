@@ -82,7 +82,7 @@ export interface BundleItemPrice {
 /**
  * Option pair on a configurable bundle item variant. The server resolves which
  * variant to ship by matching every entry here against the parent line item's
- * `selectedOptions` — comparing `id` to `id`, and this `name` to the parent's
+ * `selectedOptions`, comparing `id` to `id`, and this `name` to the parent's
  * `value`. The shape differs from the parent's `selectedOptions` intentionally:
  * `selectedOptions` carries semantic values, bundle item variants carry the
  * Product Bus option-label format.
