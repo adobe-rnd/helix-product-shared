@@ -1,3 +1,10 @@
+## [1.9.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.4...v1.9.5) (2026-05-21)
+
+
+### Bug Fixes
+
+* types for bundle support ([64df0e8](https://github.com/adobe-rnd/helix-product-shared/commit/64df0e8a69a25eb17b8ae483b64c60d3d1a625b2))
+
 ## [1.9.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.3...v1.9.4) (2026-05-16)
 
 
