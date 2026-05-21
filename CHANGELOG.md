@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.6...v1.10.0) (2026-05-21)
+
+
+### Features
+
+* add `OrderItem.bundleItems` for resolved bundle components ([2f3ddc2](https://github.com/adobe-rnd/helix-product-shared/commit/2f3ddc2747b4df86a252940021c8f43c23822e74))
+
 ## [1.9.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.5...v1.9.6) (2026-05-21)
 
 
