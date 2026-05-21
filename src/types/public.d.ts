@@ -496,7 +496,7 @@ export interface FriendlyIdConfig {
    *   "alphanumeric_anycase"      – A-Za-z0-9
    *
    * Literal charset: every character in the string is an allowed character.
-   *   Must not contain "/" (R2 key path separator).
+   *   Must not contain "/".
    *   Must contain at least 2 distinct characters.
    */
   characters?: string;
