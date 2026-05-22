@@ -516,4 +516,10 @@ export interface FriendlyIdConfig {
    * Length of the friendly ID. Integer between 4 and 32 inclusive. Default: 8.
    */
   length?: number;
+  /**
+   * Literal string prepended to every generated friendly ID. Maximum 8 characters.
+   * Same character restrictions as `characters` (no /?#&%<> or space).
+   * Example: prefix "order" with characters "numeric" and length 10 produces "order1234567890".
+   */
+  prefix?: string;
 }
