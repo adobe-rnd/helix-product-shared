@@ -519,7 +519,7 @@ export interface FriendlyIdConfig {
   /**
    * Literal string prepended to every generated friendly ID. Maximum 8 characters.
    * Same character restrictions as `characters` (no /?#&%<> or space).
-   * Example: prefix "om-" with characters "numeric" and length 10 produces "om-1234567890".
+   * Example: prefix "order" with characters "numeric" and length 10 produces "order-1234567890".
    */
   prefix?: string;
 }
