@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.1...v1.10.2) (2026-05-22)
+
+
+### Bug Fixes
+
+* add friendlyId prefix option ([#55](https://github.com/adobe-rnd/helix-product-shared/issues/55)) ([5bc527d](https://github.com/adobe-rnd/helix-product-shared/commit/5bc527d3f22ba9d7b826c2494ed3fb18c0dd7265))
+
 ## [1.10.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.0...v1.10.1) (2026-05-21)
 
 
