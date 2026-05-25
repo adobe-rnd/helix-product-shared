@@ -96,21 +96,35 @@ export interface BundleItemVariantOption {
  * One variant of a configurable bundle item. The server picks the variant
  * whose `options` are all satisfied by the parent line item's `selectedOptions`;
  * zero or multiple matches reject the preview.
+ *
+ * `taxCode` and `taxData` are optional per-variant overrides of the bundle
+ * parent's tax classification. When present, the Commerce API uses them for
+ * the variant's line in the tax-provider projection; when absent, the
+ * projection falls back to the bundle parent's `taxCode` / `taxData`.
  */
 export interface BundleItemVariant {
   sku: string;
   name?: string;
   price: BundleItemPrice;
   options: BundleItemVariantOption[];
+  taxCode?: string;
+  taxData?: Record<string, unknown>;
 }
 
 /**
  * Simple bundle item — a single SKU regardless of the parent's options.
+ *
+ * `taxCode` and `taxData` are optional per-component overrides of the bundle
+ * parent's tax classification. When present, the Commerce API uses them for
+ * the component's line in the tax-provider projection; when absent, the
+ * projection falls back to the bundle parent's `taxCode` / `taxData`.
  */
 export interface BundleItemSimple {
   sku: string;
   name: string;
   price: BundleItemPrice;
+  taxCode?: string;
+  taxData?: Record<string, unknown>;
 }
 
 /**
