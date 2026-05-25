@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.2...v1.11.0) (2026-05-25)
+
+
+### Features
+
+* optional `taxCode` and `taxData` on `BundleItemSimple` and `BundleItemVariant` ([3f2dd41](https://github.com/adobe-rnd/helix-product-shared/commit/3f2dd414e0b054e80dd72ae772861414808b2076))
+
 ## [1.10.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.1...v1.10.2) (2026-05-22)
 
 
