@@ -485,6 +485,8 @@ export interface CartPriceRuleActions {
   percentOff: number | null;
   fixedOff: number | null;
   freeShipping: boolean;
+  /** When set, this free-shipping rule only applies to methods whose type is in this list */
+  qualifyingMethodTypes?: string[];
 }
 
 export interface CartPriceRule {
@@ -495,6 +497,8 @@ export interface CartPriceRule {
   actions: CartPriceRuleActions;
   stackable: boolean;
   incompatibleTypes: string[];
+  /** ISO 3166-1 alpha-2 country code filter — rule only applies in this country when set */
+  country?: string;
 }
 
 /** Cart price rules — array of auto-discount rules consumed by applyAutoRules */
