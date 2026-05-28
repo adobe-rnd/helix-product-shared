@@ -3,6 +3,15 @@ export type SchemaOrgAvailability = 'BackOrder' | 'Discontinued' | 'InStock' | '
 
 export type SchemaOrgItemCondition = 'DamagedCondition' | 'NewCondition' | 'RefurbishedCondition' | 'UsedCondition';
 
+export type WeightUnit = 'kg' | 'g' | 'lb' | 'oz';
+
+export type DimensionsUnit = 'cm' | 'mm' | 'in';
+
+export interface ProductBusWeight {
+  value: number;
+  unit: WeightUnit;
+}
+
 export interface SchemaOrgAggregateRating {
   ratingValue: number;
   reviewCount: number;
@@ -16,16 +25,12 @@ export interface ProductBusPrice {
   regular?: string;
 }
 
-export interface ShippingDimensionValue {
-  value: number;
-  unit?: string;
-}
-
 export interface ShippingDimensions {
-  weight?: ShippingDimensionValue;
-  height?: ShippingDimensionValue;
-  width?: ShippingDimensionValue;
-  length?: ShippingDimensionValue;
+  weight?: ProductBusWeight;
+  height?: number;
+  width?: number;
+  depth?: number;
+  dimensionsUnit?: DimensionsUnit;
 }
 
 export interface ProductBusVariant {
@@ -38,6 +43,7 @@ export interface ProductBusVariant {
   gtin?: string;
   description?: string;
   itemCondition?: SchemaOrgItemCondition;
+  weight?: ProductBusWeight;
   custom?: Record<string, unknown>;
   shippingDimensions?: ShippingDimensions;
 
@@ -236,6 +242,9 @@ export interface ProductBusEntry {
    * ]
    */
   shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+
+  /** Product weight for display and JSON-LD structured data. */
+  weight?: ProductBusWeight;
 
   /** Physical dimensions used for shipping rate calculation. */
   shippingDimensions?: ShippingDimensions;
