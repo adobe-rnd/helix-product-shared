@@ -486,7 +486,7 @@ export interface CartPriceRuleActions {
   fixedOff: number | null;
   freeShipping: boolean;
   /** When set, this free-shipping rule only applies to methods whose type is in this list */
-  qualifyingMethodTypes?: string[];
+  includedShippingTypes?: string[];
 }
 
 export interface CartPriceRule {
