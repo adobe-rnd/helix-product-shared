@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.11.0...v1.12.0) (2026-05-28)
+
+
+### Features
+
+* add `ProductBusWeight` and rework `ShippingDimensions` schema ([ad93368](https://github.com/adobe-rnd/helix-product-shared/commit/ad9336821aec421c7e9fc88e614193d021efb4e6))
+
 # [1.11.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.2...v1.11.0) (2026-05-25)
 
 
