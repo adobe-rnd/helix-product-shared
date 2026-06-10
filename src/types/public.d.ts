@@ -190,7 +190,6 @@ export interface ProductBusEntry {
   type?: string;
   gtin?: string;
   options?: ProductBusOption[];
-  specifications?: string;
 
   /**
    * Bundle composition. When present (regardless of contents), marks this
