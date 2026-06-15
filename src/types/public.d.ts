@@ -264,6 +264,7 @@ export interface OrderAddress {
   company?: string;
   phone?: string;
   isDefault?: boolean;
+  isValidated?: boolean;
 }
 
 export interface OrderCustomer {
