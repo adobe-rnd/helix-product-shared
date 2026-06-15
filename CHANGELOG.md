@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.12.0...v1.13.0) (2026-06-15)
+
+
+### Features
+
+* **types:** add address validation state ([0169dff](https://github.com/adobe-rnd/helix-product-shared/commit/0169dff1f9f3add4f4734b2c87c9de58a0703c37))
+
 # [1.12.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.11.0...v1.12.0) (2026-05-28)
 
 
