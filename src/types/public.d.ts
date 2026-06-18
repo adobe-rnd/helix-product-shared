@@ -322,6 +322,8 @@ export interface Order {
   estimateToken?: string;
   /** Optional gift message to include with the order. Max 250 characters. */
   giftMessage?: string;
+  /** IANA timezone captured from the shopper's browser at checkout. */
+  customerTimezone?: string;
   /** Customer-defined key/value pairs for linking the order to external systems. */
   custom?: Record<string, string>;
 }
