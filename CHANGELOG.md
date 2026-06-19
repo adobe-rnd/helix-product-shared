@@ -1,3 +1,11 @@
+# [1.15.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.14.0...v1.15.0) (2026-06-19)
+
+
+### Features
+
+* **types:** add JSDoc descriptions to public product types ([bb68bb4](https://github.com/adobe-rnd/helix-product-shared/commit/bb68bb45d5162856ee2c3c6c9de9a65199b40a3e))
+* **types:** add missing availabilityDate and feeds to ProductBusEntry ([c398fe3](https://github.com/adobe-rnd/helix-product-shared/commit/c398fe3aa5cc14d570cecc2871fcb68ef6e5dd54))
+
 # [1.14.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.13.0...v1.14.0) (2026-06-18)
 
 
