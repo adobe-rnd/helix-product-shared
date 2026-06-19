@@ -1,50 +1,131 @@
 
+/** Stock status using schema.org availability vocabulary. */
 export type SchemaOrgAvailability = 'BackOrder' | 'Discontinued' | 'InStock' | 'InStoreOnly' | 'LimitedAvailability' | 'MadeToOrder' | 'OnlineOnly' | 'OutOfStock' | 'PreOrder' | 'PreSale' | 'Reserved' | 'SoldOut';
 
+/**
+ * Per-value meanings for {@link SchemaOrgAvailability}. Types-only doc carrier
+ * (no runtime value) so documentation tooling can read each value's meaning.
+ */
+export type SchemaOrgAvailabilityValues = {
+  /** Product is available for order but currently out of stock. */
+  BackOrder: 'BackOrder';
+  /** Product is no longer being manufactured or sold. */
+  Discontinued: 'Discontinued';
+  /** Product is available for immediate purchase. */
+  InStock: 'InStock';
+  /** Product is only available for purchase in physical stores. */
+  InStoreOnly: 'InStoreOnly';
+  /** Product has limited stock available. */
+  LimitedAvailability: 'LimitedAvailability';
+  /** Product is manufactured upon order placement. */
+  MadeToOrder: 'MadeToOrder';
+  /** Product is only available for online purchase. */
+  OnlineOnly: 'OnlineOnly';
+  /** Product is temporarily out of stock. */
+  OutOfStock: 'OutOfStock';
+  /** Product can be ordered before official release. */
+  PreOrder: 'PreOrder';
+  /** Product is available for pre-sale purchase. */
+  PreSale: 'PreSale';
+  /** Product is reserved and not available for general purchase. */
+  Reserved: 'Reserved';
+  /** Product has sold out completely. */
+  SoldOut: 'SoldOut';
+};
+
+/** Product condition using schema.org item condition vocabulary. */
 export type SchemaOrgItemCondition = 'DamagedCondition' | 'NewCondition' | 'RefurbishedCondition' | 'UsedCondition';
 
+/**
+ * Per-value meanings for {@link SchemaOrgItemCondition}. Types-only doc carrier
+ * (no runtime value) so documentation tooling can read each value's meaning.
+ */
+export type SchemaOrgItemConditionValues = {
+  /** Product has damage or defects. */
+  DamagedCondition: 'DamagedCondition';
+  /** Product is brand new and unused. */
+  NewCondition: 'NewCondition';
+  /** Product has been professionally restored to working condition. */
+  RefurbishedCondition: 'RefurbishedCondition';
+  /** Product has been previously used. */
+  UsedCondition: 'UsedCondition';
+};
+
+/** Weight unit. Maps to UN/CEFACT codes in JSON-LD output. */
 export type WeightUnit = 'kg' | 'g' | 'lb' | 'oz';
 
+/** Dimension unit for height/width/depth. Maps to UN/CEFACT codes in JSON-LD. */
 export type DimensionsUnit = 'cm' | 'mm' | 'in';
 
+/** Product weight for JSON-LD structured data. */
 export interface ProductBusWeight {
+  /** Numeric weight value. */
   value: number;
+  /** Weight unit. Maps to UN/CEFACT codes in JSON-LD output. */
   unit: WeightUnit;
 }
 
+/** Product review and rating information. */
 export interface SchemaOrgAggregateRating {
+  /** Average rating, e.g. "4.5". */
   ratingValue: number;
+  /** Number of reviews; converts to an integer in JSON-LD. */
   reviewCount: number;
+  /** Maximum possible rating, e.g. "5". */
   bestRating?: number;
+  /** Minimum possible rating, e.g. "1". */
   worstRating?: number;
 }
 
+/** Price information for a product or variant. */
 export interface ProductBusPrice {
+  /** Final price the customer pays, as a decimal string (e.g. "19.99"). */
   final: string;
+  /** ISO 4217 currency code, e.g. "USD". */
   currency: string;
+  /** Original price before any discount, as a decimal string. */
   regular?: string;
 }
 
+/** Product shipping dimensions emitted as Offer.shippingDetails in JSON-LD. */
 export interface ShippingDimensions {
+  /** Package weight. */
   weight?: ProductBusWeight;
+  /** Package height. */
   height?: number;
+  /** Package width. */
   width?: number;
+  /** Package depth. */
   depth?: number;
+  /** Unit for height, width, and depth. Maps to UN/CEFACT codes in JSON-LD. */
   dimensionsUnit?: DimensionsUnit;
 }
 
+/** A variant of a configurable product. */
 export interface ProductBusVariant {
+  /** Unique variant identifier. */
   sku: string;
+  /** Display name for the variant. */
   name: string;
+  /** Variant-specific pricing; falls back to the parent product price when omitted. */
   price?: ProductBusPrice;
+  /** Canonical variant page URL. */
   url: string;
+  /** Media gallery for the variant. */
   images: ProductBusImage[];
+  /** Stock status using schema.org availability vocabulary. */
   availability: SchemaOrgAvailability;
+  /** Barcode or Global Trade Item Number for the variant. */
   gtin?: string;
+  /** Variant-specific description. HTML content is supported. */
   description?: string;
+  /** Variant condition using schema.org item condition vocabulary. */
   itemCondition?: SchemaOrgItemCondition;
+  /** Variant weight; inherits the parent product value when omitted. */
   weight?: ProductBusWeight;
+  /** Custom data bag for variant-specific data. */
   custom?: Record<string, unknown>;
+  /** Variant shipping dimensions; inherits the parent product value when omitted. */
   shippingDimensions?: ShippingDimensions;
 
   /**
@@ -55,22 +136,35 @@ export interface ProductBusVariant {
   jsonldExtensions?: Record<string, unknown>;
 }
 
+/** Media asset (image or video) associated with a product. */
 export interface ProductBusImage {
+  /** Media URL (external or relative path after processing). */
   url: string;
+  /** Label or alt text. */
   label?: string;
+  /** Human-readable filename segment for the rendered media URL. */
   filename?: string;
+  /** Roles such as "thumbnail", "small", or "large". */
   roles?: string[];
 }
 
+/** A selectable value for a configurable option. */
 export interface ProductBusOptionValue {
+  /** Option value identifier. */
   id?: string;
+  /** Value name. */
   value: string;
 }
 
+/** Configurable product option, such as color or size. */
 export interface ProductBusOption {
+  /** Option identifier. */
   id?: string;
+  /** Display label. */
   label: string;
+  /** Sort order. */
   position?: number;
+  /** Available option values. */
   values: ProductBusOptionValue[];
 }
 
@@ -166,30 +260,49 @@ export interface MerchantFeedShipping {
  * Helix product-bus entry
  */
 export interface ProductBusEntry {
-  /**
-   * Product data used to generate markup/json-ld
-   */
+  /** Unique product identifier. */
   sku: string;
+  /** Product URL path used for path-based storage. */
   path: string;
+  /** Human-readable product identifier for URL generation. */
   urlKey: string;
-  name: string; // used for product name in json-ld
-  metaTitle?: string; // used for title in markup meta tag
+  /** Display name for the product. */
+  name: string;
+  /** SEO title tag content. */
+  metaTitle?: string;
+  /** Full product description. HTML content is supported. */
   description?: string;
+  /** SEO meta description. */
   metaDescription?: string;
+  /** Country code for country-scoped product data. */
   country?: string;
+  /** Locale code for locale-scoped product data. */
   locale?: string;
+  /** Generic metadata map rendered as meta tags in HTML output. */
   metadata?: Record<string, string>;
+  /** Canonical product page URL; used directly in sitemap output when present. */
   url?: string;
+  /** Brand or manufacturer name. */
   brand?: string;
+  /** Product condition using schema.org item condition vocabulary. */
   itemCondition?: SchemaOrgItemCondition;
+  /** Product review and rating information. */
   aggregateRating?: SchemaOrgAggregateRating;
+  /** Stock status using schema.org availability vocabulary. */
   availability?: SchemaOrgAvailability;
+  /** Media gallery for product images and videos. */
   images?: ProductBusImage[];
+  /** Price information for the product. */
   price?: ProductBusPrice;
+  /** Product variants for configurable products. */
   variants?: ProductBusVariant[];
+  /** Product type classification. */
   type?: string;
+  /** Barcode or Global Trade Item Number. */
   gtin?: string;
+  /** Configurable product options, such as color or size. */
   options?: ProductBusOption[];
+  /** Product specifications content. */
   specifications?: string;
 
   /**
