@@ -256,6 +256,30 @@ export interface MerchantFeedShipping {
   max_transit_time: string;
 }
 
+/** Common feed settings shared across product distribution channels. */
+export interface ProductBusFeedCommon {
+  /** Target countries for product feeds. */
+  geoTargetCountries?: string[];
+  /** Store country for feed generation. */
+  geoStoreCountry?: string;
+}
+
+/** Product feed eligibility for the OpenAI / agentic commerce feed. */
+export interface ProductBusFeedOpenAI {
+  /** Whether the product is eligible for search feeds. */
+  isEligibleForSearch: boolean;
+  /** Whether the product supports checkout via feeds. */
+  isEligibleForCheckout: boolean;
+}
+
+/** Feed configuration for product distribution. */
+export interface ProductBusFeeds {
+  /** Common feed settings. */
+  common?: ProductBusFeedCommon;
+  /** OpenAI / agentic commerce feed eligibility. */
+  oai?: ProductBusFeedOpenAI;
+}
+
 /**
  * Helix product-bus entry
  */
@@ -290,6 +314,8 @@ export interface ProductBusEntry {
   aggregateRating?: SchemaOrgAggregateRating;
   /** Stock status using schema.org availability vocabulary. */
   availability?: SchemaOrgAvailability;
+  /** Date when the product becomes available. */
+  availabilityDate?: string;
   /** Media gallery for product images and videos. */
   images?: ProductBusImage[];
   /** Price information for the product. */
@@ -355,6 +381,9 @@ export interface ProductBusEntry {
    * ]
    */
   shipping?: string | MerchantFeedShipping | MerchantFeedShipping[];
+
+  /** Feed configuration for product distribution. */
+  feeds?: ProductBusFeeds;
 
   /** Product weight for display and JSON-LD structured data. */
   weight?: ProductBusWeight;
