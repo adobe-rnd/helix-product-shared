@@ -127,11 +127,13 @@ export interface ProductBusVariant {
   custom?: Record<string, unknown>;
   /** Variant shipping dimensions; inherits the parent product value when omitted. */
   shippingDimensions?: ShippingDimensions;
+  /** Selected option values that identify this variant. */
+  options?: ProductBusOption[];
 
   /**
    * Additional schema.org properties shallow-merged into this variant's Offer
-   * in the auto-generated JSON-LD. Ignored when the product-level jsonld
-   * override is used. Max 16,000 characters when serialized.
+   * in the generated JSON-LD. Ignored when the product-level `jsonld` override
+   * is used.
    */
   jsonldExtensions?: Record<string, unknown>;
 }
@@ -146,6 +148,8 @@ export interface ProductBusImage {
   filename?: string;
   /** Roles such as "thumbnail", "small", or "large". */
   roles?: string[];
+  /** Associated video URL. */
+  video?: string;
 }
 
 /** A selectable value for a configurable option. */
@@ -332,29 +336,24 @@ export interface ProductBusEntry {
   specifications?: string;
 
   /**
-   * Bundle composition. When present (regardless of contents), marks this
-   * product as a bundle: the cart treats it as a single purchasable SKU, and
-   * the Commerce API expands it into component line items at order preview
-   * for tax calculation. Bundle item prices must sum to this product's price.
+   * Bundle composition. When present, marks this product as a bundle: it is
+   * treated as a single purchasable SKU and expanded into component line items
+   * at order time for tax calculation. Bundle item prices must sum to this
+   * product's price.
    */
   bundleItems?: BundleItem[];
 
-  /**
-   * Override "escape hatch" for json-ld
-   */
+  /** schema.org JSON-LD override; replaces the generated JSON-LD entirely. */
   jsonld?: string;
 
   /**
-   * Additional schema.org properties shallow-merged into the auto-generated
-   * Product JSON-LD object. Intended for additive fields (e.g. potentialAction,
-   * aggregateRating, review) but can overwrite any pipeline-generated key.
-   * Ignored when jsonld override is used. Max 32,000 characters when serialized.
+   * Additional schema.org properties shallow-merged into the generated Product
+   * JSON-LD. Intended for additive fields but can overwrite generated keys.
+   * Ignored when the `jsonld` override is used.
    */
   jsonldExtensions?: Record<string, unknown>;
 
-  /**
-   * Additional data that can be retrieved via .json API
-   */
+  /** Custom data bag preserved in responses; not validated or indexed. */
   custom?: Record<string, unknown>;
 
   /**
