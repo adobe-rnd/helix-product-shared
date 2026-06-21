@@ -394,80 +394,176 @@ export interface ProductBusEntry {
 
 // ─── Order types ─────────────────────────────────────────────────────────────
 
+/** A shipping or billing address. */
 export interface OrderAddress {
+  /** Recipient full name. */
   name: string;
+  /** Email address. */
   email: string;
+  /** Street address line 1. */
   address1: string;
+  /** Street address line 2 (apartment, suite, etc.). */
   address2?: string;
+  /** City or locality. */
   city: string;
+  /** State, province, or region. Required for tax and shipping rate lookups. */
   state: string;
+  /** Postal or ZIP code. */
   zip: string;
+  /** Country. Required for tax and shipping rate lookups. */
   country: string;
+  /** Company name. */
   company?: string;
+  /** Contact phone number. */
   phone?: string;
+  /** Whether this is the customer's default address. */
   isDefault?: boolean;
+  /** Whether the address has been validated. */
   isValidated?: boolean;
 }
 
+/** Customer contact details supplied with the order. */
 export interface OrderCustomer {
+  /** Customer first name. */
   firstName: string;
+  /** Customer last name. */
   lastName: string;
+  /** Email address. */
   email: string;
+  /** Customer contact phone number. */
   phone?: string;
 }
 
-export interface OrderItem {
-  sku: string;
-  path: string;
-  quantity: number;
-  price: ProductBusPrice;
+/** An option value selected by the customer on a line item. */
+export interface SelectedOption {
+  /** Option identifier, e.g. "color". */
+  id: string;
+  /** Selected option value, e.g. "Red". */
+  value: string;
+}
+
+/**
+ * A resolved bundle component nested on a bundle parent line. Components are not
+ * counted toward the order's charged subtotal — the parent line's `price`
+ * represents the chargeable value.
+ */
+export interface NestedBundleItem {
+  /** Component product name. */
   name?: string;
+  /** Component product SKU. */
+  sku?: string;
+  /** Component product URL path. */
+  path: string;
+  /** Quantity of this component in the bundle. */
+  quantity: number;
+  /** Price information for the component. */
+  price: ProductBusPrice;
+}
+
+/** A single line item in an order. */
+export interface OrderItem {
+  /** Product SKU. */
+  sku: string;
+  /** Product URL path. */
+  path: string;
+  /** Quantity ordered. */
+  quantity: number;
+  /** Price information for the line item. */
+  price: ProductBusPrice;
+  /** Product name. */
+  name?: string;
+  /** Free-form note for this line item. */
   note?: string;
+  /** Product image URL. */
   imageUrl?: string;
+  /** Product page URL. */
   productUrl?: string;
+  /** Physical dimensions used for shipping rate calculation. */
   shippingDimensions?: ShippingDimensions;
+  /** Custom line-item data preserved on the order. */
   custom?: Record<string, unknown>;
 
   /**
-   * Semantic option pairs selected by the customer (e.g. `{id: 'color', value: 'Red'}`).
-   * Used at order preview to resolve which variant of each configurable bundle
-   * item to ship — matched against `bundleItem.variants[].options[].name`.
+   * Option values selected by the customer for this line. Used at order preview
+   * to resolve which variant of each configurable bundle item to ship.
    */
-  selectedOptions?: Array<{ id: string; value: string }>;
+  selectedOptions?: SelectedOption[];
 
   /**
    * For bundle parents: the resolved component line items, nested on the parent.
-   * Each entry is a concrete line item (one variant picked per configurable
-   * source entry, price set). Components contribute to fulfillment and to the
-   * tax projection at preview time; they are **not** included in the order's
-   * charged subtotal — the parent line's `price` represents the chargeable
-   * value.
-   *
-   * Distinct from `ProductBusEntry.bundleItems`, which is the template form
-   * (can include configurable `variants`).
+   * Not included in the order's charged subtotal — the parent line's `price`
+   * represents the chargeable value. Distinct from `ProductBusEntry.bundleItems`,
+   * which is the template form (can include configurable `variants`).
    */
-  bundleItems?: OrderItem[];
+  bundleItems?: NestedBundleItem[];
 }
 
+/** An order request body for placing or previewing an order. */
 export interface Order {
+  /** Customer contact details supplied with the order. */
   customer: OrderCustomer;
+  /** Shipping address. */
   shipping: OrderAddress;
-  /** Optional billing address for payment AVS verification. Falls back to shipping if omitted. */
+  /** Billing address for payment AVS verification. Falls back to shipping if omitted. */
   billing?: OrderAddress;
+  /** Line items in the order. */
   items: OrderItem[];
+  /** Customer language as a BCP-47 tag. */
   locale?: string;
-  /** ISO 3166-1 alpha-2 country code. Falls back to shipping.country if absent. */
+  /** Store country as an ISO 3166-1 alpha-2 code. Falls back to shipping.country if absent. */
   country?: string;
   /** Shipping method selected by the customer from the estimate rates. Required for order preview. */
   shippingMethod?: { id: string };
-  /** Optional estimate token from order preview. Used to lock in estimates at order creation time. */
+  /** Estimate token from a prior order preview. Used to lock in estimates at order creation time. */
   estimateToken?: string;
+  /** Payment method identifier. */
+  paymentMethod?: string;
+  /** Coupon code applied to the order. */
+  couponCode?: string;
+  /** Origin of the coupon code, e.g. a campaign source (order preview only). */
+  couponSource?: string;
   /** Optional gift message to include with the order. Max 250 characters. */
   giftMessage?: string;
   /** IANA timezone captured from the shopper's browser at checkout. */
   customerTimezone?: string;
   /** Customer-defined key/value pairs for linking the order to external systems. */
   custom?: Record<string, string>;
+}
+
+// ─── Error types ─────────────────────────────────────────────────────────────
+
+/** A single field-level validation failure. */
+export interface ValidationErrorDetail {
+  /** JSON path to the offending value, e.g. `$.allowedOrigins[0]`. */
+  path: string;
+  /** What was wrong at this path. */
+  message: string;
+  /** Optional extra context. */
+  details?: string;
+}
+
+/** Standard error envelope returned for non-2xx responses. */
+export interface ErrorResponse {
+  /** Machine-readable error code (also sent as the `x-error-code` header). */
+  code: string;
+  /** Human-readable error message (also sent as the `x-error` header). */
+  message: string;
+  /** The resource type involved, when applicable. */
+  resource?: string;
+  /** Whether the caller may retry the request. */
+  retryable?: boolean;
+  /** Optional structured detail. */
+  details?: Record<string, unknown>;
+}
+
+/** Error envelope returned when the request body fails schema validation (HTTP 400). */
+export interface ValidationErrorResponse {
+  /** Machine-readable error code. */
+  code: string;
+  /** Human-readable error message. */
+  message: string;
+  /** Per-field validation failures. */
+  errors?: ValidationErrorDetail[];
 }
 
 // ─── Estimate types ───────────────────────────────────────────────────────────
