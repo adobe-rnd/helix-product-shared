@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.15.0...v1.16.0) (2026-06-21)
+
+
+### Features
+
+* **types:** document order request and error response schemas ([2e9c30f](https://github.com/adobe-rnd/helix-product-shared/commit/2e9c30f3cef455c64fb67a5473e980c836091cc3))
+
 # [1.15.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.14.0...v1.15.0) (2026-06-19)
 
 
