@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.0...v1.16.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* add types-sync markers, remove public types ([#64](https://github.com/adobe-rnd/helix-product-shared/issues/64)) ([790bc42](https://github.com/adobe-rnd/helix-product-shared/commit/790bc42e5f545ec1f8894bc108e85dae5e42148e))
+
 # [1.16.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.15.0...v1.16.0) (2026-06-21)
 
 
