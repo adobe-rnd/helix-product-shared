@@ -312,10 +312,6 @@ export interface ProductBusEntry {
   metadata?: Record<string, string>;
   /** Configurable options available for this product (e.g. Color, Size). */
   options?: ProductBusOption[];
-
-  /**
-   * Override "escape hatch" for json-ld
-   */
   /** Aggregate customer rating for schema.org structured data. */
   aggregateRating?: SchemaOrgAggregateRating;
   /** Product images. */
