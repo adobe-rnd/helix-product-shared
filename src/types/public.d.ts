@@ -440,7 +440,7 @@ export interface NestedBundleItem {
   sku?: string;
   /** Product page path of the component. */
   path: string;
-  /** Quantity for this component. */
+  /** Quantity ordered. Must be a whole number from 1 to 1000. */
   quantity: number;
   /** Price information for a product or variant. */
   price: ProductBusPrice;
@@ -462,7 +462,7 @@ export interface OrderItem {
   imageUrl?: string;
   /** Canonical product URL. */
   productUrl?: string;
-  /** Quantity ordered. */
+  /** Quantity ordered. Must be a whole number from 1 to 1000. */
   quantity: number;
   /** Price information for a product or variant. */
   price: ProductBusPrice;
