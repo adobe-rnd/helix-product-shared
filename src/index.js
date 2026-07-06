@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 
-export * from './slugger.js';
 export * from './StorageClient.js';
 export * from './cache.js';
+export * from './media.js';
+export * from './error.js';

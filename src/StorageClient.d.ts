@@ -1,20 +1,14 @@
 import { R2Bucket } from "@cloudflare/workers-types";
 import * as SharedTypes from './types';
-
-export interface Context {
-  env: Record<string, any>;
-  log: Console;
-
-  attributes: {
-    storageClient?: StorageClient;
-    [key: string]: any;
-  };
-}
+import type { Context } from "./types/context";
+import type { MediaData } from "./types/media.js";
 
 export declare class StorageClient {
   constructor(ctx: Context);
   static fromContext(ctx: Context): StorageClient;
   ctx: Context;
+
+  bucket: R2Bucket;
 
   /**
    * Put data into storage.
@@ -44,10 +38,33 @@ export declare class StorageClient {
    * @param {Context} ctx
    * @param {string} org
    * @param {string} site
-   * @param {SharedTypes.MediaData} image
+   * @param {MediaData} image
    * @returns {Promise<string>} new filename
    */
   saveImage(ctx: Context, org: string, site: string, image: SharedTypes.MediaData): Promise<string>;
+
+  /**
+   * Save image location for a site.
+   * 
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {string} url
+   * @param {string} location eg. "./media_hash.jpg"
+   */
+  saveImageLocation(ctx: Context, org: string, site: string, url: string, location: string): Promise<void>;
+
+  /**
+   * Lookup image location for a previously processed image.
+   * Returns either the image filename or null if the image has not been processed yet.
+   * 
+   * @param {Context} ctx
+   * @param {string} org
+   * @param {string} site
+   * @param {string} url
+   * @returns {Promise<string>} location, eg. "./media_hash.jpg"
+   */
+  lookupImageLocation(ctx: Context, org: string, site: string, url: string): Promise<string | null>;
 
   /**
    * Load stored index for a site.
@@ -84,6 +101,86 @@ export declare class StorageClient {
   saveMerchantFeed(catalogKey: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
 
   /**
+   * Load stored index for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredIndex>}
+   */
+  fetchQueryIndexByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredIndex | null>;
+
+  /**
+   * Save index for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @param {SharedTypes.StoredIndex} data
+   */
+  saveQueryIndexByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredIndex): Promise<void>;
+
+  /**
+   * Check if index exists for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  queryIndexExists(org: string, site: string, rootPath: string): Promise<boolean>;
+
+  /**
+   * Delete index for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  deleteQueryIndex(org: string, site: string, rootPath: string): Promise<void>;
+
+  /**
+   * Load stored merchant feed for a site.
+   * If it doesn't exist, return empty object.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<SharedTypes.StoredMerchantFeed>}
+   */
+  fetchMerchantFeedByPath(org: string, site: string, rootPath: string): Promise<SharedTypes.StoredMerchantFeed | null>;
+
+  /**
+   * Save merchant feed for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @param {SharedTypes.StoredMerchantFeed} data
+   */
+  saveMerchantFeedByPath(org: string, site: string, rootPath: string, data: SharedTypes.StoredMerchantFeed): Promise<void>;
+
+  /**
+   * Check if merchant feed exists for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   * @returns {Promise<boolean>}
+   */
+  merchantFeedExists(org: string, site: string, rootPath: string): Promise<boolean>;
+
+  /**
+   * Delete merchant feed for a site/rootPath.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} rootPath
+   */
+  deleteMerchantFeed(org: string, site: string, rootPath: string): Promise<void>;
+
+  /**
    * Save product for a site.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
@@ -93,6 +190,27 @@ export declare class StorageClient {
   fetchProduct(catalogKey: string, sku: string): Promise<SharedTypes.ProductBusEntry | null>;
 
   /**
+   * Fetch product by path for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @returns {Promise<SharedTypes.ProductBusEntry | null>}
+   */
+  fetchProductByPath(org: string, site: string, path: string): Promise<SharedTypes.ProductBusEntry | null>;
+
+  /**
+   * Fetch product by path for a site with internal data.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @param {boolean} includeInternal - Whether to include internal data in the response
+   * @returns {Promise<SharedTypes.ProductBusEntryInternal | null>}
+   */
+  fetchProductByPath(org: string, site: string, path: string, includeInternal: true): Promise<SharedTypes.ProductBusEntryInternal | null>;
+
+  /**
    * Save product for a site.
    *
    * @param {string} catalogKey `org/site/storeCode/storeViewCode`
@@ -100,6 +218,17 @@ export declare class StorageClient {
    * @param {SharedTypes.ProductBusEntry} product
    */
   saveProduct(catalogKey: string, sku: string, product: SharedTypes.ProductBusEntry): Promise<void>;
+
+  /**
+   * Save product by path for a site.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {string} path
+   * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
+   * @param {Record<string, string>} [customMetadata] - Optional custom metadata to store
+   */
+  saveProductByPath(org: string, site: string, path: string, product: SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal, customMetadata?: Record<string, string>): Promise<void>;
 
   /**
    * Fetch registry.
@@ -114,4 +243,27 @@ export declare class StorageClient {
    * @param {SharedTypes.StoredRegistry} registry
    */
   saveRegistry(registry: SharedTypes.StoredRegistry): Promise<void>;
+
+  /**
+   * Fetch the index registry for a site.
+   * Returns an object mapping index paths to their metadata.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @returns {Promise<{data: Record<string, {lastmod: string}>, etag: string | null}>}
+   */
+  fetchIndexRegistry(org: string, site: string): Promise<{ data: Record<string, { lastmod: string }>, etag: string | null }>;
+
+  /**
+   * Save the index registry for a site.
+   * Uses conditional write with etag to prevent concurrent modification issues.
+   *
+   * @param {string} org
+   * @param {string} site
+   * @param {Record<string, {lastmod: string}>} registry
+   * @param {string | null} [etag] - Optional etag for conditional write
+   * @returns {Promise<void>}
+   * @throws {Error} if etag mismatch (precondition failed)
+   */
+  saveIndexRegistry(org: string, site: string, registry: Record<string, { lastmod: string }>, etag?: string | null): Promise<void>;
 }

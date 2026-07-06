@@ -1,3 +1,338 @@
+## [1.16.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.3...v1.16.4) (2026-07-06)
+
+
+### Bug Fixes
+
+* **types:** sync public types from helix-commerce-api[#442](https://github.com/adobe-rnd/helix-product-shared/issues/442) ([82fa8f4](https://github.com/adobe-rnd/helix-product-shared/commit/82fa8f40029ade64445905a26c270f04660ad030))
+
+## [1.16.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.2...v1.16.3) (2026-06-23)
+
+
+### Bug Fixes
+
+* **types:** sync public types from helix-commerce-api[#435](https://github.com/adobe-rnd/helix-product-shared/issues/435) ([9f0d114](https://github.com/adobe-rnd/helix-product-shared/commit/9f0d114656c98ae4033062a22399221e30243afd))
+
+## [1.16.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.1...v1.16.2) (2026-06-23)
+
+
+### Bug Fixes
+
+* **types:** sync public types from helix-commerce-api[#433](https://github.com/adobe-rnd/helix-product-shared/issues/433) ([#66](https://github.com/adobe-rnd/helix-product-shared/issues/66)) ([1c175df](https://github.com/adobe-rnd/helix-product-shared/commit/1c175dfa7b0d0ab2ad40bbfb67f4a373a8ea160e))
+
+## [1.16.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.0...v1.16.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* add types-sync markers, remove public types ([#64](https://github.com/adobe-rnd/helix-product-shared/issues/64)) ([790bc42](https://github.com/adobe-rnd/helix-product-shared/commit/790bc42e5f545ec1f8894bc108e85dae5e42148e))
+
+# [1.16.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.15.0...v1.16.0) (2026-06-21)
+
+
+### Features
+
+* **types:** document order request and error response schemas ([2e9c30f](https://github.com/adobe-rnd/helix-product-shared/commit/2e9c30f3cef455c64fb67a5473e980c836091cc3))
+
+# [1.15.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.14.0...v1.15.0) (2026-06-19)
+
+
+### Features
+
+* **types:** add JSDoc descriptions to public product types ([bb68bb4](https://github.com/adobe-rnd/helix-product-shared/commit/bb68bb45d5162856ee2c3c6c9de9a65199b40a3e))
+* **types:** add missing availabilityDate and feeds to ProductBusEntry ([c398fe3](https://github.com/adobe-rnd/helix-product-shared/commit/c398fe3aa5cc14d570cecc2871fcb68ef6e5dd54))
+
+# [1.14.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.13.0...v1.14.0) (2026-06-18)
+
+
+### Features
+
+* **types:** add customer timezone to orders ([a4a93a4](https://github.com/adobe-rnd/helix-product-shared/commit/a4a93a49c7c055cee1a75d243d5864007ab7ed5d))
+
+# [1.13.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.12.0...v1.13.0) (2026-06-15)
+
+
+### Features
+
+* **types:** add address validation state ([0169dff](https://github.com/adobe-rnd/helix-product-shared/commit/0169dff1f9f3add4f4734b2c87c9de58a0703c37))
+
+# [1.12.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.11.0...v1.12.0) (2026-05-28)
+
+
+### Features
+
+* add `ProductBusWeight` and rework `ShippingDimensions` schema ([ad93368](https://github.com/adobe-rnd/helix-product-shared/commit/ad9336821aec421c7e9fc88e614193d021efb4e6))
+
+# [1.11.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.2...v1.11.0) (2026-05-25)
+
+
+### Features
+
+* optional `taxCode` and `taxData` on `BundleItemSimple` and `BundleItemVariant` ([3f2dd41](https://github.com/adobe-rnd/helix-product-shared/commit/3f2dd414e0b054e80dd72ae772861414808b2076))
+
+## [1.10.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.1...v1.10.2) (2026-05-22)
+
+
+### Bug Fixes
+
+* add friendlyId prefix option ([#55](https://github.com/adobe-rnd/helix-product-shared/issues/55)) ([5bc527d](https://github.com/adobe-rnd/helix-product-shared/commit/5bc527d3f22ba9d7b826c2494ed3fb18c0dd7265))
+
+## [1.10.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.10.0...v1.10.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* release ([0a7905e](https://github.com/adobe-rnd/helix-product-shared/commit/0a7905e9f5e01201229d0cb91013ed928d028eba))
+
+# [1.10.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.6...v1.10.0) (2026-05-21)
+
+
+### Features
+
+* add `OrderItem.bundleItems` for resolved bundle components ([2f3ddc2](https://github.com/adobe-rnd/helix-product-shared/commit/2f3ddc2747b4df86a252940021c8f43c23822e74))
+
+## [1.9.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.5...v1.9.6) (2026-05-21)
+
+
+### Bug Fixes
+
+* add friendlyId config types ([#52](https://github.com/adobe-rnd/helix-product-shared/issues/52)) ([9f161ba](https://github.com/adobe-rnd/helix-product-shared/commit/9f161ba6af6a835e788cdc4024f281ef1438d929))
+
+## [1.9.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.4...v1.9.5) (2026-05-21)
+
+
+### Bug Fixes
+
+* types for bundle support ([64df0e8](https://github.com/adobe-rnd/helix-product-shared/commit/64df0e8a69a25eb17b8ae483b64c60d3d1a625b2))
+
+## [1.9.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.3...v1.9.4) (2026-05-16)
+
+
+### Bug Fixes
+
+* add types of product conditions on price-rules ([#50](https://github.com/adobe-rnd/helix-product-shared/issues/50)) ([d2a1740](https://github.com/adobe-rnd/helix-product-shared/commit/d2a1740299ff36a8f9e1efdb3249c8f104a5f836))
+
+## [1.9.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.2...v1.9.3) (2026-05-16)
+
+
+### Bug Fixes
+
+* update pricerule types ([#49](https://github.com/adobe-rnd/helix-product-shared/issues/49)) ([468b7a9](https://github.com/adobe-rnd/helix-product-shared/commit/468b7a9fcfb6d4aa17b6ac04c8699621faf472eb))
+
+## [1.9.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.1...v1.9.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* add giftMessage to order type ([5e00bb5](https://github.com/adobe-rnd/helix-product-shared/commit/5e00bb5e406f46da7c5e173083cc8b7c00dd2bce))
+* add limit ([bcbce5e](https://github.com/adobe-rnd/helix-product-shared/commit/bcbce5e4c2d7822cc6620bd80f6ebc0405b1523f))
+
+## [1.9.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.9.0...v1.9.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* add country and locale to productbusentry ([#47](https://github.com/adobe-rnd/helix-product-shared/issues/47)) ([d0bb7b9](https://github.com/adobe-rnd/helix-product-shared/commit/d0bb7b916455d861461f30ca41da021d387ab81e))
+
+# [1.9.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.4...v1.9.0) (2026-05-08)
+
+
+### Features
+
+* add `taxCode` and `taxData` fields to `ProductBusEntry` ([d8096ed](https://github.com/adobe-rnd/helix-product-shared/commit/d8096ed76c5ee76a60dde1d5a44b1b457cb830b5))
+
+## [1.8.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.3...v1.8.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* price rule types ([#45](https://github.com/adobe-rnd/helix-product-shared/issues/45)) ([848f1e0](https://github.com/adobe-rnd/helix-product-shared/commit/848f1e0bb0b363d1facb472a72b8fcd812b190e0))
+
+## [1.8.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.2...v1.8.3) (2026-04-15)
+
+
+### Bug Fixes
+
+* add cache type exports ([#44](https://github.com/adobe-rnd/helix-product-shared/issues/44)) ([5b3761d](https://github.com/adobe-rnd/helix-product-shared/commit/5b3761d2551fccdc7beb3084fa87858474f2d568))
+
+## [1.8.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.1...v1.8.2) (2026-04-15)
+
+
+### Bug Fixes
+
+* add index/sitemap purge key methods ([#43](https://github.com/adobe-rnd/helix-product-shared/issues/43)) ([a539c51](https://github.com/adobe-rnd/helix-product-shared/commit/a539c51be88df243ec3dfbb03adea1c5cb5db026))
+
+## [1.8.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.8.0...v1.8.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* add order.custom ([#42](https://github.com/adobe-rnd/helix-product-shared/issues/42)) ([e1e6c91](https://github.com/adobe-rnd/helix-product-shared/commit/e1e6c919bae8d0e2baab9c2a13f6a5588e2297c5))
+
+# [1.8.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.3...v1.8.0) (2026-04-13)
+
+
+### Features
+
+* add imageUrl and productUrl optional fields to OrderItem interface ([db9822d](https://github.com/adobe-rnd/helix-product-shared/commit/db9822dcbc250e12e070efe6f25dc655a5af0125))
+
+## [1.7.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.2...v1.7.3) (2026-04-03)
+
+
+### Bug Fixes
+
+* parallel image failure bug ([#40](https://github.com/adobe-rnd/helix-product-shared/issues/40)) ([6f64d75](https://github.com/adobe-rnd/helix-product-shared/commit/6f64d75b37e1589120b06b02a95a78eea62e92e8))
+
+## [1.7.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.1...v1.7.2) (2026-04-02)
+
+
+### Bug Fixes
+
+* add estimateToken to order ([#39](https://github.com/adobe-rnd/helix-product-shared/issues/39)) ([3078c9b](https://github.com/adobe-rnd/helix-product-shared/commit/3078c9b3fbada90f05cfeec7710e84371e433934))
+
+## [1.7.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.7.0...v1.7.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* add journal types ([#38](https://github.com/adobe-rnd/helix-product-shared/issues/38)) ([f9bf377](https://github.com/adobe-rnd/helix-product-shared/commit/f9bf37758da643e8fa396ce20af1a0c58c1d3ee3))
+
+# [1.7.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.3...v1.7.0) (2026-03-25)
+
+
+### Features
+
+* add jsonldExtensions to ProductBusEntry and ProductBusVariant type ([#37](https://github.com/adobe-rnd/helix-product-shared/issues/37)) ([d2ab646](https://github.com/adobe-rnd/helix-product-shared/commit/d2ab6464cbf859fe56c2132c0cd504a4793cd88c))
+
+## [1.6.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.2...v1.6.3) (2026-03-18)
+
+
+### Bug Fixes
+
+* add billing address ([b57d500](https://github.com/adobe-rnd/helix-product-shared/commit/b57d5000d3e2c665b4597b42ae0f459f762a00c2))
+
+## [1.6.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.1...v1.6.2) (2026-03-14)
+
+
+### Bug Fixes
+
+* add types ([#34](https://github.com/adobe-rnd/helix-product-shared/issues/34)) ([bc64f84](https://github.com/adobe-rnd/helix-product-shared/commit/bc64f84b4914173e7e2ffaee6384af8bd800bb7d))
+
+## [1.6.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.6.0...v1.6.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* always add images to internal ([#33](https://github.com/adobe-rnd/helix-product-shared/issues/33)) ([2c30803](https://github.com/adobe-rnd/helix-product-shared/commit/2c30803412418d79feb69ad6f1d7f70f24066e5c))
+
+# [1.6.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.6...v1.6.0) (2026-03-06)
+
+
+### Features
+
+* support optional image filename metadata ([#32](https://github.com/adobe-rnd/helix-product-shared/issues/32)) ([fe4227d](https://github.com/adobe-rnd/helix-product-shared/commit/fe4227d2fc5ea34fc662f2f8d1ee565eda89851b))
+
+## [1.5.6](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.5...v1.5.6) (2026-02-20)
+
+
+### Bug Fixes
+
+* add webp to mime lookup ([#31](https://github.com/adobe-rnd/helix-product-shared/issues/31)) ([b4740cb](https://github.com/adobe-rnd/helix-product-shared/commit/b4740cb7522c9ba9bc1e081791986592f639387f))
+
+## [1.5.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.4...v1.5.5) (2026-02-17)
+
+
+### Bug Fixes
+
+* for extensionless get extension from content-type ([6ea43b0](https://github.com/adobe-rnd/helix-product-shared/commit/6ea43b0cfcad09975dd5517d6f15226fef9358f9))
+
+## [1.5.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.3...v1.5.4) (2026-02-17)
+
+
+### Bug Fixes
+
+* extractExtension bug ([a0a577b](https://github.com/adobe-rnd/helix-product-shared/commit/a0a577b8a11d19564bd6b3104b1d6c59a92e90b2))
+
+## [1.5.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.2...v1.5.3) (2026-02-12)
+
+
+### Bug Fixes
+
+* image lookup changes ([#27](https://github.com/adobe-rnd/helix-product-shared/issues/27)) ([c2577a4](https://github.com/adobe-rnd/helix-product-shared/commit/c2577a45786dc1ad4990acf2606369c52126c5af))
+
+## [1.5.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.1...v1.5.2) (2026-02-03)
+
+
+### Bug Fixes
+
+* remove slugger ([53f1058](https://github.com/adobe-rnd/helix-product-shared/commit/53f105893c2bb7d4df01413a29d729c8672bcbc7))
+* update computeProductKeys and add metadata cache keys ([ea026dc](https://github.com/adobe-rnd/helix-product-shared/commit/ea026dc496f674b231f9f7046ad77d8391a1dac6))
+
+## [1.5.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.5.0...v1.5.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* Image lookup ([#25](https://github.com/adobe-rnd/helix-product-shared/issues/25)) ([0d4cd5c](https://github.com/adobe-rnd/helix-product-shared/commit/0d4cd5c40d7c1821b58ac2e84ef4d71881475d90))
+
+# [1.5.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.1...v1.5.0) (2026-01-08)
+
+
+### Features
+
+* index registry methods ([#24](https://github.com/adobe-rnd/helix-product-shared/issues/24)) ([c41de48](https://github.com/adobe-rnd/helix-product-shared/commit/c41de48c6aecd67ec34461ce007ce3c5ac8f301e))
+
+## [1.4.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.4.0...v1.4.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* add head/delete methods ([#23](https://github.com/adobe-rnd/helix-product-shared/issues/23)) ([4e2ac7f](https://github.com/adobe-rnd/helix-product-shared/commit/4e2ac7f1c4c9a5972223b3eeafd7a24e5f2b2516))
+
+# [1.4.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.4...v1.4.0) (2025-12-16)
+
+
+### Features
+
+* media, error utils ([#22](https://github.com/adobe-rnd/helix-product-shared/issues/22)) ([8a879ab](https://github.com/adobe-rnd/helix-product-shared/commit/8a879ab9d1922e260e4b28fe26f6c9f114c92e39))
+
+## [1.3.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.3...v1.3.4) (2025-12-15)
+
+
+### Bug Fixes
+
+* force deploy ([#21](https://github.com/adobe-rnd/helix-product-shared/issues/21)) ([a1d542b](https://github.com/adobe-rnd/helix-product-shared/commit/a1d542b86062f5c66c92882737fe3435ff7ec914))
+
+## [1.3.3](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.2...v1.3.3) (2025-12-15)
+
+
+### Bug Fixes
+
+* add examples to types ([183e0ee](https://github.com/adobe-rnd/helix-product-shared/commit/183e0ee96e530d47538657249194737158a71e5e))
+* add index/feed byPath methods ([15e2169](https://github.com/adobe-rnd/helix-product-shared/commit/15e2169a215c517763c8b823ecd1162bc9461785))
+* add product byPath methods ([0dfadea](https://github.com/adobe-rnd/helix-product-shared/commit/0dfadea67859992517ed5c6266fcf97453370138))
+* change index key name, add comment ([0dd9d18](https://github.com/adobe-rnd/helix-product-shared/commit/0dd9d181886a3aa715c75e0a2bed229febaac9b3))
+
+## [1.3.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.1...v1.3.2) (2025-12-09)
+
+
+### Bug Fixes
+
+* update job typings ([211b3f5](https://github.com/adobe-rnd/helix-product-shared/commit/211b3f5adc6cebffdac9f47e8e8d4cf9d528afea))
+
+## [1.3.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.3.0...v1.3.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* add computeProductPathKey type ([209cf1b](https://github.com/adobe-rnd/helix-product-shared/commit/209cf1b1c1f09e0196cd928c76f9eee62fcc9c89))
+
+# [1.3.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.5...v1.3.0) (2025-12-09)
+
+
+### Features
+
+* add computeProductPathKey ([27deec7](https://github.com/adobe-rnd/helix-product-shared/commit/27deec7a8fa7e28368b96ac117b7084eca7d4da1))
+
 ## [1.2.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.2.4...v1.2.5) (2025-11-12)
 
 

@@ -13,52 +13,14 @@
 import { computeSurrogateKey } from '@adobe/helix-shared-utils';
 
 /**
- * Compute the surrogate key for a store view.
+ * Compute the surrogate key for a product path.
  * @param {string} org
  * @param {string} site
- * @param {string} storeCode
- * @param {string} storeViewCode
+ * @param {string} path - The product path (e.g., /products/blender-pro-500)
  * @returns {Promise<string>}
  */
-export async function computeStoreViewKey(org, site, storeCode, storeViewCode) {
-  return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}`);
-}
-
-/**
- * Compute the surrogate key for a store.
- * @param {string} org
- * @param {string} site
- * @param {string} storeCode
- * @returns {Promise<string>}
- */
-export async function computeStoreKey(org, site, storeCode) {
-  return computeSurrogateKey(`/${org}/${site}/${storeCode}`);
-}
-
-/**
- * Compute the surrogate key for a product sku.
- * @param {string} org
- * @param {string} site
- * @param {string} storeCode
- * @param {string} storeViewCode
- * @param {string} sku
- * @returns {Promise<string>}
- */
-export async function computeProductSkuKey(org, site, storeCode, storeViewCode, sku) {
-  return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}/${sku}`);
-}
-
-/**
- * Compute the surrogate key for a product url key.
- * @param {string} org
- * @param {string} site
- * @param {string} storeCode
- * @param {string} storeViewCode
- * @param {string} urlKey
- * @returns {Promise<string>}
- */
-export async function computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey) {
-  return computeSurrogateKey(`/${org}/${site}/${storeCode}/${storeViewCode}/${urlKey}`);
+export async function computeProductPathKey(org, site, path) {
+  return computeSurrogateKey(`/${org}/${site}${path}`);
 }
 
 /**
@@ -92,25 +54,72 @@ export function compute404Key(org, site) {
 }
 
 /**
- * Compute the surrogate keys for a product.
+ * Compute the surrogate key for catalog price rules.
+ * Applied to index and sitemap responses so they can all be invalidated together
+ * when price rules change.
  * @param {string} org
  * @param {string} site
- * @param {string} storeCode
- * @param {string} storeViewCode
- * @param {string} sku
- * @param {string} urlKey
+ * @returns {string}
+ */
+export function computePriceRulesKey(org, site) {
+  return `main--${site}--${org}_pricerules`;
+}
+
+/**
+ * Compute the surrogate keys for a successful product request.
+ * This is a convenience function that returns all keys needed for cache invalidation.
+ * @param {string} org - The organization identifier
+ * @param {string} site - The site identifier
+ * @param {string} path - The product path (e.g., /products/blender-pro-500)
+ * @param {string} [contentBusId] - Optional content bus ID for authored content key
  * @returns {Promise<string[]>}
  */
-export async function computeProductKeys(org, site, storeCode, storeViewCode, sku, urlKey) {
-  const keys = [];
+export async function computeProductKeys(org, site, path, contentBusId) {
+  const keys = [
+    await computeProductPathKey(org, site, path),
+    computeSiteKey(org, site),
+  ];
 
-  keys.push(await computeStoreViewKey(org, site, storeCode, storeViewCode));
-  keys.push(await computeStoreKey(org, site, storeCode));
-  keys.push(await computeProductSkuKey(org, site, storeCode, storeViewCode, sku));
-  keys.push(await computeProductUrlKeyKey(org, site, storeCode, storeViewCode, urlKey));
-  keys.push(computeSiteKey(org, site));
+  if (contentBusId) {
+    keys.push(await computeAuthoredContentKey(contentBusId, path));
+    keys.push(`${contentBusId}_metadata`);
+    keys.push(`main--${site}--${org}_head`);
+    keys.push(contentBusId);
+  }
 
   return keys;
+}
+
+/**
+ * Compute the surrogate keys for an index.json resource.
+ * Same logic as computeProductKeys but without contentBusId since index files
+ * can never be served from content bus (authored content).
+ * @param {string} org - The organization identifier
+ * @param {string} site - The site identifier
+ * @param {string} path - The index path (e.g., /us/en/products/index.json)
+ * @returns {Promise<string[]>}
+ */
+export async function computeIndexKeys(org, site, path) {
+  return [
+    await computeProductPathKey(org, site, path),
+    computeSiteKey(org, site),
+  ];
+}
+
+/**
+ * Compute the surrogate keys for a sitemap.xml resource.
+ * Same logic as computeProductKeys but without contentBusId since sitemap files
+ * can never be served from content bus (authored content).
+ * @param {string} org - The organization identifier
+ * @param {string} site - The site identifier
+ * @param {string} path - The sitemap path (e.g., /us/en/sitemap.xml)
+ * @returns {Promise<string[]>}
+ */
+export async function computeSitemapKeys(org, site, path) {
+  return [
+    await computeProductPathKey(org, site, path),
+    computeSiteKey(org, site),
+  ];
 }
 
 /**

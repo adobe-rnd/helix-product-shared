@@ -10,4 +10,24 @@
  * governing permissions and limitations under the License.
  */
 
-export function slugger(sku: string): string;
+import type { ProductBusEntry } from './public.js';
+
+/**
+ * Internal data stored with products for optimization purposes.
+ * This data should not be exposed to external APIs.
+ */
+export interface ProductBusEntryInternal extends ProductBusEntry {
+  /**
+   * Internal metadata for image optimization.
+   * Maps external image URLs to their processed media data.
+   */
+  internal?: {
+    images: {
+      [externalUrl: string]: {
+        sourceUrl: string; // the media hash path
+        size: number; // file size in bytes
+        mimeType: string;
+      };
+    };
+  };
+}
