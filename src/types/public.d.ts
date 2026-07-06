@@ -314,6 +314,8 @@ export interface ProductBusEntry {
   options?: ProductBusOption[];
   /** Aggregate customer rating for schema.org structured data. */
   aggregateRating?: SchemaOrgAggregateRating;
+  /** Freeform product specifications (HTML or plain text). */
+  specifications?: string;
   /** Product images. */
   images?: ProductBusMedia[];
   /** Available variants for a configurable product. */
