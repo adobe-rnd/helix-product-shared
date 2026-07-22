@@ -257,10 +257,14 @@ export interface ProductBusVariant {
   images: ProductBusMedia[];
   /** Global Trade Item Number (barcode). */
   gtin?: string;
+  /** Manufacturer Part Number. Used as a product identifier when no GTIN is available. */
+  mpn?: string;
   /** Variant-specific description. */
   description?: string;
   /** schema.org availability status for a product or offer. */
   availability?: SchemaOrgAvailability;
+  /** ISO 8601 date when the variant becomes available. */
+  availabilityDate?: string;
   /** Option values that identify this variant (e.g. color=Red, size=Large). */
   options?: ProductBusOptionValue[];
   /** schema.org item condition. */
@@ -294,6 +298,12 @@ export interface ProductBusEntry {
   metaDescription?: string;
   /** Global Trade Item Number (barcode). */
   gtin?: string;
+  /** Manufacturer Part Number. Used as a product identifier when no GTIN is available. */
+  mpn?: string;
+  /** Merchant-defined product category, e.g. "Home > Kitchen > Blenders". */
+  productType?: string;
+  /** Google product taxonomy category, as a numeric taxonomy ID or full category path. */
+  googleProductCategory?: string;
   /** Canonical absolute URL for the product. */
   url?: string;
   /** Brand or manufacturer name. */
