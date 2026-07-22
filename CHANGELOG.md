@@ -1,3 +1,10 @@
+## [1.16.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.4...v1.16.5) (2026-07-22)
+
+
+### Bug Fixes
+
+* **types:** sync public types from helix-commerce-api[#481](https://github.com/adobe-rnd/helix-product-shared/issues/481) ([#71](https://github.com/adobe-rnd/helix-product-shared/issues/71)) ([0dd7617](https://github.com/adobe-rnd/helix-product-shared/commit/0dd76175778125ceb5fbe9e16f7d31baaf6bf4db))
+
 ## [1.16.4](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.3...v1.16.4) (2026-07-06)
 
 
