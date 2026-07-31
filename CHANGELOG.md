@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.5...v1.17.0) (2026-07-31)
+
+
+### Features
+
+* **cache:** add product path variants ([6a1b87a](https://github.com/adobe-rnd/helix-product-shared/commit/6a1b87a14ca1e54c136c26c6ad8ea26ca00b767c))
+
 ## [1.16.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.16.4...v1.16.5) (2026-07-22)
 
 
