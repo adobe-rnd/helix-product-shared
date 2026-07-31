@@ -24,6 +24,13 @@ export function computeProductPathKey(
 ): Promise<string>;
 
 /**
+ * Return the cacheable URL path variants for a Commerce product.
+ * @param path - The product path with or without a .json extension
+ * @returns Extensionless and .json product path variants
+ */
+export function getProductPathVariants(path: string): string[];
+
+/**
  * Compute the surrogate key for an authored content inserted in the pipeline.
  * @param contentBusId The content bus id of the authored content
  * @param path The path of the authored content

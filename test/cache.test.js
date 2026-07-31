@@ -13,6 +13,7 @@
 import assert from 'node:assert';
 import {
   computeProductPathKey,
+  getProductPathVariants,
   computeSiteKey,
   compute404Key,
   computePriceRulesKey,
@@ -52,6 +53,22 @@ describe('Cache Functions', () => {
       const key1 = await computeProductPathKey('adobe', 'site1', '/products/blender-pro-500');
       const key2 = await computeProductPathKey('adobe', 'site2', '/products/blender-pro-500');
       assert.notStrictEqual(key1, key2);
+    });
+  });
+
+  describe('getProductPathVariants', () => {
+    it('returns extensionless and .json variants for an extensionless path', () => {
+      assert.deepStrictEqual(
+        getProductPathVariants('/products/blender-pro-500'),
+        ['/products/blender-pro-500', '/products/blender-pro-500.json'],
+      );
+    });
+
+    it('returns extensionless and .json variants for a .json path', () => {
+      assert.deepStrictEqual(
+        getProductPathVariants('/products/blender-pro-500.json'),
+        ['/products/blender-pro-500', '/products/blender-pro-500.json'],
+      );
     });
   });
 

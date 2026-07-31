@@ -24,6 +24,19 @@ export async function computeProductPathKey(org, site, path) {
 }
 
 /**
+ * Return the cacheable URL path variants for a Commerce product.
+ *
+ * @param {string} path - The product path with or without a .json extension
+ * @returns {string[]} Extensionless and .json product path variants
+ */
+export function getProductPathVariants(path) {
+  const extensionless = path.endsWith('.json')
+    ? path.slice(0, -'.json'.length)
+    : path;
+  return [extensionless, `${extensionless}.json`];
+}
+
+/**
  * Compute the surrogate key for an authored content inserted in the pipeline.
  * @param {string} contentBusId The content bus id of the authored content
  * @param {string} path The path of the authored content
