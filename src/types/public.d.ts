@@ -418,7 +418,7 @@ export interface OrderAddress {
 }
 
 /**
- * Customer contact information provided at checkout.
+ * Customer contact information and site-specific custom attributes.
  */
 export interface OrderCustomer {
   /** Customer first name. */
@@ -428,6 +428,8 @@ export interface OrderCustomer {
   email: string;
   /** Customer phone number. */
   phone?: string;
+  /** Arbitrary site-specific, customer-supplied attributes (string values, e.g. a marketing opt-in, preferred contact method, or consent timestamp). */
+  custom?: Record<string, string>;
 }
 
 /**
