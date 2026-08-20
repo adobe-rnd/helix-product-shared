@@ -29,13 +29,15 @@ export type DimensionsUnit = "cm" | "mm" | "in";
  * Aggregate customer rating for schema.org structured data.
  */
 export interface SchemaOrgAggregateRating {
-  /** Average rating value. Numeric string; converted to a number in JSON-LD. */
-  ratingValue?: string;
-  /** Total number of ratings. Numeric string; converted to an integer in JSON-LD. */
+  /** Average rating value, e.g. "4.6". Numeric string; converted to a number in JSON-LD. Should match the rating shown to users on the page. */
+  ratingValue: string;
+  /** Total number of ratings for the product. Numeric string; converted to an integer in JSON-LD. At least one of ratingCount or reviewCount is required. */
+  ratingCount?: string;
+  /** Total number of written reviews for the product (people who left a review, with or without a rating). Numeric string; converted to an integer in JSON-LD. At least one of ratingCount or reviewCount is required. */
   reviewCount?: string;
-  /** Best possible rating. Numeric string. */
+  /** Highest value allowed in the rating scale. Numeric string; defaults to 5 in JSON-LD when omitted. */
   bestRating?: string;
-  /** Worst possible rating. Numeric string. */
+  /** Lowest value allowed in the rating scale. Numeric string; defaults to 1 in JSON-LD when omitted. */
   worstRating?: string;
 }
 
