@@ -30,7 +30,7 @@ export type DimensionsUnit = "cm" | "mm" | "in";
  */
 export interface SchemaOrgAggregateRating {
   /** Average rating value, e.g. "4.6". Numeric string; converted to a number in JSON-LD. Should match the rating shown to users on the page. */
-  ratingValue: string;
+  ratingValue?: string;
   /** Total number of ratings for the product. Numeric string; converted to an integer in JSON-LD. At least one of ratingCount or reviewCount is required. */
   ratingCount?: string;
   /** Total number of written reviews for the product (people who left a review, with or without a rating). Numeric string; converted to an integer in JSON-LD. At least one of ratingCount or reviewCount is required. */
