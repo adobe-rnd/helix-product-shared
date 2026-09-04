@@ -410,7 +410,7 @@ export interface OrderAddress {
   zip: string;
   /** ISO 3166-1 alpha-2 country code. */
   country: string;
-  /** Phone number. */
+  /** Phone number. Digits plus common formatting characters (space, hyphen, period, slash, parentheses, leading +) are accepted; stored as digits only. */
   phone?: string;
   email: string;
   /** Whether this is the default address for the customer. */
@@ -428,7 +428,7 @@ export interface OrderCustomer {
   /** Customer last name. */
   lastName: string;
   email: string;
-  /** Customer phone number. */
+  /** Phone number. Digits plus common formatting characters (space, hyphen, period, slash, parentheses, leading +) are accepted; stored as digits only. */
   phone?: string;
   /** Arbitrary site-specific, customer-supplied attributes (string values, e.g. a marketing opt-in, preferred contact method, or consent timestamp). */
   custom?: Record<string, string>;
