@@ -107,7 +107,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/image.jpg',
-          hash: 'abc123',
+          hash: '1abc123',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -276,7 +276,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/image.jpg?id=123',
-          hash: 'abc123',
+          hash: '1abc123',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -289,7 +289,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/image.jpg#123',
-          hash: 'abc123',
+          hash: '1abc123',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -515,7 +515,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/same-image.jpg',
-          hash: 'def456',
+          hash: '1def456',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -621,7 +621,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/same-image.jpg',
-          hash: 'def456',
+          hash: '1def456',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -634,7 +634,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/same-image.jpg?different=param',
-          hash: 'def456',
+          hash: '1def456',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -806,7 +806,7 @@ describe('media', () => {
         {
           data: mockImageData,
           sourceUrl: 'https://example.com/image.jpg',
-          hash: '123456',
+          hash: '1123456',
           mimeType: 'image/jpeg',
           length: 100,
           extension: 'jpg',
@@ -1100,6 +1100,53 @@ describe('media', () => {
       assert.strictEqual(result.internal.images['https://example.com/img1.jpg'].sourceUrl, './media_hash.jpg');
       assert.strictEqual(result.internal.images['https://example.com/img2.jpg'].sourceUrl, './media_hash.jpg');
       assert.strictEqual(result.internal.images['./relative.jpg'], undefined);
+    });
+
+    it('hashes only the first 8k of the buffer and prefixes the hash with `1`', async () => {
+      const ctx = TEST_CONTEXT();
+      const savedHashes = [];
+      const mockStorageClient = {
+        async lookupImageLocation() {
+          return null;
+        },
+        async saveImage(_ctx, _org, _site, image) {
+          savedHashes.push(image.hash);
+          return `./media_${image.hash}.jpg`;
+        },
+        // eslint-disable-next-line no-empty-function
+        async saveImageLocation() {},
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      // Two buffers that share their first 8192 bytes but differ afterwards.
+      const shared = new Uint8Array(9000).fill(0x41);
+      const bufferA = shared.slice();
+      const bufferB = shared.slice();
+      bufferB[8500] = 0x42; // differs only past the 8k boundary
+
+      const buffers = {
+        'https://example.com/a.jpg': bufferA.buffer,
+        'https://example.com/b.jpg': bufferB.buffer,
+      };
+      global.fetch = async (url) => ({
+        ok: true,
+        arrayBuffer: async () => buffers[url],
+        headers: { get: () => 'image/jpeg' },
+      });
+      // Use the real crypto.subtle.digest (restored by afterEach).
+
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [
+          { url: 'https://example.com/a.jpg' },
+          { url: 'https://example.com/b.jpg' },
+        ],
+      });
+
+      assert.strictEqual(savedHashes.length, 2);
+      // Only the first 8k is hashed, so the differing tail yields the same hash.
+      assert.strictEqual(savedHashes[0], savedHashes[1]);
+      // The hash is a `1` followed by a 40-char SHA-1 hex digest.
+      assert.match(savedHashes[0], /^1[0-9a-f]{40}$/);
     });
   });
 

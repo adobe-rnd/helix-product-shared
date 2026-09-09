@@ -194,10 +194,13 @@ async function fetchImage(pctx, pimageUrl) {
     }
 
     const data = await resp.arrayBuffer();
-    const arr = await crypto.subtle.digest('SHA-1', data);
-    const hash = Array.from(new Uint8Array(arr))
+    // Only hash the first 8k of the buffer (mirrors helix-mediahandler).
+    const hashBuffer = data.byteLength > 8192 ? data.slice(0, 8192) : data;
+    const arr = await crypto.subtle.digest('SHA-1', hashBuffer);
+    // Prepend `1` to the hash for versioning (mirrors helix-mediahandler).
+    const hash = `1${Array.from(new Uint8Array(arr))
       .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('');
+      .join('')}`;
 
     const contentType = resp.headers.get('content-type');
 
