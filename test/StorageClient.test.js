@@ -27,6 +27,15 @@ function createMockBucket() {
     storage,
     metadata,
     put: async (key, data, options) => {
+      // honor onlyIf like the native binding: a failed precondition writes nothing
+      // and resolves to null rather than throwing
+      const onlyIf = options?.onlyIf;
+      if (onlyIf?.etagMatches !== undefined && onlyIf.etagMatches !== etags.get(key)) {
+        return null;
+      }
+      if (onlyIf?.etagDoesNotMatch === '*' && storage.has(key)) {
+        return null;
+      }
       storage.set(key, { data, options });
       if (options?.customMetadata) {
         metadata.set(key, options.customMetadata);
@@ -34,6 +43,7 @@ function createMockBucket() {
       // Generate a new etag for this put
       etagCounter += 1;
       etags.set(key, `etag-${etagCounter}`);
+      return { key, etag: etags.get(key) };
     },
     get: async (key) => {
       const item = storage.get(key);
@@ -136,6 +146,32 @@ describe('StorageClient', () => {
       assert.ok(result);
       const data = await result.json();
       assert.deepStrictEqual(data, { test: 'data' });
+    });
+
+    it('returns the put result', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      const result = await client.put('test/key.json', 'data');
+      assert.deepStrictEqual(result, { key: 'test/key.json', etag: 'etag-1' });
+    });
+
+    it('returns the result (instead of throwing) when a retry succeeds', async () => {
+      const ctx = CONTEXT();
+      const client = new StorageClient(ctx);
+      let attempts = 0;
+      const flakyBucket = {
+        put: async () => {
+          attempts += 1;
+          if (attempts === 1) {
+            throw new Error('please try again');
+          }
+          return { etag: 'ok' };
+        },
+      };
+
+      const result = await client.putTo(flakyBucket, 'test/key.json', 'data');
+      assert.deepStrictEqual(result, { etag: 'ok' });
+      assert.strictEqual(attempts, 2);
     });
 
     it('throws after max retries', async () => {
@@ -866,13 +902,83 @@ describe('StorageClient', () => {
         const registry = {
           '/products/index.json': { lastmod: '2025-01-07T00:00:00.000Z' },
         };
+        await client.saveIndexRegistry('test-org', 'test-site', {});
+        const { etag } = await client.fetchIndexRegistry('test-org', 'test-site');
 
-        await client.saveIndexRegistry('test-org', 'test-site', registry, 'test-etag');
+        await client.saveIndexRegistry('test-org', 'test-site', registry, etag);
 
         const result = await ctx.env.CATALOG_BUCKET.get('test-org/test-site/indices/.registry.json');
         assert.ok(result);
         const data = await result.json();
         assert.deepStrictEqual(data, registry);
+        const { options } = ctx.env.CATALOG_BUCKET.storage.get('test-org/test-site/indices/.registry.json');
+        assert.deepStrictEqual(options.onlyIf, { etagMatches: etag });
+      });
+
+      it('throws PRECONDITION_FAILED when the etag is stale (put resolves null)', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        const original = { '/a/index.json': { lastmod: 'x' } };
+        await client.saveIndexRegistry('test-org', 'test-site', original);
+        const { etag } = await client.fetchIndexRegistry('test-org', 'test-site');
+        // a concurrent writer bumps the etag
+        await client.saveIndexRegistry('test-org', 'test-site', { ...original, '/b/index.json': { lastmod: 'y' } });
+
+        await assert.rejects(
+          client.saveIndexRegistry('test-org', 'test-site', { ...original, '/c/index.json': { lastmod: 'z' } }, etag),
+          (e) => e.code === 'PRECONDITION_FAILED',
+        );
+        const { data } = await client.fetchIndexRegistry('test-org', 'test-site');
+        assert.ok(data['/b/index.json'], 'the concurrent write survives');
+        assert.strictEqual(data['/c/index.json'], undefined, 'the stale write was not applied');
+      });
+
+      it('throws PRECONDITION_FAILED when a null etag meets an existing registry', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        // two creators both read "no registry" (etag null); the second must lose
+        await client.saveIndexRegistry('test-org', 'test-site', { '/a/index.json': { lastmod: 'x' } }, null);
+        await assert.rejects(
+          client.saveIndexRegistry('test-org', 'test-site', { '/b/index.json': { lastmod: 'y' } }, null),
+          (e) => e.code === 'PRECONDITION_FAILED',
+        );
+        const { data } = await client.fetchIndexRegistry('test-org', 'test-site');
+        assert.deepStrictEqual(Object.keys(data), ['/a/index.json']);
+      });
+
+      it('maps a thrown precondition error to PRECONDITION_FAILED', async () => {
+        const ctx = CONTEXT();
+        ctx.env.CATALOG_BUCKET.put = async () => {
+          throw new Error('put: precondition failed for key');
+        };
+        const client = new StorageClient(ctx);
+        await assert.rejects(
+          client.saveIndexRegistry('test-org', 'test-site', {}, 'e'),
+          (e) => e.code === 'PRECONDITION_FAILED',
+        );
+      });
+
+      it('rethrows unrelated put errors unchanged', async () => {
+        const ctx = CONTEXT();
+        ctx.env.CATALOG_BUCKET.put = async () => {
+          throw new Error('access denied');
+        };
+        const client = new StorageClient(ctx);
+        await assert.rejects(
+          client.saveIndexRegistry('test-org', 'test-site', {}, 'e'),
+          (e) => e.message === 'access denied' && e.code === undefined,
+        );
+      });
+
+      it('writes unconditionally when no etag is given', async () => {
+        const ctx = CONTEXT();
+        const client = new StorageClient(ctx);
+        await client.saveIndexRegistry('test-org', 'test-site', { '/a/index.json': { lastmod: 'x' } });
+        await client.saveIndexRegistry('test-org', 'test-site', { '/b/index.json': { lastmod: 'y' } });
+        const { options } = ctx.env.CATALOG_BUCKET.storage.get('test-org/test-site/indices/.registry.json');
+        assert.strictEqual(options.onlyIf, undefined);
+        const { data } = await client.fetchIndexRegistry('test-org', 'test-site');
+        assert.deepStrictEqual(Object.keys(data), ['/b/index.json']);
       });
 
       it('updates existing registry', async () => {
@@ -925,7 +1031,7 @@ describe('StorageClient', () => {
         assert.deepStrictEqual(data, {});
       });
 
-      it('handles null etag', async () => {
+      it('handles null etag (creates the registry when absent)', async () => {
         const ctx = CONTEXT();
         const client = new StorageClient(ctx);
         const registry = {
@@ -938,6 +1044,8 @@ describe('StorageClient', () => {
         assert.ok(result);
         const data = await result.json();
         assert.deepStrictEqual(data, registry);
+        const { options } = ctx.env.CATALOG_BUCKET.storage.get('test-org/test-site/indices/.registry.json');
+        assert.deepStrictEqual(options.onlyIf, { etagDoesNotMatch: '*' });
       });
     });
 
