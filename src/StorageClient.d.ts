@@ -250,20 +250,22 @@ export declare class StorageClient {
    *
    * @param {string} org
    * @param {string} site
-   * @returns {Promise<{data: Record<string, {lastmod: string}>, etag: string | null}>}
+   * @returns {Promise<{data: SharedTypes.IndexRegistry, etag: string | null}>}
    */
-  fetchIndexRegistry(org: string, site: string): Promise<{ data: Record<string, { lastmod: string }>, etag: string | null }>;
+  fetchIndexRegistry(org: string, site: string): Promise<{ data: SharedTypes.IndexRegistry, etag: string | null }>;
 
   /**
-   * Save the index registry for a site.
-   * Uses conditional write with etag to prevent concurrent modification issues.
+   * Save the index registry for a site, conditionally on the etag it was read with:
+   * a string etag writes only if the registry still has that etag; `null` (the
+   * registry didn't exist when read) writes only if it still doesn't exist;
+   * `undefined` writes unconditionally.
    *
    * @param {string} org
    * @param {string} site
-   * @param {Record<string, {lastmod: string}>} registry
-   * @param {string | null} [etag] - Optional etag for conditional write
+   * @param {SharedTypes.IndexRegistry} registry
+   * @param {string | null} [etag] - etag from `fetchIndexRegistry`
    * @returns {Promise<void>}
-   * @throws {Error} if etag mismatch (precondition failed)
+   * @throws {Error} with `code: 'PRECONDITION_FAILED'` if the condition is not met
    */
-  saveIndexRegistry(org: string, site: string, registry: Record<string, { lastmod: string }>, etag?: string | null): Promise<void>;
+  saveIndexRegistry(org: string, site: string, registry: SharedTypes.IndexRegistry, etag?: string | null): Promise<void>;
 }

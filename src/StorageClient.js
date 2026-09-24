@@ -13,6 +13,7 @@
 /**
  * @typedef {import("@cloudflare/workers-types").R2Bucket} R2Bucket
  * @typedef {import("./types/index").ProductBusEntry} ProductBusEntry
+ * @typedef {import("./types/index").IndexRegistry} IndexRegistry
  * @typedef {import("./types/context").Context} Context
  */
 
@@ -61,17 +62,19 @@ export class StorageClient {
    * @param {Parameters<R2Bucket['put']>[1]} data
    * @param {Parameters<R2Bucket['put']>[2]} options
    * @param {number} retryCount
+   * @returns {Promise<Awaited<ReturnType<R2Bucket['put']>>>} the put result; `null` when an
+   *   `onlyIf` precondition was not met (the native binding doesn't throw for that)
    */
   async #put(bucket, key, data, options, retryCount = 0) {
     const { log } = this.ctx;
     try {
-      await bucket.put(key, data, options);
+      return await bucket.put(key, data, options);
     } catch (e) {
       // conditionally retry
       log.error('Error putting to R2:', e, e.code);
       if (retryCount < 3 && e.message.includes('try again')) {
         await sleep(1000 * retryCount);
-        await this.#put(bucket, key, data, options, retryCount + 1);
+        return this.#put(bucket, key, data, options, retryCount + 1);
       }
       throw e;
     }
@@ -468,7 +471,7 @@ export class StorageClient {
    *
    * @param {string} org
    * @param {string} site
-   * @returns {Promise<{data: Record<string, {lastmod: string}>, etag: string | null}>}
+   * @returns {Promise<{data: IndexRegistry, etag: string | null}>}
    */
   async fetchIndexRegistry(org, site) {
     const { log } = this.ctx;
@@ -486,14 +489,18 @@ export class StorageClient {
   }
 
   /**
-   * Save the index registry for a site.
+   * Save the index registry for a site, conditionally on the etag it was read with:
+   * - a string etag → only write if the registry still has that etag;
+   * - `null` (the registry didn't exist when read) → only write if it still doesn't
+   *   exist, so two concurrent "first index" creates can't clobber each other;
+   * - `undefined` → unconditional write.
    *
-   * @throws {Error} if etag mismatch (precondition failed)
+   * @throws {Error} with `code: 'PRECONDITION_FAILED'` if the condition is not met
    *
    * @param {string} org
    * @param {string} site
-   * @param {Record<string, {lastmod: string}>} registry
-   * @param {string | null} [etag] - Optional etag for conditional write
+   * @param {IndexRegistry} registry
+   * @param {string | null} [etag] - etag from `fetchIndexRegistry` (see above)
    * @returns {Promise<void>}
    */
   async saveIndexRegistry(org, site, registry, etag) {
@@ -502,25 +509,37 @@ export class StorageClient {
     const key = `${org}/${site}/indices/.registry.json`;
     log.debug('Saving index registry to R2:', key);
 
+    /** @type {import('@cloudflare/workers-types').R2PutOptions} */
     const options = {
       httpMetadata: { contentType: 'application/json' },
     };
 
-    // conditional write if etag is provided
-    if (etag !== undefined && etag !== null) {
+    if (typeof etag === 'string') {
       options.onlyIf = { etagMatches: etag };
+    } else if (etag === null) {
+      options.onlyIf = { etagDoesNotMatch: '*' };
     }
 
+    const preconditionFailed = () => {
+      const error = new Error('Precondition failed: etag mismatch');
+      // @ts-ignore
+      error.code = 'PRECONDITION_FAILED';
+      return error;
+    };
+
+    let result;
     try {
-      await this.put(key, JSON.stringify(registry), options);
+      result = await this.put(key, JSON.stringify(registry), options);
     } catch (e) {
-      // R2 throws an error if the precondition fails
+      // some R2 surfaces throw on a failed precondition
       if (e.message && e.message.includes('precondition')) {
-        const error = new Error('Precondition failed: etag mismatch');
-        error.code = 'PRECONDITION_FAILED';
-        throw error;
+        throw preconditionFailed();
       }
       throw e;
+    }
+    // the native R2 binding returns null (rather than throwing) when onlyIf fails
+    if (options.onlyIf && result === null) {
+      throw preconditionFailed();
     }
   }
 }
