@@ -1,3 +1,16 @@
+# [1.18.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.17.5...v1.18.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* **storage:** detect precondition failures on conditional index registry saves ([6a58682](https://github.com/adobe-rnd/helix-product-shared/commit/6a5868202bba38b7de9f4a7bbfc51af0a093c6d4))
+
+
+### Features
+
+* **indexing:** shared index resolver and tag helpers ([e0ef1d8](https://github.com/adobe-rnd/helix-product-shared/commit/e0ef1d8f5da173322628723d835e17fa05662c86))
+* **types:** index registry entry types and IndexingJobProduct.rootPath ([e709d92](https://github.com/adobe-rnd/helix-product-shared/commit/e709d924cf49ac3a4c83052e559d7f2e39b8e242))
+
 ## [1.17.5](https://github.com/adobe-rnd/helix-product-shared/compare/v1.17.4...v1.17.5) (2026-09-04)
 
 
