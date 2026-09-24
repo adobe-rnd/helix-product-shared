@@ -388,6 +388,14 @@ export interface ProductBusEntry {
   country?: string;
   /** BCP-47 locale tag for this product entry. */
   locale?: string;
+  /**
+   * Tags that place this product in tagged indices. The product is added to every index whose `tag` is listed here, instead of its path-based index; when no listed tag matches an index, the path-based index is used. Tags are trimmed, lowercased and deduplicated before validation; at most 6 tags. An empty list is dropped.
+   * @example [
+   *   "sale",
+   *   "new-arrivals"
+   * ]
+   */
+  indexTags?: string[];
 }
 
 /**
