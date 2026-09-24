@@ -16,3 +16,4 @@ export * from './jobs.js';
 export * from './media.js';
 export * from './feeds.js';
 export * from './internal.js';
+export * from './indices.js';
