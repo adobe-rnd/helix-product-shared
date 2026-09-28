@@ -272,15 +272,16 @@ describe('indexing', () => {
       );
     });
 
-    it('late tagged index uses the newest matched index and accepts Date/string times', () => {
-      // /new predates the write, /sale doesn't → still evict
+    it('does not evict when an index matching the prior tags existed at the prior write', () => {
+      // /new existed (T0) when the product was written, so it resolved to /new, not
+      // /products — even though /sale (T1) was created later
       assert.deepStrictEqual(
         plan({
           action: 'update',
           prior: { indexTags: ['new', 'sale'], uploaded: new Date(BEFORE_T1) },
           next: { indexTags: ['new', 'sale'] },
         }),
-        [update('/new'), update('/sale'), remove('/products')],
+        [update('/new'), update('/sale')],
       );
       assert.deepStrictEqual(
         plan({
@@ -289,7 +290,33 @@ describe('indexing', () => {
           next: { indexTags: ['sale'] },
         }),
         [update('/sale')],
-        'written after the index existed → nothing to evict',
+        'written after the index existed → nothing to evict (string time accepted)',
+      );
+    });
+
+    it('evicts a product switched from a late tag to an older tagged index', () => {
+      // /products and /new (tag "new") exist at T0; the product is written at
+      // BEFORE_T1 with ["sale"] while no /sale index exists, so it lands in
+      // /products; /sale is created at T1; the product is then switched to ["new"]
+      assert.deepStrictEqual(
+        plan({
+          action: 'update',
+          prior: { indexTags: ['sale'], uploaded: BEFORE_T1 },
+          next: { indexTags: ['new'] },
+        }),
+        [update('/new'), remove('/products'), remove('/sale')],
+      );
+    });
+
+    it('evicts when none of the prior tags had an index at the prior write', () => {
+      // prior tags ["sale", "unknown"]: neither had an index at the write → may be in /products
+      assert.deepStrictEqual(
+        plan({
+          action: 'update',
+          prior: { indexTags: ['sale', 'unknown'], uploaded: BEFORE_T1 },
+          next: { indexTags: ['new'] },
+        }),
+        [update('/new'), remove('/products'), remove('/sale')],
       );
     });
 
