@@ -1,3 +1,10 @@
+## [1.18.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.18.1...v1.18.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* **indexing:** evict from the path fallback based on the prior tags' indices ([f1ded8c](https://github.com/adobe-rnd/helix-product-shared/commit/f1ded8ced025e1fa3d8a0997db6ef74aec8dd2d0))
+
 ## [1.18.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.18.0...v1.18.1) (2026-09-24)
 
 
