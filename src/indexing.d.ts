@@ -91,9 +91,8 @@ export interface IndexingChange {
 /**
  * Plan targeted `{ path, action, rootPath }` jobs for one product write/delete:
  * upsert into new targets, remove from old targets that are no longer targets,
- * and evict from the path fallback when a late tagged index may have left the
- * product there (prior write older than the newest matched tagged index, or
- * `forceUpdate`).
+ * and evict from the path fallback when the product may still be there (no index
+ * matching its prior tags existed when it was last written, or `forceUpdate`).
  */
 export function planIndexingJobs(
   registry: IndexRegistry | null | undefined,

@@ -254,10 +254,12 @@ function toMs(value) {
  *   is no longer a target.
  * - **delete**: remove from every old target. Without a prior body (the product
  *   is already gone) only its path index can be targeted.
- * - **Late tagged index eviction**: when the product resolves to tagged indices,
- *   also remove it from its path fallback if it may still be there — i.e. its
- *   prior object was written before the newest of those tagged indices was
- *   created (so it landed in the path index then), or on `forceUpdate`.
+ * - **Path-fallback eviction**: when the product resolves to tagged indices,
+ *   also remove it from its path fallback if it may still be there — i.e. none
+ *   of the indices matching its prior tags existed when its prior object was
+ *   written (so it landed in the path index then), or on `forceUpdate`. This
+ *   covers tags added before their index existed, including a later switch to a
+ *   different, older tagged index.
  *
  * @param {IndexRegistry | null | undefined} registry
  * @param {{
@@ -295,14 +297,18 @@ export function planIndexingJobs(registry, change, opts = {}) {
     if (pathIndex) removes.add(pathIndex);
   }
 
-  // late tagged index: evict from the path fallback it may have landed in
+  // Path-fallback eviction. When the product was last written, it resolved to its
+  // path index if none of its (prior) tags had an index yet — even if those tags
+  // match indices now. So if it now resolves to tagged indices, evict it from the
+  // path fallback unless an index matching its prior tags already existed at that
+  // write. An unknown write time counts as "may be in the path index".
   const current = nextResolution ?? priorResolution;
   if (current?.tagged.length && current.pathIndex) {
-    const newestTagged = Math.max(
-      ...current.tagged.map((root) => indexCreatedAt(registry?.[rootPathToIndexKey(root)])),
-    );
     const priorWrittenAt = toMs(prior?.uploaded);
-    if (forceUpdate || (prior && !(priorWrittenAt >= newestTagged))) {
+    const priorTaggedAtWrite = (priorResolution?.tagged ?? []).filter(
+      (root) => indexCreatedAt(registry?.[rootPathToIndexKey(root)]) <= priorWrittenAt,
+    );
+    if (forceUpdate || (prior && priorTaggedAtWrite.length === 0)) {
       removes.add(current.pathIndex);
     }
   }
