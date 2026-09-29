@@ -1053,6 +1053,153 @@ describe('media', () => {
       assert.deepStrictEqual(calls.saveImageLocation[0][3], 'https://example.com/good-image.jpg');
     });
 
+    it('should extract and replace metaImage without adding it to gallery images', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        saveImageLocation: [],
+        fetch: [],
+      };
+      const mockStorageClient = {
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return null;
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_meta.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      const mockImageData = new ArrayBuffer(64);
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => mockImageData,
+          headers: { get: () => 'image/jpeg' },
+        };
+      };
+      crypto.subtle.digest = async () => new Uint8Array([0xaa, 0xbb]).buffer;
+
+      const sourceUrl = 'https://example.com/meta-image.jpg';
+      const product = { metaImage: sourceUrl };
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.metaImage, './media_meta.jpg');
+      assert.strictEqual(result.images, undefined);
+      assert.deepStrictEqual(result.internal.images[sourceUrl], {
+        sourceUrl: './media_meta.jpg',
+        size: 64,
+        mimeType: 'image/jpeg',
+      });
+      assert.strictEqual(calls.lookupImageLocation.length, 1);
+      assert.strictEqual(calls.fetch.length, 1);
+      assert.strictEqual(calls.saveImage.length, 1);
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+      assert.deepStrictEqual(calls.lookupImageLocation[0], [ctx, 'org', 'site', sourceUrl]);
+      assert.deepStrictEqual(calls.saveImageLocation[0], [
+        ctx,
+        'org',
+        'site',
+        sourceUrl,
+        './media_meta.jpg',
+      ]);
+    });
+
+    it('should deduplicate a metaImage that matches a gallery image URL', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        saveImageLocation: [],
+        fetch: [],
+      };
+      const mockStorageClient = {
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return null;
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_shared.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return {
+          ok: true,
+          arrayBuffer: async () => new ArrayBuffer(32),
+          headers: { get: () => 'image/jpeg' },
+        };
+      };
+      crypto.subtle.digest = async () => new Uint8Array([0xcc, 0xdd]).buffer;
+
+      const sourceUrl = 'https://example.com/shared-image.jpg';
+      const product = {
+        metaImage: sourceUrl,
+        images: [{ url: sourceUrl }],
+      };
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.metaImage, './media_shared.jpg');
+      assert.strictEqual(result.images[0].url, './media_shared.jpg');
+      assert.strictEqual(calls.lookupImageLocation.length, 1);
+      assert.strictEqual(calls.fetch.length, 1);
+      assert.strictEqual(calls.saveImage.length, 1);
+      assert.strictEqual(calls.saveImageLocation.length, 1);
+    });
+
+    it('should preserve metaImage when fetching it fails', async () => {
+      const ctx = TEST_CONTEXT();
+      const calls = {
+        lookupImageLocation: [],
+        saveImage: [],
+        saveImageLocation: [],
+        fetch: [],
+      };
+      const mockStorageClient = {
+        async lookupImageLocation(...args) {
+          calls.lookupImageLocation.push(args);
+          return null;
+        },
+        async saveImage(...args) {
+          calls.saveImage.push(args);
+          return './media_unexpected.jpg';
+        },
+        async saveImageLocation(...args) {
+          calls.saveImageLocation.push(args);
+        },
+      };
+      StorageClient.fromContext = () => mockStorageClient;
+
+      global.fetch = async (...args) => {
+        calls.fetch.push(args);
+        return { ok: false, status: 404 };
+      };
+
+      const sourceUrl = 'https://example.com/unavailable-meta-image.jpg';
+      const product = { metaImage: sourceUrl };
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+
+      assert.strictEqual(result.metaImage, sourceUrl);
+      assert.strictEqual(result.internal, undefined);
+      assert.strictEqual(calls.lookupImageLocation.length, 1);
+      assert.strictEqual(calls.fetch.length, 1);
+      assert.strictEqual(calls.saveImage.length, 0);
+      assert.strictEqual(calls.saveImageLocation.length, 0);
+    });
+
     it('should return imageLookup with all processed images', async () => {
       const ctx = TEST_CONTEXT();
       const mockStorageClient = {
@@ -1269,6 +1416,24 @@ describe('media', () => {
       assert.strictEqual(result.sku, 'test-sku');
       assert.strictEqual(result.images, undefined);
     });
+
+    it('should replace a mapped metaImage and preserve an unmapped metaImage', () => {
+      const mappedUrl = 'https://example.com/mapped-meta.jpg';
+      const unmappedUrl = 'https://example.com/unmapped-meta.jpg';
+      const internal = {
+        images: {
+          [mappedUrl]: { sourceUrl: './media_mapped-meta.jpg' },
+        },
+      };
+
+      const mapped = applyImageLookup({ metaImage: mappedUrl, internal });
+      const unmapped = applyImageLookup({ metaImage: unmappedUrl, internal });
+
+      assert.strictEqual(mapped.metaImage, './media_mapped-meta.jpg');
+      assert.strictEqual(unmapped.metaImage, unmappedUrl);
+      assert.strictEqual(mapped.images, undefined);
+      assert.strictEqual(unmapped.images, undefined);
+    });
   });
 
   describe('hasNewImages()', () => {
@@ -1371,6 +1536,24 @@ describe('media', () => {
       const result = hasNewImages(product);
 
       assert.strictEqual(result, false);
+    });
+
+    it('should detect only new external metaImage values', () => {
+      const mappedUrl = 'https://example.com/mapped-meta.jpg';
+      const internal = {
+        images: {
+          [mappedUrl]: { sourceUrl: './media_mapped-meta.jpg' },
+        },
+      };
+
+      assert.strictEqual(hasNewImages({
+        metaImage: 'https://example.com/new-meta.jpg',
+        internal,
+      }), true);
+      assert.strictEqual(hasNewImages({ metaImage: mappedUrl, internal }), false);
+      assert.strictEqual(hasNewImages({ metaImage: './media_meta.jpg', internal }), false);
+      assert.strictEqual(hasNewImages({ metaImage: undefined, internal }), false);
+      assert.strictEqual(hasNewImages({ metaImage: '', internal }), false);
     });
   });
 

@@ -298,6 +298,8 @@ export interface ProductBusEntry {
   metaTitle?: string;
   /** HTML meta description override. */
   metaDescription?: string;
+  /** Social-sharing image URL override. */
+  metaImage?: string;
   /** Global Trade Item Number (barcode). */
   gtin?: string;
   /** Manufacturer Part Number. Used as a product identifier when no GTIN is available. */

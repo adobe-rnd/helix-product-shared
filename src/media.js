@@ -60,6 +60,10 @@ export function applyImageLookup(product) {
   }
 
   const { images: imageLookup } = product.internal;
+  if (product.metaImage && imageLookup[product.metaImage]) {
+    product.metaImage = imageLookup[product.metaImage].sourceUrl;
+  }
+
   const images = [
     ...(product.images ?? []),
     ...(product.variants ?? []).flatMap((v) => v.images ?? []),
@@ -82,6 +86,10 @@ export function applyImageLookup(product) {
  */
 export function hasNewImages(product) {
   const imageLookup = product.internal?.images || {};
+  if (product.metaImage
+    && !isRelativePath(product.metaImage)
+    && !imageLookup[product.metaImage]) return true;
+
   const images = [
     ...(product.images ?? []),
     ...(product.variants ?? []).flatMap((v) => v.images ?? []),
@@ -315,6 +323,19 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       // only set the image if the fetch succeeded
       if (newUrl) {
         image.url = newUrl;
+      }
+    } catch (e) {
+      log.error('error processing image: ', e);
+      // TODO: requeue the product to reprocess image
+    }
+  }
+
+  if (product.metaImage) {
+    try {
+      const newUrl = await processImage(product.metaImage);
+      // only set the image if the fetch succeeded
+      if (newUrl) {
+        product.metaImage = newUrl;
       }
     } catch (e) {
       log.error('error processing image: ', e);
