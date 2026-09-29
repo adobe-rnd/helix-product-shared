@@ -1,3 +1,15 @@
+# [1.19.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.18.2...v1.19.0) (2026-09-29)
+
+
+### Bug Fixes
+
+* **types:** include metaImage in generated ProductBusEntry ([de4071e](https://github.com/adobe-rnd/helix-product-shared/commit/de4071e41b60fab054fb78efc4078267458223e0))
+
+
+### Features
+
+* **media:** support product metaImage collection ([0027f10](https://github.com/adobe-rnd/helix-product-shared/commit/0027f10c958e30cf0be41bcc09049e8f2b3770fc))
+
 ## [1.18.2](https://github.com/adobe-rnd/helix-product-shared/compare/v1.18.1...v1.18.2) (2026-09-28)
 
 
