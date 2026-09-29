@@ -561,6 +561,11 @@ export interface StoredOrderItem {
 
 // Everything below this point is hand-maintained in helix-product-shared.
 
+/** Social-sharing image URL override. */
+export interface ProductBusEntry {
+  metaImage?: string;
+}
+
 /**
  * Per-value meanings for {@link SchemaOrgAvailability}. Types-only doc carrier
  * (no runtime value) so documentation tooling can read each value's meaning.
