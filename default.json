@@ -1,0 +1,58 @@
+{
+  "extends": [
+    "config:recommended",
+    ":semanticCommits"
+  ],
+  "timezone": "America/New_York",
+  "branchPrefix": "renovate-",
+  "packageRules": [
+    {
+      "description": "Bump the declared range instead of widening it, so lockfile and manifest stay in step",
+      "matchPackageNames": [
+        "/^@dylandepass\\//",
+        "/^@adobe\\/helix-shared-/",
+        "@adobe/fetch"
+      ],
+      "rangeStrategy": "replace"
+    },
+    {
+      "description": "Hold ESLint at v8 until @adobe/eslint-config-helix supports flat config",
+      "matchPackageNames": ["eslint"],
+      "allowedVersions": "<9.0.0"
+    },
+    {
+      "description": "First-party Product Bus libraries and Adobe packages: one grouped PR, automerged, no quarantine",
+      "groupName": "product bus fixes",
+      "matchPackageNames": ["/^@dylandepass\\//", "/^@adobe\\//"],
+      "matchUpdateTypes": ["patch", "pin", "digest", "minor"],
+      "automerge": true,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "First-party and Adobe majors: grouped, but always reviewed by a human",
+      "groupName": "product bus major",
+      "matchPackageNames": ["/^@dylandepass\\//", "/^@adobe\\//"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Third-party packages: batched weekly, automerged, 14-day quarantine against supply-chain attacks",
+      "groupName": "external fixes",
+      "matchPackageNames": ["!/^@dylandepass\\//", "!/^@adobe\\//"],
+      "matchUpdateTypes": ["patch", "pin", "digest", "minor"],
+      "automerge": true,
+      "schedule": ["after 2pm on Monday"],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Third-party majors: batched weekly, always reviewed by a human",
+      "groupName": "external major",
+      "matchPackageNames": ["!/^@dylandepass\\//", "!/^@adobe\\//"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "schedule": ["after 2pm on Monday"],
+      "minimumReleaseAge": "14 days"
+    }
+  ]
+}
