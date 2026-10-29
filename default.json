@@ -5,6 +5,7 @@
   ],
   "timezone": "America/New_York",
   "branchPrefix": "renovate-",
+  "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
       "description": "Bump the declared range instead of widening it, so lockfile and manifest stay in step",
@@ -16,9 +17,14 @@
       "rangeStrategy": "replace"
     },
     {
-      "description": "Hold ESLint at v8 until @adobe/eslint-config-helix supports flat config",
+      "description": "Hold ESLint at v8 until the repos migrate from .eslintrc.cjs to flat config. @adobe/eslint-config-helix v3 peers on eslint ^9, so the two majors have to be pinned together or npm ci cannot resolve.",
       "matchPackageNames": ["eslint"],
       "allowedVersions": "<9.0.0"
+    },
+    {
+      "description": "Pinned in lockstep with eslint above; lift both at the same time as the flat-config migration.",
+      "matchPackageNames": ["@adobe/eslint-config-helix"],
+      "allowedVersions": "<3.0.0"
     },
     {
       "description": "First-party Product Bus libraries and Adobe packages: one grouped PR, automerged, no quarantine",
@@ -53,6 +59,56 @@
       "automerge": false,
       "schedule": ["after 2pm on Monday"],
       "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Split dev dependencies out of the two third-party groups above, so each group is smaller. The renovate/stability-days check is computed per branch, so any single member still inside its minimum release age holds the whole group back; smaller groups reach a fully-aged state more often. Split by depType rather than by package name so it needs no maintenance as dependencies change. These rules come after the catch-all rules above and therefore override only their groupName, inheriting automerge, schedule and minimumReleaseAge.",
+      "groupName": "external dev fixes",
+      "matchPackageNames": ["!/^@dylandepass\\//", "!/^@adobe\\//"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "pin", "digest", "minor"]
+    },
+    {
+      "description": "Same dev/runtime split as above, for major updates.",
+      "groupName": "external dev major",
+      "matchPackageNames": ["!/^@dylandepass\\//", "!/^@adobe\\//"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"]
+    },
+    {
+      "description": "Keep the ESLint toolchain moving as one unit. eslint and @adobe/eslint-config-helix are peer-linked but land in different groups by scope, so without this they can never be bumped in the same PR and each update fails to install on its own. Comes after the group rules above so it overrides their groupName.",
+      "groupName": "eslint",
+      "matchPackageNames": ["eslint", "/^eslint-/", "@adobe/eslint-config-helix"],
+      "matchUpdateTypes": ["patch", "pin", "digest", "minor"],
+      "automerge": true,
+      "schedule": ["after 2pm on Monday"],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "ESLint toolchain majors: one PR, always reviewed by a human.",
+      "groupName": "eslint major",
+      "matchPackageNames": ["eslint", "/^eslint-/", "@adobe/eslint-config-helix"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "schedule": ["after 2pm on Monday"],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Renovate cannot enforce a minimum release age on these update types, because they carry no usable release timestamp. Leaving them subject to minimumReleaseAge makes the branch-level renovate/stability-days check go permanently yellow, which silently blocks automerge forever. Mirrors the carve-outs in Renovate's own security:minimumReleaseAge presets.",
+      "matchUpdateTypes": [
+        "pin",
+        "pinDigest",
+        "bump",
+        "lockfileUpdate",
+        "lockFileMaintenance",
+        "rollback",
+        "replacement"
+      ],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Digest updates do have a release timestamp at lookup time, but the branch stage does not always carry it forward (renovatebot/renovate#45236), which strands the stability check in a permanently pending state. Accept a timestamp when one is available instead of requiring it.",
+      "matchUpdateTypes": ["digest"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
     }
   ]
 }
