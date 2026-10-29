@@ -70,7 +70,9 @@ export function normalizeIndexTags(tags) {
   for (const tag of tags.map(normalizeIndexTag)) {
     const key = typeof tag === 'string' ? tag : undefined;
     if (key === undefined || !seen.has(key)) {
-      if (key !== undefined) seen.add(key);
+      if (key !== undefined) {
+        seen.add(key);
+      }
       result.push(tag);
     }
   }
@@ -240,9 +242,15 @@ export function resolveIndexTargets(registry, product, opts = {}) {
  * @returns {number} ms since epoch, or NaN
  */
 function toMs(value) {
-  if (value instanceof Date) return value.getTime();
-  if (typeof value === 'number') return value;
-  if (typeof value === 'string') return Date.parse(value);
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return Date.parse(value);
+  }
   return NaN;
 }
 
@@ -294,7 +302,9 @@ export function planIndexingJobs(registry, change, opts = {}) {
     priorResolution.targets.forEach((root) => removes.add(root));
   } else if (action === 'delete') {
     const pathIndex = closestPathIndexForProduct(registry, path);
-    if (pathIndex) removes.add(pathIndex);
+    if (pathIndex) {
+      removes.add(pathIndex);
+    }
   }
 
   // Path-fallback eviction. When the product was last written, it resolved to its

@@ -88,7 +88,9 @@ export function hasNewImages(product) {
   const imageLookup = product.internal?.images || {};
   if (product.metaImage
     && !isRelativePath(product.metaImage)
-    && !imageLookup[product.metaImage]) return true;
+    && !imageLookup[product.metaImage]) {
+    return true;
+  }
 
   const images = [
     ...(product.images ?? []),
@@ -120,7 +122,9 @@ const MIME_TO_EXT = {
  * @returns {string|undefined}
  */
 export function extensionFromMimeType(mimeType) {
-  if (!mimeType) return undefined;
+  if (!mimeType) {
+    return undefined;
+  }
   const base = mimeType.split(';')[0].trim().toLowerCase();
   return MIME_TO_EXT[base];
 }

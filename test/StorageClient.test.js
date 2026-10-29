@@ -47,7 +47,9 @@ function createMockBucket() {
     },
     get: async (key) => {
       const item = storage.get(key);
-      if (!item) return null;
+      if (!item) {
+        return null;
+      }
       return {
         json: async () => JSON.parse(item.data),
         text: async () => item.data,
@@ -57,7 +59,9 @@ function createMockBucket() {
     },
     head: async (key) => {
       const item = storage.get(key);
-      if (!item) return null;
+      if (!item) {
+        return null;
+      }
       return {
         customMetadata: metadata.get(key),
         etag: etags.get(key),

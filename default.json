@@ -17,14 +17,9 @@
       "rangeStrategy": "replace"
     },
     {
-      "description": "Hold ESLint at v8 until the repos migrate from .eslintrc.cjs to flat config. @adobe/eslint-config-helix v3 peers on eslint ^9, so the two majors have to be pinned together or npm ci cannot resolve.",
+      "description": "Hold ESLint below v10 while the repos are on v9 flat config. Matches adobe/helix-shared; eslint 10 is a separate migration.",
       "matchPackageNames": ["eslint"],
-      "allowedVersions": "<9.0.0"
-    },
-    {
-      "description": "Pinned in lockstep with eslint above; lift both at the same time as the flat-config migration.",
-      "matchPackageNames": ["@adobe/eslint-config-helix"],
-      "allowedVersions": "<3.0.0"
+      "allowedVersions": "<10.0.0"
     },
     {
       "description": "First-party Product Bus libraries and Adobe packages: one grouped PR, automerged, no quarantine",
