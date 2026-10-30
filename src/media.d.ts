@@ -1,4 +1,4 @@
-import type { ProductBusEntry, ProductBusEntryInternal } from "./types";
+import type { ImageFetchFailure, ProductBusEntry, ProductBusEntryInternal } from "./types";
 import type { Context } from "./types/context";
 
 /**
@@ -38,8 +38,12 @@ export declare function extractAndReplaceImages(
   ctx: Context,
   org: string,
   site: string,
-  product: ProductBusEntry | ProductBusEntryInternal
+  product: ProductBusEntry | ProductBusEntryInternal,
+  options?: { failures?: ImageFetchFailure[] }
 ): Promise<ProductBusEntryInternal>;
+
+/** User agent sent with origin image fetches (shared with the image collector). */
+export declare const IMAGE_FETCH_USER_AGENT: string;
 
 /**
  * Append a filename to a media URL.
