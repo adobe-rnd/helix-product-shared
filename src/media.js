@@ -277,27 +277,30 @@ export async function extractAndReplaceImages(ctx, org, site, product, options =
     });
     processed.set(url, promise);
 
-    // Check existing internal images first
-    if (existingImages[url]) {
-      const { sourceUrl } = existingImages[url];
-      log.debug(`image found in internal: ${url} -> ${sourceUrl}`);
-      resolve(sourceUrl);
-      return sourceUrl;
-    }
-
-    // avoid fetching the image if possible
-    // assumes that the source image never changes
-    const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
-    if (imageLocation) {
-      if (!product.internal) {
-        product.internal = { images: {} };
-      }
-      product.internal.images[url] = { sourceUrl: imageLocation };
-      resolve(imageLocation);
-      return imageLocation;
-    }
-
+    // Every path below settles `promise` (via resolve) so that a later call for the same
+    // URL, awaiting `processed.get(url)`, can't hang, and every failure, including a
+    // storage error from the lookup, is logged and reported the same way.
     try {
+      // Check existing internal images first
+      if (existingImages[url]) {
+        const { sourceUrl } = existingImages[url];
+        log.debug(`image found in internal: ${url} -> ${sourceUrl}`);
+        resolve(sourceUrl);
+        return sourceUrl;
+      }
+
+      // avoid fetching the image if possible
+      // assumes that the source image never changes
+      const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
+      if (imageLocation) {
+        if (!product.internal) {
+          product.internal = { images: {} };
+        }
+        product.internal.images[url] = { sourceUrl: imageLocation };
+        resolve(imageLocation);
+        return imageLocation;
+      }
+
       const img = await fetchImage(ctx, url);
       // only set the image if the fetch succeeded
       let newUrl;
@@ -323,7 +326,7 @@ export async function extractAndReplaceImages(ctx, org, site, product, options =
       const failure = {
         url,
         status: e?.status,
-        retryable: e?.status === undefined ? true : Boolean(e.retryable),
+        retryable: e?.retryable ?? true,
       };
       log.error(`error processing image: ${e?.message ?? e}`, failure);
       options.failures?.push(failure);

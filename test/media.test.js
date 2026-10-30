@@ -808,6 +808,62 @@ describe('media', () => {
       ]);
     });
 
+    it('should report a failed lookup and not hang on a repeated URL', async () => {
+      const errors = [];
+      const ctx = TEST_CONTEXT({ log: { error: (...args) => errors.push(args) } });
+      StorageClient.fromContext = () => ({
+        lookupImageLocation: async () => {
+          throw new Error('R2 internal error');
+        },
+      });
+      global.fetch = async () => assert.fail('should not fetch');
+
+      const failures = [];
+      const url = 'https://example.com/shared.jpg';
+      const product = {
+        images: [{ url }],
+        variants: [{ images: [{ url }] }],
+        metaImage: url,
+      };
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('extractAndReplaceImages hung')), 1000).unref();
+      });
+
+      const result = await Promise.race([
+        extractAndReplaceImages(ctx, 'org', 'site', product, { failures }),
+        timeout,
+      ]);
+
+      assert.strictEqual(result.images[0].url, url);
+      assert.strictEqual(result.variants[0].images[0].url, url);
+      assert.strictEqual(result.metaImage, url);
+      assert.deepStrictEqual(failures, [{ url, status: undefined, retryable: true }]);
+      assert.deepStrictEqual(errors, [[
+        'error processing image: R2 internal error',
+        { url, status: undefined, retryable: true },
+      ]]);
+    });
+
+    it('should take retryable from the error, not infer it from status', async () => {
+      const ctx = TEST_CONTEXT();
+      StorageClient.fromContext = () => ({
+        lookupImageLocation: async () => {
+          const error = new Error('storage rejected the write');
+          error.status = 500;
+          throw error;
+        },
+      });
+
+      const failures = [];
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [{ url: 'https://example.com/image.jpg' }],
+      }, { failures });
+
+      assert.deepStrictEqual(failures, [
+        { url: 'https://example.com/image.jpg', status: 500, retryable: true },
+      ]);
+    });
+
     it('should log the failure reason and fields once per image', async () => {
       const errors = [];
       const ctx = TEST_CONTEXT({ log: { error: (...args) => errors.push(args) } });
