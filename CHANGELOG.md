@@ -1,3 +1,11 @@
+## [1.19.1](https://github.com/adobe-rnd/helix-product-shared/compare/v1.19.0...v1.19.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* fetch images once with a user agent and report failures ([1f43744](https://github.com/adobe-rnd/helix-product-shared/commit/1f43744cb8c250a003c3ef03c2c811496d7716d7))
+* route lookup failures through the image failure path ([4bfe576](https://github.com/adobe-rnd/helix-product-shared/commit/4bfe576715bab7e9118a512abbf166b93582b5fb))
+
 # [1.19.0](https://github.com/adobe-rnd/helix-product-shared/compare/v1.18.2...v1.19.0) (2026-09-29)
 
 
