@@ -12,7 +12,21 @@
 
 import { StorageClient } from './StorageClient.js';
 
-const RETRY_CODES = [429, 403];
+/**
+ * User agent for origin image fetches, shared with helix-product-image-collector so a
+ * single allowlist entry covers both. Workers `fetch()` sends none by default, which
+ * some CDN bot rules reject outright.
+ */
+export const IMAGE_FETCH_USER_AGENT = 'helix-product-image-collector (+https://www.aem.live)';
+
+/**
+ * Origin statuses worth retrying later. This module fetches inside an API request, so it
+ * doesn't retry them itself: waiting seconds won't lift a CDN block or rate limit, and
+ * would hold the request open. Callers get them back as failures (see
+ * `extractAndReplaceImages`) and can hand them to the image collector, which retries with
+ * queue-level backoff.
+ */
+const RETRYABLE_STATUS_CODES = new Set([403, 408, 425, 429, 500, 502, 503, 504]);
 
 /**
  * @param {string} pathOrUrl
@@ -172,68 +186,65 @@ export function appendFilenameToMediaUrl(url, filename) {
 }
 
 /**
- * @param {Context} pctx
- * @param {string} pimageUrl
- * @returns {Promise<SharedTypes.MediaData | null>}
+ * Fetch an image from its origin, once.
+ * @param {Context} ctx
+ * @param {string} imageUrl
+ * @returns {Promise<SharedTypes.MediaData>}
+ * @throws {Error & { url: string, status: number, retryable: boolean }} on a non-2xx response
  */
-async function fetchImage(pctx, pimageUrl) {
-  /**
-   * @param {Context} ctx
-   * @param {string} imageUrl
-   * @param {number} attempts
-   * @returns {Promise<SharedTypes.MediaData | null>}
-   */
-  async function doFetch(ctx, imageUrl, attempts = 0) {
-    const { log } = ctx;
+async function fetchImage(ctx, imageUrl) {
+  const { log } = ctx;
 
-    log.debug('fetching image from origin: ', imageUrl);
-    const resp = await fetch(imageUrl, {
-      method: 'GET',
-      headers: {
-        'accept-encoding': 'identity',
-        accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
-      },
-    });
-    if (!resp.ok) {
-      if (RETRY_CODES.includes(resp.status)) {
-        if (attempts < 3) {
-          // eslint-disable-next-line no-promise-executor-return
-          await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempts));
-          return doFetch(ctx, imageUrl, attempts + 1);
-        }
-      }
-      throw Error(`Failed to fetch image: ${imageUrl} (${resp.status})`);
-    }
-
-    const data = await resp.arrayBuffer();
-    const arr = await crypto.subtle.digest('SHA-1', data);
-    const hash = Array.from(new Uint8Array(arr))
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('');
-
-    const contentType = resp.headers.get('content-type');
-
-    return {
-      data,
-      sourceUrl: imageUrl,
-      hash,
-      mimeType: contentType,
-      length: data.byteLength,
-      extension: extractExtension(imageUrl) || extensionFromMimeType(contentType),
-    };
+  log.debug('fetching image from origin: ', imageUrl);
+  const resp = await fetch(imageUrl, {
+    method: 'GET',
+    headers: {
+      'user-agent': IMAGE_FETCH_USER_AGENT,
+      'accept-encoding': 'identity',
+      accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
+    },
+  });
+  if (!resp.ok) {
+    /** @type {Error & { url?: string, status?: number, retryable?: boolean }} */
+    const error = new Error(`Failed to fetch image: ${imageUrl} (${resp.status})`);
+    error.url = imageUrl;
+    error.status = resp.status;
+    error.retryable = RETRYABLE_STATUS_CODES.has(resp.status);
+    throw error;
   }
 
-  return doFetch(pctx, pimageUrl);
+  const data = await resp.arrayBuffer();
+  const arr = await crypto.subtle.digest('SHA-1', data);
+  const hash = Array.from(new Uint8Array(arr))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+
+  const contentType = resp.headers.get('content-type');
+
+  return {
+    data,
+    sourceUrl: imageUrl,
+    hash,
+    mimeType: contentType,
+    length: data.byteLength,
+    extension: extractExtension(imageUrl) || extensionFromMimeType(contentType),
+  };
 }
 
 /**
+ * Collect a product's external images into media storage and replace their URLs.
+ * Each image is fetched at most once per call. Images that fail keep their absolute
+ * URL; when `options.failures` is given, each failure is appended to it so the caller
+ * can retry them later (e.g. via the image collector).
+ *
  * @param {Context} ctx
  * @param {string} org
  * @param {string} site
  * @param {SharedTypes.ProductBusEntry | SharedTypes.ProductBusEntryInternal} product
+ * @param {{ failures?: SharedTypes.ImageFetchFailure[] }} [options]
  * @returns {Promise<SharedTypes.ProductBusEntryInternal>}
  */
-export async function extractAndReplaceImages(ctx, org, site, product) {
+export async function extractAndReplaceImages(ctx, org, site, product, options = {}) {
   const { log } = ctx;
   const storageClient = StorageClient.fromContext(ctx);
   /** @type {Map<string, Promise<string>>} */
@@ -266,27 +277,30 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
     });
     processed.set(url, promise);
 
-    // Check existing internal images first
-    if (existingImages[url]) {
-      const { sourceUrl } = existingImages[url];
-      log.debug(`image found in internal: ${url} -> ${sourceUrl}`);
-      resolve(sourceUrl);
-      return sourceUrl;
-    }
-
-    // avoid fetching the image if possible
-    // assumes that the source image never changes
-    const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
-    if (imageLocation) {
-      if (!product.internal) {
-        product.internal = { images: {} };
-      }
-      product.internal.images[url] = { sourceUrl: imageLocation };
-      resolve(imageLocation);
-      return imageLocation;
-    }
-
+    // Every path below settles `promise` (via resolve) so that a later call for the same
+    // URL, awaiting `processed.get(url)`, can't hang, and every failure, including a
+    // storage error from the lookup, is logged and reported the same way.
     try {
+      // Check existing internal images first
+      if (existingImages[url]) {
+        const { sourceUrl } = existingImages[url];
+        log.debug(`image found in internal: ${url} -> ${sourceUrl}`);
+        resolve(sourceUrl);
+        return sourceUrl;
+      }
+
+      // avoid fetching the image if possible
+      // assumes that the source image never changes
+      const imageLocation = await storageClient.lookupImageLocation(ctx, org, site, url);
+      if (imageLocation) {
+        if (!product.internal) {
+          product.internal = { images: {} };
+        }
+        product.internal.images[url] = { sourceUrl: imageLocation };
+        resolve(imageLocation);
+        return imageLocation;
+      }
+
       const img = await fetchImage(ctx, url);
       // only set the image if the fetch succeeded
       let newUrl;
@@ -307,7 +321,15 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       resolve(newUrl);
       return newUrl;
     } catch (e) {
-      log.error('error processing image: ', e);
+      // Log the reason as plain fields: an Error argument is rendered as its stack only
+      // in Workers Observability, which hides the URL and the origin status.
+      const failure = {
+        url,
+        status: e?.status,
+        retryable: e?.retryable ?? true,
+      };
+      log.error(`error processing image: ${e?.message ?? e}`, failure);
+      options.failures?.push(failure);
       // resolve with null to allow simultaneous requests for the same image to continue
       resolve(null);
       throw e;
@@ -328,9 +350,8 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       if (newUrl) {
         image.url = newUrl;
       }
-    } catch (e) {
-      log.error('error processing image: ', e);
-      // TODO: requeue the product to reprocess image
+    } catch {
+      // already logged and reported by processImage
     }
   }
 
@@ -341,9 +362,8 @@ export async function extractAndReplaceImages(ctx, org, site, product) {
       if (newUrl) {
         product.metaImage = newUrl;
       }
-    } catch (e) {
-      log.error('error processing image: ', e);
-      // TODO: requeue the product to reprocess image
+    } catch {
+      // already logged and reported by processImage
     }
   }
   return product;

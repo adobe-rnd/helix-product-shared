@@ -13,6 +13,7 @@
 import assert from 'node:assert';
 import {
   extractAndReplaceImages,
+  IMAGE_FETCH_USER_AGENT,
   extractExtension,
   extensionFromMimeType,
   applyImageLookup,
@@ -118,6 +119,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -300,6 +302,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -310,6 +313,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -526,6 +530,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -646,6 +651,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -656,6 +662,7 @@ describe('media', () => {
         {
           method: 'GET',
           headers: {
+            'user-agent': IMAGE_FETCH_USER_AGENT,
             'accept-encoding': 'identity',
             accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
           },
@@ -738,110 +745,139 @@ describe('media', () => {
       assert.strictEqual(savedImage.mimeType, 'image/jpeg');
     });
 
-    it('should retry on error', async () => {
+    it('should fetch once and report a throttled image instead of retrying in-request', async () => {
       const ctx = TEST_CONTEXT();
-      const calls = {
-        lookupImageLocation: [],
-        saveImage: [],
-        fetch: [],
-        saveImageLocation: [],
-      };
-
-      const mockStorageClient = {
-        imageLocations: {},
-        async lookupImageLocation(...args) {
-          calls.lookupImageLocation.push(args);
-          return this.imageLocations[args[3]] || null;
-        },
-        async saveImage(...args) {
-          calls.saveImage.push(args);
-          return './media_123456.jpg';
-        },
-        async saveImageLocation(...args) {
-          calls.saveImageLocation.push(args);
-          // eslint-disable-next-line prefer-destructuring
-          this.imageLocations[args[3]] = args[4];
-        },
-      };
-      StorageClient.fromContext = () => mockStorageClient;
-
-      // Mock crypto.subtle.digest
-      const mockHash = new Uint8Array([0x12, 0x34, 0x56]);
-      crypto.subtle.digest = async () => mockHash.buffer;
-
-      // Mock fetch to fail twice with 429, then succeed
-      const mockImageData = new ArrayBuffer(100);
+      const fetches = [];
+      StorageClient.fromContext = () => ({
+        lookupImageLocation: async () => null,
+        saveImage: async () => assert.fail('should not save'),
+        saveImageLocation: async () => assert.fail('should not save a location'),
+      });
       global.fetch = async (...args) => {
-        calls.fetch.push(args);
-        const currentCall = calls.fetch.length;
-        if (currentCall < 2) {
-          return { ok: false, status: 429 };
-        }
-        return {
-          ok: true,
-          arrayBuffer: async () => mockImageData,
-          headers: {
-            get: () => 'image/jpeg',
-          },
-        };
+        fetches.push(args);
+        return { ok: false, status: 429 };
       };
 
       const product = {
-        images: [
-          { url: 'https://example.com/image.jpg' },
-        ],
+        images: [{ url: 'https://example.com/image.jpg' }],
+        metaImage: 'https://example.com/meta.jpg',
+      };
+      const failures = [];
+
+      const result = await extractAndReplaceImages(ctx, 'org', 'site', product, { failures });
+
+      assert.strictEqual(fetches.length, 2);
+      assert.strictEqual(result.images[0].url, 'https://example.com/image.jpg');
+      assert.strictEqual(result.metaImage, 'https://example.com/meta.jpg');
+      assert.deepStrictEqual(failures, [
+        { url: 'https://example.com/image.jpg', status: 429, retryable: true },
+        { url: 'https://example.com/meta.jpg', status: 429, retryable: true },
+      ]);
+    });
+
+    it('should report a 403 as retryable and a 404 as permanent', async () => {
+      const ctx = TEST_CONTEXT();
+      StorageClient.fromContext = () => ({ lookupImageLocation: async () => null });
+      global.fetch = async (url) => ({ ok: false, status: url.endsWith('blocked.jpg') ? 403 : 404 });
+
+      const failures = [];
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [{ url: 'https://example.com/blocked.jpg' }, { url: 'https://example.com/missing.jpg' }],
+      }, { failures });
+
+      assert.deepStrictEqual(failures, [
+        { url: 'https://example.com/blocked.jpg', status: 403, retryable: true },
+        { url: 'https://example.com/missing.jpg', status: 404, retryable: false },
+      ]);
+    });
+
+    it('should report a network error as retryable without a status', async () => {
+      const ctx = TEST_CONTEXT();
+      StorageClient.fromContext = () => ({ lookupImageLocation: async () => null });
+      global.fetch = async () => {
+        throw new TypeError('network down');
       };
 
-      const result = await extractAndReplaceImages(ctx, 'org', 'site', product);
+      const failures = [];
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [{ url: 'https://example.com/image.jpg' }],
+      }, { failures });
 
-      assert.strictEqual(result.images[0].url, './media_123456.jpg');
-      assert.strictEqual(calls.fetch.length, 2);
-      assert.strictEqual(calls.saveImage.length, 1);
-      assert.strictEqual(calls.lookupImageLocation.length, 1);
-      assert.deepStrictEqual(calls.lookupImageLocation[0], [ctx, 'org', 'site', 'https://example.com/image.jpg']);
-      assert.deepStrictEqual(calls.saveImage[0], [
-        ctx,
-        'org',
-        'site',
-        {
-          data: mockImageData,
-          sourceUrl: 'https://example.com/image.jpg',
-          hash: '123456',
-          mimeType: 'image/jpeg',
-          length: 100,
-          extension: 'jpg',
-        },
+      assert.deepStrictEqual(failures, [
+        { url: 'https://example.com/image.jpg', status: undefined, retryable: true },
       ]);
-      assert.deepStrictEqual(calls.fetch[0], [
-        'https://example.com/image.jpg',
-        {
-          method: 'GET',
-          headers: {
-            'accept-encoding': 'identity',
-            accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
-          },
+    });
+
+    it('should report a failed lookup and not hang on a repeated URL', async () => {
+      const errors = [];
+      const ctx = TEST_CONTEXT({ log: { error: (...args) => errors.push(args) } });
+      StorageClient.fromContext = () => ({
+        lookupImageLocation: async () => {
+          throw new Error('R2 internal error');
         },
-      ]);
-      assert.deepStrictEqual(calls.fetch[1], [
-        'https://example.com/image.jpg',
-        {
-          method: 'GET',
-          headers: {
-            'accept-encoding': 'identity',
-            accept: 'image/jpeg,image/jpg,image/png,image/gif,video/mp4,application/xml,image/x-icon,image/avif,image/webp,*/*;q=0.8',
-          },
-        },
+      });
+      global.fetch = async () => assert.fail('should not fetch');
+
+      const failures = [];
+      const url = 'https://example.com/shared.jpg';
+      const product = {
+        images: [{ url }],
+        variants: [{ images: [{ url }] }],
+        metaImage: url,
+      };
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('extractAndReplaceImages hung')), 1000).unref();
+      });
+
+      const result = await Promise.race([
+        extractAndReplaceImages(ctx, 'org', 'site', product, { failures }),
+        timeout,
       ]);
 
-      // saveImageLocation should be called once to store the image location
-      assert.strictEqual(calls.saveImageLocation.length, 1);
-      assert.deepStrictEqual(calls.saveImageLocation[0], [
-        ctx,
-        'org',
-        'site',
-        'https://example.com/image.jpg',
-        './media_123456.jpg',
+      assert.strictEqual(result.images[0].url, url);
+      assert.strictEqual(result.variants[0].images[0].url, url);
+      assert.strictEqual(result.metaImage, url);
+      assert.deepStrictEqual(failures, [{ url, status: undefined, retryable: true }]);
+      assert.deepStrictEqual(errors, [[
+        'error processing image: R2 internal error',
+        { url, status: undefined, retryable: true },
+      ]]);
+    });
+
+    it('should take retryable from the error, not infer it from status', async () => {
+      const ctx = TEST_CONTEXT();
+      StorageClient.fromContext = () => ({
+        lookupImageLocation: async () => {
+          const error = new Error('storage rejected the write');
+          error.status = 500;
+          throw error;
+        },
+      });
+
+      const failures = [];
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [{ url: 'https://example.com/image.jpg' }],
+      }, { failures });
+
+      assert.deepStrictEqual(failures, [
+        { url: 'https://example.com/image.jpg', status: 500, retryable: true },
       ]);
+    });
+
+    it('should log the failure reason and fields once per image', async () => {
+      const errors = [];
+      const ctx = TEST_CONTEXT({ log: { error: (...args) => errors.push(args) } });
+      StorageClient.fromContext = () => ({ lookupImageLocation: async () => null });
+      global.fetch = async () => ({ ok: false, status: 403 });
+
+      await extractAndReplaceImages(ctx, 'org', 'site', {
+        images: [{ url: 'https://example.com/a.jpg' }, { url: 'https://example.com/a.jpg' }],
+      });
+
+      assert.deepStrictEqual(errors, [[
+        'error processing image: Failed to fetch image: https://example.com/a.jpg (403)',
+        { url: 'https://example.com/a.jpg', status: 403, retryable: true },
+      ]]);
     });
 
     it('should not process already relative image URLs', async () => {
