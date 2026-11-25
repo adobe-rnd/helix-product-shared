@@ -79,15 +79,15 @@ export function computePriceRulesKey(org, site) {
 }
 
 /**
- * Compute the surrogate keys for a successful product request.
- * This is a convenience function that returns all keys needed for cache invalidation.
+ * Compute the keys attached to a cached product response.
+ * Includes site and dependency keys. Use computePurgeKeys for product changes.
  * @param {string} org - The organization identifier
  * @param {string} site - The site identifier
  * @param {string} path - The product path (e.g., /products/blender-pro-500)
  * @param {string} [contentBusId] - Optional content bus ID for authored content key
  * @returns {Promise<string[]>}
  */
-export async function computeProductKeys(org, site, path, contentBusId) {
+export async function computeProductResponseKeys(org, site, path, contentBusId) {
   const keys = [
     await computeProductPathKey(org, site, path),
     computeSiteKey(org, site),
@@ -104,15 +104,14 @@ export async function computeProductKeys(org, site, path, contentBusId) {
 }
 
 /**
- * Compute the surrogate keys for an index.json resource.
- * Same logic as computeProductKeys but without contentBusId since index files
- * can never be served from content bus (authored content).
+ * Compute the keys attached to a cached index.json response.
+ * Includes the site key. Use computePurgeKeys for index changes.
  * @param {string} org - The organization identifier
  * @param {string} site - The site identifier
  * @param {string} path - The index path (e.g., /us/en/products/index.json)
  * @returns {Promise<string[]>}
  */
-export async function computeIndexKeys(org, site, path) {
+export async function computeIndexResponseKeys(org, site, path) {
   return [
     await computeProductPathKey(org, site, path),
     computeSiteKey(org, site),
@@ -120,15 +119,14 @@ export async function computeIndexKeys(org, site, path) {
 }
 
 /**
- * Compute the surrogate keys for a sitemap.xml resource.
- * Same logic as computeProductKeys but without contentBusId since sitemap files
- * can never be served from content bus (authored content).
+ * Compute the keys attached to a cached sitemap.xml response.
+ * Includes the site key. Use computePurgeKeys for sitemap changes.
  * @param {string} org - The organization identifier
  * @param {string} site - The site identifier
  * @param {string} path - The sitemap path (e.g., /us/en/sitemap.xml)
  * @returns {Promise<string[]>}
  */
-export async function computeSitemapKeys(org, site, path) {
+export async function computeSitemapResponseKeys(org, site, path) {
   return [
     await computeProductPathKey(org, site, path),
     computeSiteKey(org, site),
@@ -136,13 +134,14 @@ export async function computeSitemapKeys(org, site, path) {
 }
 
 /**
- * Compute the surrogate keys for a media resource.
+ * Compute the keys attached to a cached media response.
+ * Includes site and media group keys. Not a resource-specific purge list.
  * @param {string} org
  * @param {string} site
  * @param {string} path
  * @returns {Promise<string[]>}
  */
-export async function computeMediaKeys(org, site, path) {
+export async function computeMediaResponseKeys(org, site, path) {
   const keys = [];
 
   const siteKey = computeSiteKey(org, site);
@@ -153,4 +152,41 @@ export async function computeMediaKeys(org, site, path) {
   keys.push(`${siteKey}/${hash}`);
 
   return keys;
+}
+
+/** @deprecated Use computeProductResponseKeys for response tagging. */
+export const computeProductKeys = computeProductResponseKeys;
+
+/** @deprecated Use computeIndexResponseKeys for response tagging. */
+export const computeIndexKeys = computeIndexResponseKeys;
+
+/** @deprecated Use computeSitemapResponseKeys for response tagging. */
+export const computeSitemapKeys = computeSitemapResponseKeys;
+
+/** @deprecated Use computeMediaResponseKeys for response tagging. */
+export const computeMediaKeys = computeMediaResponseKeys;
+
+/**
+ * Compute purge keys for product, index.json, sitemap.xml, or /_pricerules paths.
+ * Never includes the site key. Other resources, including media, are unsupported.
+ * Unrecognized paths are treated as product paths, not rejected.
+ * @param {string} org
+ * @param {string} site
+ * @param {string} path - A supported resource path; input is not validated
+ * @param {{ contentBusId?: string }} [options]
+ * @returns {Promise<string[]>}
+ */
+export async function computePurgeKeys(org, site, path, { contentBusId } = {}) {
+  if (path === '/_pricerules') {
+    return [computePriceRulesKey(org, site)];
+  }
+  if (path.endsWith('/index.json') || path.endsWith('/sitemap.xml')) {
+    return [await computeProductPathKey(org, site, path)];
+  }
+  const keys = getProductPathVariants(path)
+    .map((variant) => computeProductPathKey(org, site, variant));
+  if (contentBusId) {
+    keys.push(computeAuthoredContentKey(contentBusId, path));
+  }
+  return Promise.all(keys);
 }
